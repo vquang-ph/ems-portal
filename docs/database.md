@@ -6,8 +6,6 @@ This includes how we handle database migrations, seeding, and schema management.
 
 For this repository, we used TypeORM as the Object-Relational Mapping (ORM) tool to interact with the database.
 
-For database solution, we chose MySQL. But this can be easily replaced with any other database supported by TypeORM, such as PostgreSQL or SQLite, by changing the configuration in `datasource.ts` and installing the corresponding database driver.
-
 ## Data Mapper
 
 We utilize the Data Mapper pattern rather than Active Record. This decoupling ensures that our business logic remains independent of the database schema, making services easier to test and maintain.

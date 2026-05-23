@@ -8,7 +8,7 @@ export const buildDataSourceOptions = (
   env: Record<string, string | undefined>,
 ): DataSourceOptions => {
   const commonSettings: DataSourceOptions = {
-    type: "mysql",
+    type: "postgres",
     migrations: [__dirname + "/../database/migrations/*.{t,j}s"],
     entities: [__dirname + "/../modules/**/*.entity.{t,j}s"],
     synchronize: false,

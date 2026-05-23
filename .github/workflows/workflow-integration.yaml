@@ -11,24 +11,23 @@ jobs:
     # This is just for testing
     env:
       APP_DATABASE_HOST: 127.0.0.1
-      APP_DATABASE_PORT: 3306
+      APP_DATABASE_PORT: 5432
       APP_DATABASE_USER: testuser
       APP_DATABASE_PASSWORD: testpassword
-      APP_DATABASE_NAME: boilerplate
+      APP_DATABASE_NAME: ems_portal_test
       CI: true
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:15
         env:
-          MYSQL_ROOT_PASSWORD: rootpassword
-          MYSQL_DATABASE: boilerplate
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: ems_portal_test
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="pg_isready -U testuser -d ems_portal_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5

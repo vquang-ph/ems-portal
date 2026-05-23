@@ -1,39 +1,32 @@
 services:
   db:
-    image: mysql:8.0
-    container_name: boilerplate_mysql
+    image: postgres:15
+    container_name: ems_portal_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${APP_DATABASE_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${APP_DATABASE_NAME}
-      MYSQL_USER: ${APP_DATABASE_USER}
-      MYSQL_PASSWORD: ${APP_DATABASE_PASSWORD}
+      POSTGRES_DB: ${APP_DATABASE_NAME}
+      POSTGRES_USER: ${APP_DATABASE_USER}
+      POSTGRES_PASSWORD: ${APP_DATABASE_PASSWORD}
     ports:
-      - "${APP_DATABASE_PORT:-3306}:3306"
+      - "${APP_DATABASE_PORT:-5432}:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test:
         [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-p${APP_DATABASE_ROOT_PASSWORD}",
+          "CMD-SHELL",
+          "pg_isready -U ${APP_DATABASE_USER} -d ${APP_DATABASE_NAME}",
         ]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 10s
 
   backend:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile
-    container_name: boilerplate_backend
+    container_name: ems_portal_backend
     ports:
       - "3000:3000"
     environment:
@@ -53,11 +46,11 @@ services:
       dockerfile: packages/frontend/Dockerfile
       args:
         APP_BACKEND_URL: ${APP_BACKEND_URL}
-    container_name: boilerplate_frontend
+    container_name: ems_portal_frontend
     ports:
       - "3001:3001"
     depends_on:
       - backend
 
 volumes:
-  mysql_data:
+  postgres_data:
