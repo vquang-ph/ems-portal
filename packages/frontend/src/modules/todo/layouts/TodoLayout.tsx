@@ -13,7 +13,7 @@ const TodoLayout = () => {
       <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
-            to="/"
+            to="."
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             <CheckCircle2 className="w-6 h-6 text-blue-600" />
@@ -27,7 +27,7 @@ const TodoLayout = () => {
       <main className="w-full max-w-4xl mx-auto px-4 py-8">
         <div className="h-10 mb-6 flex items-center">
           {!isHomePage ? (
-            <Link to="/">
+            <Link to=".">
               <Button
                 variant="ghost"
                 className="pl-0 text-slate-600 hover:bg-transparent hover:text-slate-900"

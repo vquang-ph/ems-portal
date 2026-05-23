@@ -10,42 +10,32 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodoRouteImport } from './routes/todo'
-import { Route as HelloWorldRouteImport } from './routes/hello-world'
 
 const TodoRoute = TodoRouteImport.update({
   id: '/todo',
   path: '/todo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HelloWorldRoute = HelloWorldRouteImport.update({
-  id: '/hello-world',
-  path: '/hello-world',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
-  '/hello-world': typeof HelloWorldRoute
   '/todo': typeof TodoRoute
 }
 export interface FileRoutesByTo {
-  '/hello-world': typeof HelloWorldRoute
   '/todo': typeof TodoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/hello-world': typeof HelloWorldRoute
   '/todo': typeof TodoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/hello-world' | '/todo'
+  fullPaths: '/todo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/hello-world' | '/todo'
-  id: '__root__' | '/hello-world' | '/todo'
+  to: '/todo'
+  id: '__root__' | '/todo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  HelloWorldRoute: typeof HelloWorldRoute
   TodoRoute: typeof TodoRoute
 }
 
@@ -58,18 +48,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/hello-world': {
-      id: '/hello-world'
-      path: '/hello-world'
-      fullPath: '/hello-world'
-      preLoaderRoute: typeof HelloWorldRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  HelloWorldRoute: HelloWorldRoute,
   TodoRoute: TodoRoute,
 }
 export const routeTree = rootRouteImport

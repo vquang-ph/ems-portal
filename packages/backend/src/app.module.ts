@@ -7,7 +7,6 @@ import { ZodValidationPipe } from "nestjs-zod";
 import { TypeOrmExceptionFilter } from "./common/filters/typeorm-exception.filter";
 import { HealthModule } from "./modules/health/health.module";
 import { MetricModule } from "./modules/metric/metric.module";
-import { HelloWorldModule } from "./modules/hello-world/hello-world.module";
 import { TodoModule } from "./modules/todo/todo.module";
 
 @Module({
@@ -24,7 +23,6 @@ import { TodoModule } from "./modules/todo/todo.module";
 
     HealthModule,
     MetricModule,
-    HelloWorldModule,
     TodoModule,
   ],
   controllers: [],
