@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+.yalc
+.turbo
+
+# Build outputs
+dist
+build
+out
+.turbo
+**/.tanstack/
+
+# Generated files
+**/routeTree.gen.ts
+
+# Misc
+.DS_Store
+*.log
+.env
+
+# Coverage
+coverage
+*.lcov
+
+# Lock files
+yarn.lock

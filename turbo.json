@@ -1,0 +1,43 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env"],
+  "globalEnv": ["APP_*", "VITE_*"],
+  "tasks": {
+    "ci": {
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["^build:types"],
+      "outputs": []
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "build:all": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build:types"],
+      "outputs": []
+    },
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build:types": {
+      "outputs": ["dist/**", "**/*.d.ts"]
+    },
+    "test:int": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    }
+  }
+}

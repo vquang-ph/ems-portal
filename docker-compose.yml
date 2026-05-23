@@ -1,0 +1,63 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: boilerplate_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${APP_DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${APP_DATABASE_NAME}
+      MYSQL_USER: ${APP_DATABASE_USER}
+      MYSQL_PASSWORD: ${APP_DATABASE_PASSWORD}
+    ports:
+      - "${APP_DATABASE_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${APP_DATABASE_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: boilerplate_backend
+    ports:
+      - "3000:3000"
+    environment:
+      APP_DATABASE_HOST: db
+      APP_DATABASE_PORT: 3306
+      APP_DATABASE_USER: ${APP_DATABASE_USER}
+      APP_DATABASE_PASSWORD: ${APP_DATABASE_PASSWORD}
+      APP_DATABASE_NAME: ${APP_DATABASE_NAME}
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+      args:
+        APP_BACKEND_URL: ${APP_BACKEND_URL}
+    container_name: boilerplate_frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

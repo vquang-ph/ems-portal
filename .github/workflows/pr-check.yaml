@@ -1,0 +1,76 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  filter:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Check for file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'packages/backend/**'
+            frontend:
+              - 'packages/frontend/**'
+  style:
+    name: Coding Style Check
+    uses: ./.github/workflows/workflow-style.yaml
+    permissions:
+      contents: read
+      pull-requests: write
+
+  build:
+    needs: filter
+    name: Build & Test
+    uses: ./.github/workflows/workflow-build.yaml
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    with:
+      build-backend: ${{ needs.filter.outputs.backend == 'true' }}
+      build-frontend: ${{ needs.filter.outputs.frontend == 'true' }}
+
+  security:
+    name: Security Check
+    uses: ./.github/workflows/workflow-security.yaml
+    permissions:
+      contents: read
+
+  integration-test:
+    needs: filter
+    name: Backend Integration Check
+
+    if: ${{ needs.filter.outputs.backend == 'true' }}
+    uses: ./.github/workflows/workflow-integration.yaml
+    permissions:
+      contents: read
+
+  deployment-readiness:
+    needs: filter
+    name: Deployment Readiness Check
+
+    uses: ./.github/workflows/workflow-orchestration.yaml
+    permissions:
+      contents: read

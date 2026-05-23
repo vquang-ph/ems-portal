@@ -1,0 +1,65 @@
+name: Deployment Readiness Check
+
+on:
+  workflow_call:
+
+jobs:
+  deployment-readiness:
+    name: Verify Multi-Stage Build & Deployment Readiness
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        # This is just for testing
+        run: |
+          echo "APP_DATABASE_ROOT_PASSWORD=rootpassword" >> .env
+          echo "APP_DATABASE_NAME=boilerplate" >> .env
+          echo "APP_DATABASE_USER=user" >> .env
+          echo "APP_DATABASE_PASSWORD=password" >> .env
+          echo "APP_DATABASE_PORT=3306" >> .env
+          echo "APP_BACKEND_URL=http://localhost:3000" >> .env
+
+      - name: Build All Images
+        run: docker compose build
+
+      - name: One-Command Start-Up
+        run: docker compose up -d
+
+      - name: Verify Backend Readiness
+        run: |
+          echo "Polling Backend at http://localhost:3000/api/health..."
+          for i in {1..12}; do
+            if curl -s http://localhost:3000/api/health | grep -q "ok"; then
+              echo "Backend is Up!"
+              exit 0
+            fi
+            echo "Attempt $i: Backend not ready, waiting 5s..."
+            sleep 5
+          done
+          echo "Backend failed to respond"
+          docker compose logs backend
+          exit 1
+
+      - name: Verify Frontend (UI)
+        run: |
+          echo "Checking Frontend at http://localhost:3001..."
+          if curl -sI http://localhost:3001 | grep -q "200 OK"; then
+             if curl -s http://localhost:3001 | grep -q "<html"; then
+               echo "Frontend is serving HTML assets!"
+               exit 0
+             fi
+          fi
+          echo "Frontend failed to serve assets"
+          docker compose logs frontend
+          exit 1
+
+      - name: Check Image Size
+        run: |
+          docker images --format "{{.Repository}}: {{.Size}}" | grep "boilerplate"
+
+      - name: Container Teardown
+        if: always()
+        run: docker compose down -v

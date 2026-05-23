@@ -1,0 +1,15 @@
+# Node Modules
+node_modules/
+
+# Environment Variables
+.env
+
+# Tanstack Tmp
+.tanstack/
+
+# Build Output
+dist/
+.turbo/
+
+# Coverage
+coverage/

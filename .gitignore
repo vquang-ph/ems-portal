@@ -1,0 +1,8 @@
+# Turbo Engine cache files
+.turbo/
+
+# Node modules
+node_modules/
+
+# Environment variable files
+.env

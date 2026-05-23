@@ -1,0 +1,59 @@
+name: Backend Integration Check
+
+on:
+  workflow_call:
+
+jobs:
+  integration-test:
+    name: Backend Integration Tests
+    runs-on: ubuntu-24.04
+
+    # This is just for testing
+    env:
+      APP_DATABASE_HOST: 127.0.0.1
+      APP_DATABASE_PORT: 3306
+      APP_DATABASE_USER: testuser
+      APP_DATABASE_PASSWORD: testpassword
+      APP_DATABASE_NAME: boilerplate
+      CI: true
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: boilerplate
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: "yarn"
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run Database Migrations
+        working-directory: packages/backend
+        run: yarn migration:run
+
+      - name: Run Database Seeds
+        working-directory: packages/backend
+        run: yarn seed:run
+
+      - name: Run Integration Tests
+        working-directory: packages/backend
+        run: yarn test:int

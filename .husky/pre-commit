@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Capture staged changes relative to root
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+FRONTEND_CHANGED=$(echo "$STAGED_FILES" | grep "^packages/frontend/" || true)
+BACKEND_CHANGED=$(echo "$STAGED_FILES" | grep "^packages/backend/" || true)
+
+# Frontend Linting
+if [ -n "$FRONTEND_CHANGED" ]; then
+  echo "Running lint for frontend..."
+  # Use workspace command to stay in root
+  yarn workspace @ems-portal/frontend lint --max-warnings 0
+
+  if [ $? -ne 0 ]; then
+    echo "Frontend linting failed. Please fix errors before committing."
+    exit 1
+  fi
+fi
+
+# Backend Linting
+if [ -n "$BACKEND_CHANGED" ]; then
+  echo "Running lint for backend..."
+  # Use workspace command to stay in root
+  yarn workspace @ems-portal/backend lint --max-warnings 0
+
+  if [ $? -ne 0 ]; then
+    echo "Backend linting failed. Please fix errors before committing."
+    exit 1
+  fi
+fi
+
+echo "All linting checks passed!"

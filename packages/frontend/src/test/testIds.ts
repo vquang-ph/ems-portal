@@ -1,0 +1,15 @@
+export const UI_COMPONENTS_TEST_IDS = {
+  button: "ui-button",
+  trashIcon: "ui-trash-icon",
+  dialogWrapper: "ui-dialog-wrapper",
+  dialogRoot: "ui-dialog-rPoot",
+  dialogOpen: "ui-dialog-open",
+  dialogClose: "ui-dialog-close",
+  dialogContent: "ui-dialog-content",
+  dialogHeader: "ui-dialog-header",
+  card: "ui-card",
+  cardContent: "ui-card-content",
+  cardHeader: "ui-card-header",
+  cardTitle: "ui-card-title",
+  cardDescription: "ui-card-description",
+} as const;

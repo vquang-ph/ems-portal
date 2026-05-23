@@ -1,0 +1,30 @@
+name: Security Check
+
+on:
+  workflow_call:
+
+jobs:
+  audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: "yarn"
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Run Security Audit
+        # --high: Fail if High severity found
+        # --critical: Fail if Critical severity found
+        # --report-type: full (shows details in console)
+        # --pass-on-oaudit: Keeps pipeline green if only Low/Moderate issues found
+        run: |
+          npx audit-ci --high --critical --report-type full

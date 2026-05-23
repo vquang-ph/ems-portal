@@ -1,0 +1,83 @@
+name: Build Check
+
+on:
+  workflow_call:
+    inputs:
+      build-backend:
+        required: false
+        description: "Whether to build the backend"
+        type: boolean
+        default: false
+      build-frontend:
+        required: false
+        description: "Whether to build the frontend"
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build & Test Monorepo
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: "yarn"
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      # Backend Workflows
+      - name: Build Backend
+        if: ${{ inputs.build-backend }}
+        run: yarn turbo run build --filter=@ems-portal/backend
+
+      - name: Typecheck Backend
+        if: ${{ inputs.build-backend }}
+        run: yarn turbo run typecheck --filter=@ems-portal/backend
+
+      - name: Test Backend (Coverage)
+        if: ${{ inputs.build-backend }}
+        # We run this with the explicit '--json --outputFile' flags to generate a JSON coverage summary file. This is to make sure the coverage report action step can consistenly find the file correctly.
+        run: |
+          cd packages/backend
+          yarn test:cov -- --json --outputFile=coverage/coverage-summary.json
+
+      - name: Report Backend Coverage
+        if: ${{ inputs.build-backend }}
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: ./packages/backend
+          coverage-file: coverage/coverage-summary.json
+          base-coverage-file: coverage/coverage-summary.json
+          custom-title: Backend Coverage Report
+          skip-step: all
+          annotations: failed-tests
+
+      # Frontend Workflows
+      - name: Build Frontend
+        if: ${{ inputs.build-frontend }}
+        run: yarn turbo run build --filter=@ems-portal/frontend
+
+      - name: Typecheck Frontend
+        if: ${{ inputs.build-frontend }}
+        run: yarn turbo run typecheck --filter=@ems-portal/frontend
+
+      - name: Test Frontend (Coverage)
+        if: ${{ inputs.build-frontend }}
+        run: |
+          cd packages/frontend
+          yarn test:cov
+
+      - name: Report Frontend Coverage
+        if: ${{ inputs.build-frontend }}
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          name: Frontend Coverage Report
+          working-directory: ./packages/frontend
+          vite-config-path: vite.config.ts
