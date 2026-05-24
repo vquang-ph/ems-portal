@@ -2,7 +2,7 @@ import * as crypto from "crypto";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
-import { RefreshTokenEntity } from "./entites/refresh-token.entity";
+import { RefreshTokenEntity } from "./entities/refresh-token.entity";
 import { RefreshTokenRepository } from "./refresh-token.repository";
 import { RefreshTokenService } from "./refresh-token.service";
 

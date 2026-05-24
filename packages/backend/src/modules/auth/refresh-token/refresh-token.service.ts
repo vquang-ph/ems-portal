@@ -2,10 +2,9 @@ import * as crypto from "crypto";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AuthConfig, authConfig, expiresInToMs } from "@/config/auth";
-import { RefreshTokenEntity } from "./entites/refresh-token.entity";
+import { RefreshTokenEntity } from "./entities/refresh-token.entity";
 import { RefreshTokenRepository } from "./refresh-token.repository";
-
-const RAW_TOKEN_BYTES = 48;
+import { RAW_TOKEN_BYTES } from "./constants/refresh-token.constants";
 
 @Injectable()
 export class RefreshTokenService {

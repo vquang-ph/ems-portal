@@ -1,13 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectDataSource } from "@nestjs/typeorm";
 import { DataSource, IsNull, Repository } from "typeorm";
-import { RefreshTokenEntity } from "./entites/refresh-token.entity";
-
-export type RevokeIfActiveResult =
-  | { status: "consumed"; record: RefreshTokenEntity }
-  | { status: "not_found" }
-  | { status: "expired" }
-  | { status: "reuse"; familyId: string };
+import { RefreshTokenEntity } from "./entities/refresh-token.entity";
+import { RevokeIfActiveResult } from "./types/refresh-token.types";
 
 @Injectable()
 export class RefreshTokenRepository extends Repository<RefreshTokenEntity> {

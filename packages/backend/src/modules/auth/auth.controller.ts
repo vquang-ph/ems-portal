@@ -13,7 +13,7 @@ import { ConfigService } from "@nestjs/config";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { AuthConfig, authConfig, expiresInToMs } from "@/config/auth";
-import { AuthResult, AuthService } from "./auth.service";
+import { AuthService } from "./auth.service";
 import { CurrentUser } from "./decorators/current-user.decorator";
 import {
   AuthResponseDto,
@@ -23,6 +23,7 @@ import {
 } from "./dto/auth.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import type { UserEntity } from "@/modules/user/entites/user.entity";
+import { AuthResult } from "./interfaces/auth.interface";
 
 @ApiTags("Auth")
 @Controller("auth")

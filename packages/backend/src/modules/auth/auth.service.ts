@@ -9,14 +9,9 @@ import type { AuthResponse } from "@ems-portal/types";
 import { UserService } from "@/modules/user/user.service";
 import type { UserEntity } from "@/modules/user/entites/user.entity";
 import type { LoginDto, RegisterDto } from "./dto/auth.dto";
-import { RefreshTokenService } from "./refresh-token.service";
+import { RefreshTokenService } from "./refresh-token/refresh-token.service";
 import type { JwtPayload } from "./strategies/jwt.strategy";
-
-// Adds the raw refresh token to AuthResponse for the controller to set as a
-// cookie. Never returned to the client in the response body.
-export interface AuthResult extends AuthResponse {
-  refreshToken: string;
-}
+import { AuthResult } from "./interfaces/auth.interface";
 
 @Injectable()
 export class AuthService {
