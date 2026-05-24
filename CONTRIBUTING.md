@@ -28,13 +28,13 @@ Format: `<type>(<scope>): <description>`
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
 
-For more information, please refer to the [Commit Lint Message](./docs/standards.md#commit-lint-message) section in our standards documentation.
+For more information, please refer to the [Commit Lint Message](./docs/foundations/standards.md#commit-lint-message) section in our standards documentation.
 
 The config is also defined in the `commitlint.config.js` file at the root of the repository.
 
 ## Coding Standards
 
-Our [Standards Documentation](./docs/standards.md) covers our linting, formatting, and testing guidelines in detail. Please make sure to review it before contributing.
+Our [Standards Documentation](./docs/foundations/standards.md) covers our linting, formatting, and testing guidelines in detail. Please make sure to review it before contributing.
 
 ## Pull Request Process
 
@@ -45,4 +45,4 @@ Our [Standards Documentation](./docs/standards.md) covers our linting, formattin
 
 ## Testing Guideline
 
-On how tests are written in this project and how they are maintained, please visit the [Testing Documentation](./docs/testing.md) for more details.
+On how tests are written in this project and how they are maintained, please visit the [Testing Documentation](./docs/foundations/testing.md) for more details.

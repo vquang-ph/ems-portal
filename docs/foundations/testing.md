@@ -10,7 +10,7 @@ We follow the principle of testing the public API of our modules, rather than te
 
 - **Unit Tests**: These tests focus on individual functions or classes in isolation. They should be fast and cover a wide range of scenarios, including edge cases.
 - **Integration Tests**: These tests focus on the interaction between multiple components or modules.
-- **Co-location**: We co-locate our tests with the code they are testing. This makes it easier to find and maintain tests, and encourages developers to write tests as they develop new features.
+- **Co-location**: bWe co-locate our tests with the code they are testing. This makes it easier to find and maintain tests, and encourages developers to write tests as they develop new features.
 
 ## Frontend Testing
 

@@ -96,16 +96,20 @@ APP_DATABASE_NAME=boilerplate
 For this API, we have chosen specific patterns to ensure maintainability and testability:
 
 ### Visible Core Pattern
-We intentionally keep the **Module, Service, Controller, and Repository** files at the top level of each module. 
-* [cite_start]**Reasoning**: This provides immediate visibility of the module's entry points and primary business logic without requiring developers to dig through sub-directories. [cite: 17, 21, 29]
-* **Folderization Rule**: Every other supporting file—including DTOs, entities, guards, decorators, strategies, and constants—**must** be placed in a dedicated sub-folder. [cite_start]This applies regardless of the number of files (e.g., even a single DTO must live in `/dto`). [cite: 31, 33, 34, 39]
-* [cite_start]**Sub-Modules**: Specialized logic that supports a larger module (like `refresh-token` within `auth`) is encapsulated in its own sub-folder to maintain parent-level cleanliness. [cite: 31, 39]
+
+We intentionally keep the **Module, Service, Controller, and Repository** files at the top level of each module.
+
+- [cite_start]**Reasoning**: This provides immediate visibility of the module's entry points and primary business logic without requiring developers to dig through sub-directories. [cite: 17, 21, 29]
+- **Folderization Rule**: Every other supporting file—including DTOs, entities, guards, decorators, strategies, and constants—**must** be placed in a dedicated sub-folder. [cite_start]This applies regardless of the number of files (e.g., even a single DTO must live in `/dto`). [cite: 31, 33, 34, 39]
+- [cite_start]**Sub-Modules**: Specialized logic that supports a larger module (like `refresh-token` within `auth`) is encapsulated in its own sub-folder to maintain parent-level cleanliness. [cite: 31, 39]
 
 ### Constants
-As part of our folderization standard, module-scoped constants must live in `modules/<feature>/constants/`. 
-* **Correction**: Do not use standalone sibling `<feature>.constants.ts` files at the root level.
-* **Naming**: Use `SCREAMING_SNAKE_CASE`.
-* **Scope**: Constants used across multiple modules must be moved to `src/common/constants/`.
+
+As part of our folderization standard, module-scoped constants must live in `modules/<feature>/constants/`.
+
+- **Correction**: Do not use standalone sibling `<feature>.constants.ts` files at the root level.
+- **Naming**: Use `SCREAMING_SNAKE_CASE`.
+- **Scope**: Constants used across multiple modules must be moved to `src/common/constants/`.
 
 ### Data Mapper Pattern (TypeORM)
 
@@ -217,7 +221,7 @@ Rules of thumb:
 
 ## Testing Standards
 
-For the testing, it has been detailed in the `testing.md` file, you can visit it [here](../../docs/testing.md) for more information.
+For the testing, it has been detailed in the `testing.md` file, you can visit it [here](../../docs/foundations/testing.md) for more information.
 
 ### Shared Types
 

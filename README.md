@@ -1,6 +1,6 @@
 # Fullstack TypeScript Application
 
-This is a * Application** built on a monorepo architecture. Originally cloned from the [Boilerplate Typescript](https://github.com/CODE-LEAP-AG/boilerplate-typescript), this project demonstrates a complete CRUD implementation using **NestJS**, **React**, and **PostgreSQL**.
+This is a \* Application** built on a monorepo architecture. Originally cloned from the [Boilerplate Typescript](https://github.com/CODE-LEAP-AG/boilerplate-typescript), this project demonstrates a complete CRUD implementation using **NestJS**, **React**, and **PostgreSQL\*\*.
 
 ## Tech Stack
 
@@ -97,5 +97,5 @@ If you are repurposing this for a new client or project:
 | **Backend API**  | NestJS architecture and To-Do logic.        | [`/packages/backend/README.md`](./packages/backend/README.md)           |
 | **Frontend UI**  | React components and Task state management. | [`/packages/frontend/README.md`](./packages/frontend/README.md)         |
 | **Shared Types** | Common Task and User interfaces.            | [`/packages/shared/types/README.md`](./packages/shared/types/README.md) |
-| **Database**     | Migrations and Schema for tasks.            | [`/docs/database.md`](./docs/database.md)                               |
+| **Database**     | Migrations and Schema for tasks.            | [`/docs/foundations/database.md`](./docs/foundations/database.md)       |
 | **Performance**  | k6 benchmarks for API endpoints.            | [`/scripts/benchmarks/README.md`](./scripts/benchmarks/README.md)       |
