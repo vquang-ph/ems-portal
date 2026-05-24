@@ -90,6 +90,7 @@ const RegisterForm = () => {
             </Field>
           )}
         />
+
         <Controller
           name="email"
           control={form.control}
@@ -109,6 +110,7 @@ const RegisterForm = () => {
             </Field>
           )}
         />
+
         <Controller
           name="password"
           control={form.control}
@@ -128,6 +130,7 @@ const RegisterForm = () => {
             </Field>
           )}
         />
+
         <Controller
           name="role"
           control={form.control}
