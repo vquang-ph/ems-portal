@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git diff *)",
+      "Read(//tmp/**)",
+      "Bash(yarn tsc *)",
+      "Bash(git *)",
+      "Bash(yarn test *)"
+    ]
+  }
+}
