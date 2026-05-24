@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
 import { config } from "dotenv";
-import { buildDataSourceOptions } from "@/config/database.builder";
+import { buildDataSourceOptions } from "@/config/database";
 import path from "path";
 
 // .env is located at the root of the monorepo

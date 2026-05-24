@@ -2,6 +2,7 @@ import type { INestApplication } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
 import { SwaggerModule, type OpenAPIObject } from "@nestjs/swagger";
 import { swaggerSetup } from "./swagger.config";
+import { OPENAPI_SPEC_PATH } from "./swagger.constants";
 
 describe("swaggerSetup", () => {
   const makeApp = (enabled: boolean | undefined): INestApplication => {
@@ -91,8 +92,8 @@ describe("swaggerSetup", () => {
     expect(createDocumentSpy.mock.calls[0][0]).toBe(app);
 
     expect(setupSpy).toHaveBeenCalledTimes(1);
-    expect(setupSpy).toHaveBeenCalledWith("api/docs", app, openApiDoc);
+    expect(setupSpy).toHaveBeenCalledWith(OPENAPI_SPEC_PATH, app, openApiDoc);
 
-    expect(result).toBe("api/docs");
+    expect(result).toBe(OPENAPI_SPEC_PATH);
   });
 });

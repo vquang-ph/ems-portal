@@ -1,9 +1,18 @@
 import type { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import {
+  OPENAPI_DESCRIPTION,
+  OPENAPI_SPEC_PATH,
+  OPENAPI_TITLE,
+} from "./swagger.constants";
 
-const APP_API_SPECS_PATH = "api/docs";
-
+/**
+ * Mounts the Swagger UI at OPENAPI_SPEC_PATH when APP_SWAGGER_ENABLED is true.
+ *
+ * @param app - The Nest application instance.
+ * @returns The mounted spec path, or undefined when Swagger is disabled.
+ */
 export const swaggerSetup = (app: INestApplication): string | undefined => {
   const configService: ConfigService = app.get(ConfigService);
 
@@ -15,13 +24,13 @@ export const swaggerSetup = (app: INestApplication): string | undefined => {
   }
 
   const openApiConfig = new DocumentBuilder()
-    .setTitle("Boilerplate Typescript API")
-    .setDescription("The Boilerplate Typescript API documentation")
+    .setTitle(OPENAPI_TITLE)
+    .setDescription(OPENAPI_DESCRIPTION)
     .build();
 
   const openApiDoc = SwaggerModule.createDocument(app, openApiConfig);
 
-  SwaggerModule.setup(APP_API_SPECS_PATH, app, openApiDoc);
+  SwaggerModule.setup(OPENAPI_SPEC_PATH, app, openApiDoc);
 
-  return APP_API_SPECS_PATH;
+  return OPENAPI_SPEC_PATH;
 };

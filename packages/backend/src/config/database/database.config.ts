@@ -3,9 +3,10 @@ import type { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { buildDataSourceOptions } from "./database.builder";
 
 /**
- * Database configuration for NestJS TypeOrmModule
- * @param configService
- * @returns TypeOrmModuleOptions
+ * Resolves the runtime database configuration for NestJS TypeOrmModule.
+ *
+ * @param configService - Nest's ConfigService bound to the application env.
+ * @returns TypeOrmModuleOptions consumed by TypeOrmModule.forRootAsync.
  */
 export const databaseConfig = (
   configService: ConfigService,

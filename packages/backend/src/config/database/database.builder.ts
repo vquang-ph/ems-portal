@@ -1,16 +1,20 @@
 import type { DataSourceOptions } from "typeorm";
+
 /**
- * Helper function to build TypeORM DataSourceOptions from environment variables.
- * @param env - Environment variables
- * @returns DataSourceOptions
+ * Builds TypeORM DataSourceOptions from a flat environment-variable map.
+ * Shared by the runtime resolver (databaseConfig) and the standalone CLI
+ * DataSource. APP_DATABASE_URL takes precedence over the host/port/etc vars.
+ *
+ * @param env - Flat map of APP_DATABASE_* environment variables.
+ * @returns Postgres DataSourceOptions ready to hand to TypeORM.
  */
 export const buildDataSourceOptions = (
   env: Record<string, string | undefined>,
 ): DataSourceOptions => {
   const commonSettings: DataSourceOptions = {
     type: "postgres",
-    migrations: [__dirname + "/../database/migrations/*.{t,j}s"],
-    entities: [__dirname + "/../modules/**/*.entity.{t,j}s"],
+    migrations: [__dirname + "/../../database/migrations/*.{t,j}s"],
+    entities: [__dirname + "/../../modules/**/*.entity.{t,j}s"],
     synchronize: false,
     logging: true,
   };

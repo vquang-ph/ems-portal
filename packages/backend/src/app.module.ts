@@ -2,7 +2,7 @@ import * as path from "path";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { databaseConfig } from "./config/database.config";
+import { databaseConfig } from "./config/database";
 import { APP_FILTER, APP_PIPE } from "@nestjs/core";
 import { ZodValidationPipe } from "nestjs-zod";
 import { TypeOrmExceptionFilter } from "./common/filters/typeorm-exception.filter";
