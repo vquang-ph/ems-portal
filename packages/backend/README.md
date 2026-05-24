@@ -106,6 +106,33 @@ Documentation is automatically generated based on our DTOs and Controllers.
 
 - **Interactive UI**: `http://localhost:3000/api/docs`
 
+### DTO conventions
+
+All input/output shapes for a feature live in `modules/<feature>/dto/` and are exported from a single `<feature>.dto.ts` file (`todo/dto/todo.dto.ts`, `user/dto/user.dto.ts`). Two kinds of shapes share that folder:
+
+- **Wire DTOs** — anything crossing the HTTP boundary. Wrap a Zod schema from `@ems-portal/types` with `createZodDto` so NestJS picks up validation and Swagger metadata automatically:
+
+  ```typescript
+  import { TodoCreateSchema } from "@ems-portal/types";
+  import { createZodDto } from "nestjs-zod";
+
+  export class TodoCreateDto extends createZodDto(TodoCreateSchema) {}
+  ```
+
+- **Internal service inputs** — shapes that never cross the wire (plaintext passwords, internal-only fields, seed inputs). Derive them from the shared schema with `Pick`/`Omit` so the type stays anchored to `@ems-portal/types`:
+
+  ```typescript
+  import type { User } from "@ems-portal/types";
+
+  export type CreateUserInput = Pick<User, "email" | "name" | "role"> & {
+    password: string;
+  };
+  ```
+
+Why internal inputs live in `dto/` even though they don't cross a process boundary: services + seeds + any future caller share these shapes, so they belong on the module's contract surface rather than buried in `<feature>.service.ts`. Pick from shared types so adding a field to e.g. `UserSchema` triggers a compile error at every consumer, instead of two parallel interfaces drifting.
+
+Rule of thumb: if more than one file in the module needs the shape, it goes in `dto/`. If it's truly local to one function, leave it inline.
+
 ## Testing Standards
 
 For the testing, it has been detailed in the `testing.md` file, you can visit it [here](../../docs/testing.md) for more information.
