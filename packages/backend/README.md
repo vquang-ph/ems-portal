@@ -32,13 +32,14 @@ We follow a modular architecture. Each feature should be encapsulated within its
 │   │   ├── health          # Liveness/Readiness probes Endpoint
 │   │   ├── metrics         # Metric Endpoint
 │   │   └── todo/           # Example Feature Module
-│   │       ├── constants/  # Module-scoped constants (e.g., BCRYPT_ROUNDS)
 │   │       ├── dto/        # Inputs/Outputs DTO for this specific feature
 │   │       ├── entities/   # Database schema for this feature (*.entity.ts)
 │   │       ├── todo.module.ts      # Module definition and dependency wiring
 │   │       ├── todo.controller.ts  # Route handlers (Entry point)
 │   │       ├── todo.service.ts     # Business logic layer
 │   │       ├── todo.repository.ts  # Custom Database queries (Data Mapper)
+│   │       ├── todo.constants.ts   # Module-scoped constants (e.g., BCRYPT_ROUNDS)
+│   │       ├── todo.types.ts       # Module-scoped types/interfaces (if needed)
 │   │       ├── *.spec.ts           # Unit tests for controller/service
 │   │       └── *.int-spec.ts       # Integration tests (connecting to real DB)
 │   ├── app.module.ts       # Root Module: Orchestrates all other modules
@@ -136,25 +137,47 @@ Rule of thumb: if more than one file in the module needs the shape, it goes in `
 
 ### Constants
 
-Module-scoped constants must live in `modules/<feature>/constants/index.ts`, not inline at the top of a service or controller. Re-export every constant from that single `index.ts` barrel so callers always import via the folder path (`from "./constants"`), and so a quick scan of one file reveals every magic value the module relies on.
+Module-scoped constants must live in a sibling `<feature>.constants.ts` file — never inline at the top of a service or controller, and never inside a single-file `constants/` folder. A scan of `modules/<feature>/` should surface every magic value the module relies on at a glance.
 
 ```typescript
-// modules/user/constants/index.ts
+// modules/user/user.constants.ts
 export const BCRYPT_ROUNDS = 10;
 export const MAX_LOGIN_ATTEMPTS = 5;
 ```
 
 ```typescript
 // modules/user/user.service.ts
-import { BCRYPT_ROUNDS } from "./constants";
+import { BCRYPT_ROUNDS } from "./user.constants";
 ```
 
 Rules of thumb:
 
-- One barrel per module — `constants/index.ts`. Split into multiple files inside that folder only if it grows large, but keep `index.ts` as the public entry point.
+- Use a sibling `<feature>.constants.ts` file. Promote to a `constants/` folder **only** when the module genuinely has multiple constants files — never for a single file (folders are for collections).
 - Constants used across more than one module belong in `src/common/constants/` instead.
 - Names use `SCREAMING_SNAKE_CASE`; values must be `const` (literal or `as const`).
 - Don't bury magic numbers or strings inside service methods — extract them.
+
+### Config Folder Structure
+
+Anything under `src/config/` that has more than one moving part (resolver + types, or resolver + constants) is organized as a folder with the same dotted-file convention as modules. Each config area uses these standard slots:
+
+```
+config/<area>/
+├── index.ts              # Barrel — the only file consumers import from
+├── <area>.config.ts      # Resolver(s) that read env via ConfigService
+├── <area>.types.ts       # Interfaces and type aliases (optional)
+└── <area>.constants.ts   # Default values, env keys, magic strings (optional)
+```
+
+Rules of thumb:
+
+- Consumers **must** import from `@/config/<area>` (the barrel), never from internal files. This lets the internals be reshaped without touching callers.
+- A file is only created when it has real content. If the area has no types beyond what the resolver already returns, skip `<area>.types.ts`. Same for constants.
+- Tiny helpers that only this area uses (e.g., a one-off duration parser) live at the bottom of `<area>.config.ts` — do **not** spin up a `<area>.utils.ts` for a single function. Promote to `src/common/utils/` only when a second caller appears.
+- Folders inside the area (`constants/`, `types/`, etc.) are reserved for collections. A single file in a folder is ceremony — collapse to a sibling.
+- A standalone single-file config (`*.config.ts`) directly under `src/config/` is fine while it only has a resolver. The moment it grows types or constants, refactor it into the folder layout above.
+
+Reference layout: `src/config/auth/` follows this exactly. New config areas (and migrations of `database.config.ts`, `swagger.config.ts`) must adopt the same shape.
 
 ### Method Documentation
 
