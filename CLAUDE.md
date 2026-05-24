@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Layout
 
+This is a turborepo typescript monorepo which is a TODO application, it serves as a foundation for production-ready full-stack applications. The stack is designed for **developer experience**, **type safety**, and **scalability**.
+
+Every modules that is `todos` related is for demonstration purposes only and should be replaced when building out the actual EMS Portal features. The `todos` modules are meant to show how to structure features, handle cross-cutting concerns, and implement best practices in a real-world codebase.
+
 Turborepo monorepo (Yarn 1 workspaces) with three packages:
 
 - `packages/backend` (`@ems-portal/backend`) — NestJS REST API on Fastify, TypeORM + PostgreSQL, served at `:3000` under `/api`. Swagger UI at `/api/docs`.
@@ -57,6 +61,23 @@ Database via Docker:
 docker compose up -d db           # just Postgres 15 on $APP_DATABASE_PORT
 docker compose up --build         # full stack: db + backend + frontend
 ```
+
+## Project Summary: EMS Portal
+
+### What is it?
+* A **digital marketplace** to connect clients with engineering experts.
+* A platform built using a **client-server architecture**.
+
+### Why build it?
+* To solve the difficulty of finding the right engineer using an **intelligent matching algorithm**.
+* To ensure the system is **secure**, **fast**, and handles network traffic efficiently.
+
+### Key Features
+* **Smart Matching:** Ranks providers based on skills, availability, cost, location, and ratings.
+* **User Roles:** Separate portals for **Clients**, **Service Providers**, and **Admins**.
+* **Skill Management:** Allows providers to showcase their specific engineering talents.
+* **Rating System:** A feedback loop to keep service quality high.
+
 
 ## Architecture Notes
 
