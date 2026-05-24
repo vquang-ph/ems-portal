@@ -12,9 +12,7 @@ export const run = async (
 ): Promise<void> => {
   const userRepo = dataSource.getRepository(UserEntity);
 
-  seedLogger.log("Seeding 02-Users...");
-
-  await userRepo.clear();
+  seedLogger.log("Seeding 1-Users...");
 
   const entities = await Promise.all(
     INITIAL_USERS.map(async ({ password, email, ...rest }) => ({
@@ -24,7 +22,10 @@ export const run = async (
     })),
   );
 
-  await userRepo.save(userRepo.create(entities));
+  await userRepo.upsert(entities, {
+    conflictPaths: ["email"],
+    skipUpdateIfNoValuesChanged: true,
+  });
 
-  seedLogger.log(`Done. ${INITIAL_USERS.length} items created.`);
+  seedLogger.log(`Done. ${INITIAL_USERS.length} items upserted.`);
 };
