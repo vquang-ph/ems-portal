@@ -32,6 +32,7 @@ We follow a modular architecture. Each feature should be encapsulated within its
 │   │   ├── health          # Liveness/Readiness probes Endpoint
 │   │   ├── metrics         # Metric Endpoint
 │   │   └── todo/           # Example Feature Module
+│   │       ├── constants/  # Module-scoped constants (e.g., BCRYPT_ROUNDS)
 │   │       ├── dto/        # Inputs/Outputs DTO for this specific feature
 │   │       ├── entities/   # Database schema for this feature (*.entity.ts)
 │   │       ├── todo.module.ts      # Module definition and dependency wiring
@@ -132,6 +133,52 @@ All input/output shapes for a feature live in `modules/<feature>/dto/` and are e
 Why internal inputs live in `dto/` even though they don't cross a process boundary: services + seeds + any future caller share these shapes, so they belong on the module's contract surface rather than buried in `<feature>.service.ts`. Pick from shared types so adding a field to e.g. `UserSchema` triggers a compile error at every consumer, instead of two parallel interfaces drifting.
 
 Rule of thumb: if more than one file in the module needs the shape, it goes in `dto/`. If it's truly local to one function, leave it inline.
+
+### Constants
+
+Module-scoped constants must live in `modules/<feature>/constants/index.ts`, not inline at the top of a service or controller. Re-export every constant from that single `index.ts` barrel so callers always import via the folder path (`from "./constants"`), and so a quick scan of one file reveals every magic value the module relies on.
+
+```typescript
+// modules/user/constants/index.ts
+export const BCRYPT_ROUNDS = 10;
+export const MAX_LOGIN_ATTEMPTS = 5;
+```
+
+```typescript
+// modules/user/user.service.ts
+import { BCRYPT_ROUNDS } from "./constants";
+```
+
+Rules of thumb:
+
+- One barrel per module — `constants/index.ts`. Split into multiple files inside that folder only if it grows large, but keep `index.ts` as the public entry point.
+- Constants used across more than one module belong in `src/common/constants/` instead.
+- Names use `SCREAMING_SNAKE_CASE`; values must be `const` (literal or `as const`).
+- Don't bury magic numbers or strings inside service methods — extract them.
+
+### Method Documentation
+
+Every method on a controller, service, repository, guard, interceptor, or pipe must carry a classic JSDoc block. Keep the wording simple and concise, but document the full surface: a one-line summary, every parameter with `@param`, the return value with `@returns`, and any thrown exceptions with `@throws`.
+
+```typescript
+/**
+ * Verifies credentials and returns an access token.
+ *
+ * @param dto - Login payload (email and plaintext password).
+ * @returns The signed access token and the public user payload.
+ * @throws UnauthorizedException if the email or password is invalid.
+ */
+public async login(dto: LoginDto): Promise<AuthResponse> { ... }
+```
+
+Rules of thumb:
+
+- Lead with a verb describing the behavior ("Registers…", "Maps…", "Signs…").
+- Document every parameter with `@param <name> - <description>`.
+- Always include `@returns` unless the method returns `void`.
+- Add `@throws <ExceptionType>` for every exception the method can raise.
+- Describe what the value represents, not its TypeScript type — types are already in the signature.
+- Trivially obvious one-liners (e.g. a pure getter) can be left uncommented.
 
 ## Testing Standards
 
