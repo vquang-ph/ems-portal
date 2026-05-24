@@ -16,6 +16,16 @@ Turborepo monorepo (Yarn 1 workspaces) with three packages:
 
 A single root-level `.env` feeds all packages. Vite reads it via `loadEnv` against the repo root; the backend's standalone TypeORM CLI loads `../../../../.env` from `src/database/datasource.ts`.
 
+## Package details
+
+<!-- always loaded — needed for almost every task -->
+@packages/backend/README.md
+@packages/shared/types/README.md
+
+<!-- loaded on demand — only needed for frontend tasks -->
+For frontend module structure and routing conventions, 
+see @packages/frontend/README.md
+
 ## Common Commands
 
 Run from the monorepo root unless noted.
@@ -119,3 +129,9 @@ GitHub Actions in `.github/workflows/`. `pr-check.yaml` is the entry point and f
 - **`any` is forbidden** in lint (`error`). Unused vars warn unless prefixed `_`. Async-awareness is on (`await` only on thenables).
 - **No `synchronize: true`** in any TypeORM config (the codebase already enforces it; don't regress).
 - New backend features: prefer `yarn scaffold:backend "<name>"` to get the controller/service/repository/entity/module scaffolding consistent.
+
+## Exploration guidelines
+- Codebase map is above — trust it before exploring
+- New modules follow the pattern in packages/backend/src/users/
+- Read at most 2-3 reference files before planning, not the entire tree
+- If unsure about a pattern, read ONE existing example, not all of them
