@@ -9,7 +9,6 @@ import { TypeOrmExceptionFilter } from "./common/filters/typeorm-exception.filte
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { MetricModule } from "./modules/metric/metric.module";
-import { TodoModule } from "./modules/todo/todo.module";
 import { UserModule } from "./modules/user/user.module";
 
 @Module({
@@ -35,7 +34,6 @@ import { UserModule } from "./modules/user/user.module";
     MetricModule,
     UserModule,
     AuthModule,
-    TodoModule,
   ],
   controllers: [],
   providers: [

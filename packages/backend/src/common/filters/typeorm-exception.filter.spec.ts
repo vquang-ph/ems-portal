@@ -56,7 +56,7 @@ describe("TypeOrmExceptionFilter", () => {
     const reply = makeReply();
     const host = makeHost(reply as unknown as FastifyReply);
 
-    const err = new EntityNotFoundError("TodoEntity", { id: "missing" });
+    const err = new EntityNotFoundError("UserEntity", { id: "missing" });
 
     filter.catch(err, host);
 

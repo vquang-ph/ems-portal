@@ -13,7 +13,6 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
-import { Route as AppTodoRouteImport } from './routes/_app.todo'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -34,22 +33,15 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppTodoRoute = AppTodoRouteImport.update({
-  id: '/todo',
-  path: '/todo',
-  getParentRoute: () => AppRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/todo': typeof AppTodoRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/todo': typeof AppTodoRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -57,15 +49,14 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/_app/todo': typeof AppTodoRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/todo'
+  fullPaths: '/' | '/login' | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/todo' | '/'
-  id: '__root__' | '/_app' | '/login' | '/register' | '/_app/todo' | '/_app/'
+  to: '/login' | '/register' | '/'
+  id: '__root__' | '/_app' | '/login' | '/register' | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -104,23 +95,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/todo': {
-      id: '/_app/todo'
-      path: '/todo'
-      fullPath: '/todo'
-      preLoaderRoute: typeof AppTodoRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
 interface AppRouteChildren {
-  AppTodoRoute: typeof AppTodoRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppTodoRoute: AppTodoRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

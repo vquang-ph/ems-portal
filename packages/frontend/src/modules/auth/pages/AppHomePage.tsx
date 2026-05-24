@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import useSession from "../hooks/useSession";
 
 const AppHomePage = () => {
@@ -12,11 +11,6 @@ const AppHomePage = () => {
       <p className="text-muted-foreground">
         You're signed in to EMS Portal. Real role-specific dashboards will live
         here once we wire them up.
-      </p>
-      <p>
-        <Link to="/todo" className="underline">
-          View the todo demo
-        </Link>
       </p>
     </div>
   );

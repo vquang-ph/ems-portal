@@ -17,7 +17,7 @@ export const options = {
 };
 
 export default function () {
-  const res = http.get(`${BASE_URL}/todos`);
+  const res = http.get(`${BASE_URL}/health/live`);
   check(res, { "status is 200": (r) => r.status === 200 });
   sleep(1);
 }
