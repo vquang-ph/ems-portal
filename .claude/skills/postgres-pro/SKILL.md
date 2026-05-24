@@ -67,13 +67,13 @@ ANALYZE orders;
 
 Load detailed guidance based on context:
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Performance | `references/performance.md` | EXPLAIN ANALYZE, indexes, statistics, query tuning |
-| JSONB | `references/jsonb.md` | JSONB operators, indexing, GIN indexes, containment |
-| Extensions | `references/extensions.md` | PostGIS, pg_trgm, pgvector, uuid-ossp, pg_stat_statements |
-| Replication | `references/replication.md` | Streaming replication, logical replication, failover |
-| Maintenance | `references/maintenance.md` | VACUUM, ANALYZE, pg_stat views, monitoring, bloat |
+| Topic       | Reference                   | Load When                                                 |
+| ----------- | --------------------------- | --------------------------------------------------------- |
+| Performance | `references/performance.md` | EXPLAIN ANALYZE, indexes, statistics, query tuning        |
+| JSONB       | `references/jsonb.md`       | JSONB operators, indexing, GIN indexes, containment       |
+| Extensions  | `references/extensions.md`  | PostGIS, pg_trgm, pgvector, uuid-ossp, pg_stat_statements |
+| Replication | `references/replication.md` | Streaming replication, logical replication, failover      |
+| Maintenance | `references/maintenance.md` | VACUUM, ANALYZE, pg_stat views, monitoring, bloat         |
 
 ## Common Patterns
 
@@ -119,6 +119,7 @@ FROM pg_stat_replication;
 ## Constraints
 
 ### MUST DO
+
 - Use `EXPLAIN (ANALYZE, BUFFERS)` for query optimization
 - Verify indexes are actually used with `EXPLAIN` before and after creation
 - Use `CREATE INDEX CONCURRENTLY` to avoid table locks in production
@@ -130,6 +131,7 @@ FROM pg_stat_replication;
 - Use `uuid` type for UUIDs, not `text`
 
 ### MUST NOT DO
+
 - Disable autovacuum globally
 - Create indexes without first analyzing query patterns
 - Use `SELECT *` in production queries
@@ -141,6 +143,7 @@ FROM pg_stat_replication;
 ## Output Templates
 
 When implementing PostgreSQL solutions, provide:
+
 1. Query with `EXPLAIN (ANALYZE, BUFFERS)` output and interpretation
 2. Index definitions with rationale and pre/post verification
 3. Configuration changes with before/after values

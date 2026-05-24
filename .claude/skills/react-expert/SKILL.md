@@ -40,25 +40,26 @@ Senior React specialist with deep expertise in React 19, Server Components, and 
 
 Load detailed guidance based on context:
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Server Components | `references/server-components.md` | RSC patterns, Next.js App Router |
-| React 19 | `references/react-19-features.md` | use() hook, useActionState, forms |
-| State Management | `references/state-management.md` | Context, Zustand, Redux, TanStack |
-| Hooks | `references/hooks-patterns.md` | Custom hooks, useEffect, useCallback |
-| TanStack Query       | See skill: `../tanstack-query/SKILL.md`       | useQuery, useMutation, caching, server state    |
-| TanStack Router      | See skill: `../tanstack-router/SKILL.md`      | routing, loaders, navigation                    |
-| TanStack Integration | See skill: `../tanstack-integration/SKILL.md` | SSR, QueryClient setup, dehydration             |
-| Performance | `references/performance.md` | memo, lazy, virtualization |
-| Testing | `references/testing-react.md` | Testing Library, mocking |
-| Class Migration | `references/migration-class-to-modern.md` | Converting class components to hooks/RSC |
+| Topic                | Reference                                     | Load When                                    |
+| -------------------- | --------------------------------------------- | -------------------------------------------- |
+| Server Components    | `references/server-components.md`             | RSC patterns, Next.js App Router             |
+| React 19             | `references/react-19-features.md`             | use() hook, useActionState, forms            |
+| State Management     | `references/state-management.md`              | Context, Zustand, Redux, TanStack            |
+| Hooks                | `references/hooks-patterns.md`                | Custom hooks, useEffect, useCallback         |
+| TanStack Query       | See skill: `../tanstack-query/SKILL.md`       | useQuery, useMutation, caching, server state |
+| TanStack Router      | See skill: `../tanstack-router/SKILL.md`      | routing, loaders, navigation                 |
+| TanStack Integration | See skill: `../tanstack-integration/SKILL.md` | SSR, QueryClient setup, dehydration          |
+| Performance          | `references/performance.md`                   | memo, lazy, virtualization                   |
+| Testing              | `references/testing-react.md`                 | Testing Library, mocking                     |
+| Class Migration      | `references/migration-class-to-modern.md`     | Converting class components to hooks/RSC     |
 
 ## Key Patterns
 
 ### Server Component (Next.js App Router)
+
 ```tsx
 // app/users/page.tsx — Server Component, no "use client"
-import { db } from '@/lib/db';
+import { db } from "@/lib/db";
 
 interface User {
   id: string;
@@ -79,24 +80,25 @@ export default async function UsersPage() {
 ```
 
 ### React 19 Form with `useActionState`
+
 ```tsx
-'use client';
-import { useActionState } from 'react';
+"use client";
+import { useActionState } from "react";
 
 async function submitForm(_prev: string, formData: FormData): Promise<string> {
-  const name = formData.get('name') as string;
+  const name = formData.get("name") as string;
   // perform server action or fetch
   return `Hello, ${name}!`;
 }
 
 export function GreetForm() {
-  const [message, action, isPending] = useActionState(submitForm, '');
+  const [message, action, isPending] = useActionState(submitForm, "");
 
   return (
     <form action={action}>
       <input name="name" required />
       <button type="submit" disabled={isPending}>
-        {isPending ? 'Submitting…' : 'Submit'}
+        {isPending ? "Submitting…" : "Submit"}
       </button>
       {message && <p>{message}</p>}
     </form>
@@ -105,16 +107,17 @@ export function GreetForm() {
 ```
 
 ### Custom Hook with Cleanup
+
 ```tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function useWindowWidth(): number {
   const [width, setWidth] = useState(() => window.innerWidth);
 
   useEffect(() => {
     const handler = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler); // cleanup
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler); // cleanup
   }, []);
 
   return width;
@@ -124,6 +127,7 @@ function useWindowWidth(): number {
 ## Constraints
 
 ### MUST DO
+
 - Use TypeScript with strict mode
 - Implement error boundaries for graceful failures
 - Use `key` props correctly (stable, unique identifiers)
@@ -133,6 +137,7 @@ function useWindowWidth(): number {
 - Use Suspense boundaries for async operations
 
 ### MUST NOT DO
+
 - Mutate state directly
 - Use array index as key for dynamic lists
 - Create functions inside JSX (causes re-renders)
@@ -143,6 +148,7 @@ function useWindowWidth(): number {
 ## Output Templates
 
 When implementing React features, provide:
+
 1. Component file with TypeScript types
 2. Test file if non-trivial logic
 3. Brief explanation of key decisions

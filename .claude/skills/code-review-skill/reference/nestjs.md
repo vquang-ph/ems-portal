@@ -4,14 +4,14 @@
 
 ## Table of Contents
 
-* [Dependency Injection & Layered Architecture](https://www.google.com/search?q=%23dependency-injection--layered-architecture)
-* [Module Organization](https://www.google.com/search?q=%23module-organization)
-* [Guards / Interceptors / Pipes](https://www.google.com/search?q=%23guards--interceptors--pipes)
-* [Validation Patterns (DTOs)](https://www.google.com/search?q=%23validation-patterns-dtos)
-* [Error Handling](https://www.google.com/search?q=%23error-handling)
-* [Circular Dependencies](https://www.google.com/search?q=%23circular-dependencies)
-* [Testing Patterns](https://www.google.com/search?q=%23testing-patterns)
-* [Review Checklist](https://www.google.com/search?q=%23review-checklist)
+- [Dependency Injection & Layered Architecture](https://www.google.com/search?q=%23dependency-injection--layered-architecture)
+- [Module Organization](https://www.google.com/search?q=%23module-organization)
+- [Guards / Interceptors / Pipes](https://www.google.com/search?q=%23guards--interceptors--pipes)
+- [Validation Patterns (DTOs)](https://www.google.com/search?q=%23validation-patterns-dtos)
+- [Error Handling](https://www.google.com/search?q=%23error-handling)
+- [Circular Dependencies](https://www.google.com/search?q=%23circular-dependencies)
+- [Testing Patterns](https://www.google.com/search?q=%23testing-patterns)
+- [Review Checklist](https://www.google.com/search?q=%23review-checklist)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ```typescript
 // ❌ ORM injected directly into Controller, skipping the Service layer
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -32,7 +32,7 @@ export class UsersController {
 }
 
 // ✅ Controller → Service → Repository
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -50,7 +50,6 @@ export class UsersService {
     return this.usersRepo.findAll();
   }
 }
-
 ```
 
 ### Repositories Should Not Inject Each Other
@@ -70,7 +69,6 @@ export class OrdersService {
     private readonly usersRepo: UsersRepository,
   ) {}
 }
-
 ```
 
 ### God Service: Split When Dependencies Exceed 8
@@ -100,9 +98,10 @@ export class CreateOrderService {
     private readonly paymentsService: PaymentsService,
   ) {}
 
-  async execute(dto: CreateOrderDto) { /* ... */ }
+  async execute(dto: CreateOrderDto) {
+    /* ... */
+  }
 }
-
 ```
 
 ### Dependency Inversion Using Symbol Tokens
@@ -164,7 +163,7 @@ src/
 
 ```typescript
 // ❌ Domain Entity depending on NestJS—cannot be tested independently
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class User {
@@ -179,14 +178,13 @@ export class User {
     return new User(email);
   }
 }
-
 ```
 
 ### Key Rules
 
-* `common/` must be **business-agnostic**—if it needs to know about an "Order," it doesn't belong here.
-* `integrations/` wraps external services; switching from SendGrid to AWS SES should only require changing one directory.
-* Use **Use-Case Services** (one file per operation) instead of giant `XxxService` files with 15 methods.
+- `common/` must be **business-agnostic**—if it needs to know about an "Order," it doesn't belong here.
+- `integrations/` wraps external services; switching from SendGrid to AWS SES should only require changing one directory.
+- Use **Use-Case Services** (one file per operation) instead of giant `XxxService` files with 15 methods.
 
 ---
 
@@ -218,7 +216,7 @@ export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>("roles", [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -227,7 +225,6 @@ export class RolesGuard implements CanActivate {
     return requiredRoles.some((role) => user.roles?.includes(role));
   }
 }
-
 ```
 
 ### Interceptors Are Only for Cross-Cutting Concerns
@@ -238,7 +235,7 @@ export class RolesGuard implements CanActivate {
 export class PricingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     // Calculating discounts—this is NOT a cross-cutting concern!
-    return next.handle().pipe(map(data => applyDiscount(data)));
+    return next.handle().pipe(map((data) => applyDiscount(data)));
   }
 }
 
@@ -248,12 +245,15 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     const now = Date.now();
     const req = context.switchToHttp().getRequest();
-    return next.handle().pipe(
-      tap(() => console.log(`${req.method} ${req.url} - ${Date.now() - now}ms`)),
-    );
+    return next
+      .handle()
+      .pipe(
+        tap(() =>
+          console.log(`${req.method} ${req.url} - ${Date.now() - now}ms`),
+        ),
+      );
   }
 }
-
 ```
 
 ### Global ValidationPipe Must Use Whitelist
@@ -277,7 +277,6 @@ async function bootstrap() {
   );
   await app.listen(3000);
 }
-
 ```
 
 ---
@@ -294,7 +293,7 @@ export class CreateOrderDto {
 }
 
 // ✅ @ValidateNested and @Type used together
-import { Type } from 'class-transformer';
+import { Type } from "class-transformer";
 
 export class CreateOrderDto {
   @ValidateNested()
@@ -306,7 +305,6 @@ export class CreateOrderDto {
   @Type(() => OrderItemDto)
   items: OrderItemDto[];
 }
-
 ```
 
 ### Avoid Raw 'any' Body
@@ -368,7 +366,6 @@ export class UpdateOrderDto {
   @Type(() => AddressDto)
   shipping?: AddressDto;
 }
-
 ```
 
 ---
@@ -402,15 +399,14 @@ async findOne(id: string): Promise<User> {
 
 ```typescript
 // ❌ Manually constructing HTTP responses
-throw new HttpException('Bad request', 400);
+throw new HttpException("Bad request", 400);
 
 // ✅ Use semantic built-in exceptions
-throw new BadRequestException('Invalid email format');
-throw new NotFoundException('User not found');
-throw new ConflictException('Email already taken');
-throw new ForbiddenException('Insufficient permissions');
-throw new UnauthorizedException('Invalid credentials');
-
+throw new BadRequestException("Invalid email format");
+throw new NotFoundException("User not found");
+throw new ConflictException("Email already taken");
+throw new ForbiddenException("Insufficient permissions");
+throw new UnauthorizedException("Invalid credentials");
 ```
 
 ### Custom Exception Filter
@@ -431,7 +427,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    this.logger.error(`${request.method} ${request.url} - ${status}`, exception instanceof Error ? exception.stack : '');
+    this.logger.error(
+      `${request.method} ${request.url} - ${status}`,
+      exception instanceof Error ? exception.stack : "",
+    );
 
     response.status(status).json({
       statusCode: status,
@@ -440,7 +439,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     });
   }
 }
-
 ```
 
 ---
@@ -469,7 +467,6 @@ export class OrdersModule {}
 
 @Module({ imports: [SharedModule] })
 export class UsersModule {}
-
 ```
 
 ### forwardRef is a Last Resort
@@ -485,7 +482,6 @@ export class OrdersModule {}
 // 1. Extract shared modules
 // 2. Use Event-Driven patterns (EventEmitter) instead of direct calls
 // 3. Lift shared logic to a higher-level Service
-
 ```
 
 ---
@@ -496,7 +492,7 @@ export class OrdersModule {}
 
 ```typescript
 // ✅ No need for NestFactory—instantiate directly
-describe('CreateUserHandler', () => {
+describe("CreateUserHandler", () => {
   let handler: CreateUserHandler;
   let repo: InMemoryUserRepository;
 
@@ -505,27 +501,26 @@ describe('CreateUserHandler', () => {
     handler = new CreateUserHandler(repo);
   });
 
-  it('creates a user', async () => {
+  it("creates a user", async () => {
     const id = await handler.execute(
-      new CreateUserCommand('user@example.com', 'Alice'),
+      new CreateUserCommand("user@example.com", "Alice"),
     );
     expect(id).toBeDefined();
   });
 
-  it('rejects duplicate email', async () => {
-    await handler.execute(new CreateUserCommand('user@example.com', 'Alice'));
+  it("rejects duplicate email", async () => {
+    await handler.execute(new CreateUserCommand("user@example.com", "Alice"));
     await expect(
-      handler.execute(new CreateUserCommand('user@example.com', 'Bob')),
-    ).rejects.toThrow('already exists');
+      handler.execute(new CreateUserCommand("user@example.com", "Bob")),
+    ).rejects.toThrow("already exists");
   });
 });
-
 ```
 
 ### E2E Tests Should Match Production Pipe Configuration
 
 ```typescript
-describe('UsersController (e2e)', () => {
+describe("UsersController (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -539,21 +534,20 @@ describe('UsersController (e2e)', () => {
     await app.init();
   });
 
-  it('/POST users - valid', () => {
+  it("/POST users - valid", () => {
     return request(app.getHttpServer())
-      .post('/users')
-      .send({ email: 'test@test.com', name: 'Test' })
+      .post("/users")
+      .send({ email: "test@test.com", name: "Test" })
       .expect(201);
   });
 
-  it('/POST users - extra fields rejected', () => {
+  it("/POST users - extra fields rejected", () => {
     return request(app.getHttpServer())
-      .post('/users')
-      .send({ email: 'test@test.com', name: 'Test', role: 'admin' })
+      .post("/users")
+      .send({ email: "test@test.com", name: "Test", role: "admin" })
       .expect(400);
   });
 });
-
 ```
 
 ---
@@ -562,46 +556,46 @@ describe('UsersController (e2e)', () => {
 
 ### Layered Architecture
 
-* [ ] ORM/Prisma is NOT injected directly into Controllers.
-* [ ] Business logic is NOT in Controllers.
-* [ ] Repositories do NOT inject each other.
-* [ ] Service dependency count ≤ 8 (split into Use-Cases if exceeded).
+- [ ] ORM/Prisma is NOT injected directly into Controllers.
+- [ ] Business logic is NOT in Controllers.
+- [ ] Repositories do NOT inject each other.
+- [ ] Service dependency count ≤ 8 (split into Use-Cases if exceeded).
 
 ### Dependency Injection
 
-* [ ] Interface + Symbol Token used for swappable dependencies.
-* [ ] No `forwardRef()` (if present, requires design documentation explaining why).
-* [ ] Scoped services are NOT injected into Singletons.
+- [ ] Interface + Symbol Token used for swappable dependencies.
+- [ ] No `forwardRef()` (if present, requires design documentation explaining why).
+- [ ] Scoped services are NOT injected into Singletons.
 
 ### Validation
 
-* [ ] Every `@ValidateNested()` has a corresponding `@Type()`.
-* [ ] Global `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` is configured.
-* [ ] No `@Body() body: any`—DTOs must be used.
-* [ ] Create and Update use separate DTOs (`PartialType`).
-* [ ] Array validation uses `{ each: true }`.
-* [ ] Optional nested objects use `@IsOptional()` + `@ValidateNested()` + `@Type()`.
+- [ ] Every `@ValidateNested()` has a corresponding `@Type()`.
+- [ ] Global `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` is configured.
+- [ ] No `@Body() body: any`—DTOs must be used.
+- [ ] Create and Update use separate DTOs (`PartialType`).
+- [ ] Array validation uses `{ each: true }`.
+- [ ] Optional nested objects use `@IsOptional()` + `@ValidateNested()` + `@Type()`.
 
 ### Guards / Interceptors / Pipes
 
-* [ ] Guards only handle authorization, not database queries.
-* [ ] Interceptors are only used for cross-cutting concerns (logging, caching, response transformation).
-* [ ] Business rules are located in Services.
+- [ ] Guards only handle authorization, not database queries.
+- [ ] Interceptors are only used for cross-cutting concerns (logging, caching, response transformation).
+- [ ] Business rules are located in Services.
 
 ### Error Handling
 
-* [ ] No `catch { return null }`—throw meaningful exceptions.
-* [ ] Use NestJS built-in exception classes.
-* [ ] Custom exception filters are placed in `common/filters/`.
+- [ ] No `catch { return null }`—throw meaningful exceptions.
+- [ ] Use NestJS built-in exception classes.
+- [ ] Custom exception filters are placed in `common/filters/`.
 
 ### Modules
 
-* [ ] No circular module references.
-* [ ] Domain Entities have no framework decorators (`@Injectable`, etc.).
-* [ ] External service calls are located in `integrations/`.
+- [ ] No circular module references.
+- [ ] Domain Entities have no framework decorators (`@Injectable`, etc.).
+- [ ] External service calls are located in `integrations/`.
 
 ### Testing
 
-* [ ] Use-Case Services can be tested without NestJS.
-* [ ] E2E tests use global Pipes/Guards consistent with production.
-* [ ] Domain Entities have zero framework dependencies.
+- [ ] Use-Case Services can be tested without NestJS.
+- [ ] E2E tests use global Pipes/Guards consistent with production.
+- [ ] Domain Entities have zero framework dependencies.

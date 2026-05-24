@@ -5,6 +5,7 @@
 ### Why VACUUM is Critical
 
 PostgreSQL uses MVCC (Multi-Version Concurrency Control):
+
 - Updates/deletes don't remove old rows immediately
 - Old rows marked as "dead tuples"
 - VACUUM reclaims space from dead tuples
@@ -422,24 +423,28 @@ VACUUM FREEZE users;  -- Specific table
 ## Maintenance Checklist
 
 **Daily:**
+
 - Monitor autovacuum activity
 - Check for long-running queries
 - Verify replication lag (if applicable)
 - Check cache hit ratio
 
 **Weekly:**
+
 - Review slow queries from pg_stat_statements
 - Check for table/index bloat
 - Review unused indexes
 - Monitor disk space usage
 
 **Monthly:**
+
 - Review autovacuum settings
 - Reindex heavily updated indexes
 - Update statistics on large tables
 - Review database growth trends
 
 **Quarterly:**
+
 - Test backup restoration
 - Review and optimize slow queries
 - Capacity planning

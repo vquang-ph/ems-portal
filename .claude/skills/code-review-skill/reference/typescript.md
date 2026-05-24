@@ -4,16 +4,16 @@ React focus areas: Hooks rules, moderation in performance optimization, componen
 
 ## Table of Contents
 
-* [Basic Hooks Rules](https://www.google.com/search?q=%23basic-hooks-rules)
-* [useEffect Patterns](https://www.google.com/search?q=%23useeffect-patterns)
-* [useMemo / useCallback](https://www.google.com/search?q=%23usememo--usecallback)
-* [Component Design](https://www.google.com/search?q=%23component-design)
-* [Error Boundaries & Suspense](https://www.google.com/search?q=%23error-boundaries--suspense)
-* [Server Components (RSC)](https://www.google.com/search?q=%23server-components-rsc)
-* [React 19 Actions & Forms](https://www.google.com/search?q=%23react-19-actions--forms)
-* [Suspense & Streaming SSR](https://www.google.com/search?q=%23suspense--streaming-ssr)
-* [TanStack Query v5](https://www.google.com/search?q=%23tanstack-query-v5)
-* [Review Checklists](https://www.google.com/search?q=%23review-checklists)
+- [Basic Hooks Rules](https://www.google.com/search?q=%23basic-hooks-rules)
+- [useEffect Patterns](https://www.google.com/search?q=%23useeffect-patterns)
+- [useMemo / useCallback](https://www.google.com/search?q=%23usememo--usecallback)
+- [Component Design](https://www.google.com/search?q=%23component-design)
+- [Error Boundaries & Suspense](https://www.google.com/search?q=%23error-boundaries--suspense)
+- [Server Components (RSC)](https://www.google.com/search?q=%23server-components-rsc)
+- [React 19 Actions & Forms](https://www.google.com/search?q=%23react-19-actions--forms)
+- [Suspense & Streaming SSR](https://www.google.com/search?q=%23suspense--streaming-ssr)
+- [TanStack Query v5](https://www.google.com/search?q=%23tanstack-query-v5)
+- [Review Checklists](https://www.google.com/search?q=%23review-checklists)
 
 ---
 
@@ -23,7 +23,7 @@ React focus areas: Hooks rules, moderation in performance optimization, componen
 // ❌ Conditional Hooks — Violates the Rules of Hooks
 function BadComponent({ isLoggedIn }) {
   if (isLoggedIn) {
-    const [user, setUser] = useState(null);  // Error!
+    const [user, setUser] = useState(null); // Error!
   }
   return <div>...</div>;
 }
@@ -34,7 +34,6 @@ function GoodComponent({ isLoggedIn }) {
   if (!isLoggedIn) return <LoginPrompt />;
   return <div>{user?.name}</div>;
 }
-
 ```
 
 ---
@@ -47,7 +46,7 @@ function BadEffect({ userId }) {
   const [user, setUser] = useState(null);
   useEffect(() => {
     fetchUser(userId).then(setUser);
-  }, []);  // Missing userId dependency!
+  }, []); // Missing userId dependency!
 }
 
 // ✅ Complete dependency array with cleanup
@@ -55,10 +54,12 @@ function GoodEffect({ userId }) {
   const [user, setUser] = useState(null);
   useEffect(() => {
     let cancelled = false;
-    fetchUser(userId).then(data => {
+    fetchUser(userId).then((data) => {
       if (!cancelled) setUser(data);
     });
-    return () => { cancelled = true; };  // Cleanup function
+    return () => {
+      cancelled = true;
+    }; // Cleanup function
   }, [userId]);
 }
 
@@ -66,39 +67,35 @@ function GoodEffect({ userId }) {
 function BadDerived({ items }) {
   const [filteredItems, setFilteredItems] = useState([]);
   useEffect(() => {
-    setFilteredItems(items.filter(i => i.active));
-  }, [items]);  // Unnecessary effect + extra render
+    setFilteredItems(items.filter((i) => i.active));
+  }, [items]); // Unnecessary effect + extra render
   return <List items={filteredItems} />;
 }
 
 // ✅ Compute directly during render, or use useMemo
 function GoodDerived({ items }) {
-  const filteredItems = useMemo(
-    () => items.filter(i => i.active),
-    [items]
-  );
+  const filteredItems = useMemo(() => items.filter((i) => i.active), [items]);
   return <List items={filteredItems} />;
 }
 
 // ❌ useEffect for event response
 function BadEventEffect() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   useEffect(() => {
     if (query) {
-      analytics.track('search', { query });  // Should be in event handler
+      analytics.track("search", { query }); // Should be in event handler
     }
   }, [query]);
 }
 
 // ✅ Execute side effects in event handlers
 function GoodEvent() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const handleSearch = (q: string) => {
     setQuery(q);
-    analytics.track('search', { query: q });
+    analytics.track("search", { query: q });
   };
 }
-
 ```
 
 ---
@@ -108,16 +105,16 @@ function GoodEvent() {
 ```tsx
 // ❌ Over-optimization — Constants don't need useMemo
 function OverOptimized() {
-  const config = useMemo(() => ({ timeout: 5000 }), []);  // Pointless
+  const config = useMemo(() => ({ timeout: 5000 }), []); // Pointless
   const handleClick = useCallback(() => {
-    console.log('clicked');
-  }, []);  // Pointless unless passed to memoized component
+    console.log("clicked");
+  }, []); // Pointless unless passed to memoized component
 }
 
 // ✅ Optimize only when necessary
 function ProperlyOptimized() {
-  const config = { timeout: 5000 };  // Define simple objects directly
-  const handleClick = () => console.log('clicked');
+  const config = { timeout: 5000 }; // Define simple objects directly
+  const handleClick = () => console.log("clicked");
 }
 
 // ❌ useCallback dependency changes every render
@@ -140,7 +137,6 @@ function Parent({ rawItems }) {
   }, [items]);
   return <MemoizedChild onClick={handleClick} items={items} />;
 }
-
 ```
 
 ---
@@ -150,7 +146,8 @@ function Parent({ rawItems }) {
 ```tsx
 // ❌ Defining components inside components — Creates a new component on every render
 function BadParent() {
-  function ChildComponent() {  // New function every render!
+  function ChildComponent() {
+    // New function every render!
     return <div>child</div>;
   }
   return <ChildComponent />;
@@ -168,19 +165,18 @@ function GoodParent() {
 function BadProps() {
   return (
     <MemoizedComponent
-      style={{ color: 'red' }}  // New object every render
-      onClick={() => {}}          // New function every render
+      style={{ color: "red" }} // New object every render
+      onClick={() => {}} // New function every render
     />
   );
 }
 
 // ✅ Stable references
-const style = { color: 'red' };
+const style = { color: "red" };
 function GoodProps() {
   const handleClick = useCallback(() => {}, []);
   return <MemoizedComponent style={style} onClick={handleClick} />;
 }
-
 ```
 
 ---
@@ -192,7 +188,7 @@ function GoodProps() {
 function BadApp() {
   return (
     <Suspense fallback={<Loading />}>
-      <DataComponent />  {/* Errors will crash the whole app */}
+      <DataComponent /> {/* Errors will crash the whole app */}
     </Suspense>
   );
 }
@@ -207,7 +203,6 @@ function GoodApp() {
     </ErrorBoundary>
   );
 }
-
 ```
 
 ---
@@ -281,7 +276,7 @@ function OldForm() {
 }
 
 // ✅ React 19: Unified management with useActionState
-import { useActionState } from 'react';
+import { useActionState } from "react";
 
 function NewForm() {
   const [state, formAction, isPending] = useActionState(
@@ -293,20 +288,19 @@ function NewForm() {
         return { success: false, error: e.message };
       }
     },
-    { success: false, data: null, error: null }
+    { success: false, data: null, error: null },
   );
 
   return (
     <form action={formAction}>
       <input name="email" />
       <button disabled={isPending}>
-        {isPending ? 'Submitting...' : 'Submit'}
+        {isPending ? "Submitting..." : "Submit"}
       </button>
       {state.error && <p className="error">{state.error}</p>}
     </form>
   );
 }
-
 ```
 
 ### useFormStatus
@@ -318,21 +312,19 @@ function BadSubmitButton({ isSubmitting }) {
 }
 
 // ✅ useFormStatus accesses parent <form> state (no props needed)
-import { useFormStatus } from 'react-dom';
+import { useFormStatus } from "react-dom";
 
 function SubmitButton() {
   const { pending, data, method, action } = useFormStatus();
   // Note: Must be used in a child component inside <form>
   return (
-    <button disabled={pending}>
-      {pending ? 'Submitting...' : 'Submit'}
-    </button>
+    <button disabled={pending}>{pending ? "Submitting..." : "Submit"}</button>
   );
 }
 
 // ❌ useFormStatus called in sibling component — does not work
 function BadForm() {
-  const { pending } = useFormStatus();  // Cannot get status here!
+  const { pending } = useFormStatus(); // Cannot get status here!
   return (
     <form action={action}>
       <button disabled={pending}>Submit</button>
@@ -344,11 +336,10 @@ function BadForm() {
 function GoodForm() {
   return (
     <form action={action}>
-      <SubmitButton />  {/* useFormStatus is called inside here */}
+      <SubmitButton /> {/* useFormStatus is called inside here */}
     </form>
   );
 }
-
 ```
 
 ### useOptimistic
@@ -361,25 +352,25 @@ function SlowLike({ postId, likes }) {
 
   const handleLike = async () => {
     setIsPending(true);
-    const newCount = await likePost(postId);  // Waiting...
+    const newCount = await likePost(postId); // Waiting...
     setLikeCount(newCount);
     setIsPending(false);
   };
 }
 
 // ✅ useOptimistic for instant feedback, auto-rollback on failure
-import { useOptimistic } from 'react';
+import { useOptimistic } from "react";
 
 function FastLike({ postId, likes }) {
   const [optimisticLikes, addOptimisticLike] = useOptimistic(
     likes,
-    (currentLikes, increment: number) => currentLikes + increment
+    (currentLikes, increment: number) => currentLikes + increment,
   );
 
   const handleLike = async () => {
-    addOptimisticLike(1);  // Update UI immediately
+    addOptimisticLike(1); // Update UI immediately
     try {
-      await likePost(postId);  // Sync in background
+      await likePost(postId); // Sync in background
     } catch {
       // React automatically rolls back to original likes value
     }
@@ -387,18 +378,17 @@ function FastLike({ postId, likes }) {
 
   return <button onClick={handleLike}>{optimisticLikes} likes</button>;
 }
-
 ```
 
 ### Server Actions (Next.js 15+)
 
 ```tsx
 // ❌ Client-side API call
-'use client';
+"use client";
 function ClientForm() {
   const handleSubmit = async (formData: FormData) => {
-    const res = await fetch('/api/submit', {
-      method: 'POST',
+    const res = await fetch("/api/submit", {
+      method: "POST",
       body: formData,
     });
     // ...
@@ -407,17 +397,17 @@ function ClientForm() {
 
 // ✅ Server Action + useActionState
 // actions.ts
-'use server';
+("use server");
 export async function createPost(prevState: any, formData: FormData) {
-  const title = formData.get('title');
+  const title = formData.get("title");
   await db.posts.create({ title });
-  revalidatePath('/posts');
+  revalidatePath("/posts");
   return { success: true };
 }
 
 // form.tsx
-'use client';
-import { createPost } from './actions';
+("use client");
+import { createPost } from "./actions";
 
 function PostForm() {
   const [state, formAction, isPending] = useActionState(createPost, null);
@@ -428,7 +418,6 @@ function PostForm() {
     </form>
   );
 }
-
 ```
 
 ---
@@ -446,7 +435,9 @@ function OldComponent() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchData().then(setData).finally(() => setIsLoading(false));
+    fetchData()
+      .then(setData)
+      .finally(() => setIsLoading(false));
   }, []);
 
   if (isLoading) return <Spinner />;
@@ -457,11 +448,10 @@ function OldComponent() {
 function NewComponent() {
   return (
     <Suspense fallback={<Spinner />}>
-      <DataView />  {/* Internal use of use() or Suspense-compatible fetching */}
+      <DataView /> {/* Internal use of use() or Suspense-compatible fetching */}
     </Suspense>
   );
 }
-
 ```
 
 ### Independent Suspense Boundaries
@@ -472,8 +462,8 @@ function BadLayout() {
   return (
     <Suspense fallback={<FullPageSpinner />}>
       <Header />
-      <MainContent />  {/* Slow */}
-      <Sidebar />      {/* Fast */}
+      <MainContent /> {/* Slow */}
+      <Sidebar /> {/* Fast */}
     </Suspense>
   );
 }
@@ -482,39 +472,40 @@ function BadLayout() {
 function GoodLayout() {
   return (
     <>
-      <Header />  {/* Shows immediately */}
+      <Header /> {/* Shows immediately */}
       <div className="flex">
         <Suspense fallback={<ContentSkeleton />}>
-          <MainContent />  {/* Loads independently */}
+          <MainContent /> {/* Loads independently */}
         </Suspense>
         <Suspense fallback={<SidebarSkeleton />}>
-          <Sidebar />      {/* Loads independently */}
+          <Sidebar /> {/* Loads independently */}
         </Suspense>
       </div>
     </>
   );
 }
-
 ```
 
 ### use() Hook (React 19)
 
 ```tsx
 // ✅ Reading a Promise in a component
-import { use } from 'react';
+import { use } from "react";
 
 function Comments({ commentsPromise }) {
-  const comments = use(commentsPromise);  // Automatically triggers Suspense
+  const comments = use(commentsPromise); // Automatically triggers Suspense
   return (
     <ul>
-      {comments.map(c => <li key={c.id}>{c.text}</li>)}
+      {comments.map((c) => (
+        <li key={c.id}>{c.text}</li>
+      ))}
     </ul>
   );
 }
 
 // Parent creates Promise, child consumes
 function Post({ postId }) {
-  const commentsPromise = fetchComments(postId);  // Do not await here
+  const commentsPromise = fetchComments(postId); // Do not await here
   return (
     <article>
       <PostContent id={postId} />
@@ -524,7 +515,6 @@ function Post({ postId }) {
     </article>
   );
 }
-
 ```
 
 ---
@@ -539,24 +529,24 @@ TanStack Query is the most popular data-fetching library in the React ecosystem.
 // ❌ Redundant definition of queryKey and queryFn
 function Component1() {
   const { data } = useQuery({
-    queryKey: ['users', userId],
+    queryKey: ["users", userId],
     queryFn: () => fetchUser(userId),
   });
 }
 
 function prefetchUser(queryClient, userId) {
   queryClient.prefetchQuery({
-    queryKey: ['users', userId],  // Duplication!
-    queryFn: () => fetchUser(userId),  // Duplication!
+    queryKey: ["users", userId], // Duplication!
+    queryFn: () => fetchUser(userId), // Duplication!
   });
 }
 
 // ✅ Unified definition with queryOptions, type-safe
-import { queryOptions } from '@tanstack/react-query';
+import { queryOptions } from "@tanstack/react-query";
 
 const userQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: ['users', userId],
+    queryKey: ["users", userId],
     queryFn: () => fetchUser(userId),
   });
 
@@ -567,18 +557,17 @@ function Component1({ userId }) {
 function prefetchUser(queryClient, userId) {
   queryClient.prefetchQuery(userQueryOptions(userId));
 }
-
 ```
 
 ### useSuspenseQuery
 
-| Feature | useQuery | useSuspenseQuery |
-| --- | --- | --- |
-| `enabled` option | ✅ Supported | ❌ Not supported |
-| `placeholderData` | ✅ Supported | ❌ Not supported |
-| `data` type | `T | undefined` |
-| Error Handling | `error` property | Thrown to Error Boundary |
-| Loading State | `isLoading` property | Suspends to Suspense |
+| Feature           | useQuery             | useSuspenseQuery         |
+| ----------------- | -------------------- | ------------------------ |
+| `enabled` option  | ✅ Supported         | ❌ Not supported         |
+| `placeholderData` | ✅ Supported         | ❌ Not supported         |
+| `data` type       | `T                   | undefined`               |
+| Error Handling    | `error` property     | Thrown to Error Boundary |
+| Loading State     | `isLoading` property | Suspends to Suspense     |
 
 ---
 
@@ -586,34 +575,34 @@ function prefetchUser(queryClient, userId) {
 
 ### Hooks Rules
 
-* [ ] Hooks are called at the top level of components/custom Hooks.
-* [ ] No Hook calls inside conditions or loops.
-* [ ] `useEffect` dependency array is complete.
-* [ ] `useEffect` has a cleanup function for subscriptions/timers.
-* [ ] No `useEffect` used for calculating derived state.
+- [ ] Hooks are called at the top level of components/custom Hooks.
+- [ ] No Hook calls inside conditions or loops.
+- [ ] `useEffect` dependency array is complete.
+- [ ] `useEffect` has a cleanup function for subscriptions/timers.
+- [ ] No `useEffect` used for calculating derived state.
 
 ### Performance Optimization
 
-* [ ] `useMemo`/`useCallback` used only where strictly necessary.
-* [ ] `React.memo` paired with stable prop references.
-* [ ] No child components defined inside other components.
-* [ ] Virtualization used for long lists (e.g., `react-window`).
+- [ ] `useMemo`/`useCallback` used only where strictly necessary.
+- [ ] `React.memo` paired with stable prop references.
+- [ ] No child components defined inside other components.
+- [ ] Virtualization used for long lists (e.g., `react-window`).
 
 ### Server Components (RSC)
 
-* [ ] `'use client'` used only for components requiring interaction.
-* [ ] Server Components do not use Hooks or event handlers.
-* [ ] Data fetching happens in Server Components where possible.
+- [ ] `'use client'` used only for components requiring interaction.
+- [ ] Server Components do not use Hooks or event handlers.
+- [ ] Data fetching happens in Server Components where possible.
 
 ### React 19 Forms
 
-* [ ] `useActionState` used instead of multiple `useState` calls.
-* [ ] `useFormStatus` called inside a form's child component.
-* [ ] Server Actions correctly marked with `'use server'`.
+- [ ] `useActionState` used instead of multiple `useState` calls.
+- [ ] `useFormStatus` called inside a form's child component.
+- [ ] Server Actions correctly marked with `'use server'`.
 
 ### Testing
 
-* [ ] Using `@testing-library/react`.
-* [ ] Querying elements via `screen`.
-* [ ] Preferring `*ByRole` queries.
-* [ ] Testing behaviors rather than implementation details.
+- [ ] Using `@testing-library/react`.
+- [ ] Querying elements via `screen`.
+- [ ] Preferring `*ByRole` queries.
+- [ ] Testing behaviors rather than implementation details.

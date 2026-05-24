@@ -373,32 +373,41 @@ SELECT add_continuous_aggregate_policy('metrics_hourly',
 ## Extension Recommendations by Use Case
 
 **Query Performance Monitoring:**
+
 - `pg_stat_statements` (essential)
 - `pg_stat_kcache` (cache hit statistics)
 
 **Text Search:**
+
 - `pg_trgm` (fuzzy matching, LIKE optimization)
 - Built-in full-text search (no extension needed)
 
 **Spatial Data:**
+
 - `postgis` (comprehensive spatial features)
 
 **Vector Embeddings / AI:**
+
 - `pgvector` (for semantic search, RAG applications)
 
 **Time-Series:**
+
 - `timescaledb` (automatic partitioning, compression)
 
 **Data Security:**
+
 - `pgcrypto` (hashing, encryption)
 - `pg_audit` (audit logging)
 
 **UUID Support:**
+
 - `uuid-ossp` (UUID generation)
 
 **Cross-Database Queries:**
+
 - `postgres_fdw` (query remote PostgreSQL)
 - `file_fdw` (query CSV files)
 
 **Table Maintenance:**
+
 - `pg_repack` (online bloat removal)

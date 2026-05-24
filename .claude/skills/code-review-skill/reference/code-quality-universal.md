@@ -4,17 +4,17 @@
 
 ## Table of Contents
 
-* [Code Reuse Review](https://www.google.com/search?q=%23code-reuse-review)
-* [Parameter Bloat](https://www.google.com/search?q=%23parameter-bloat)
-* [Leaky Abstractions](https://www.google.com/search?q=%23leaky-abstractions)
-* [String Typing](https://www.google.com/search?q=%23string-typing)
-* [Nested Conditional Expressions](https://www.google.com/search?q=%23nested-conditional-expressions)
-* [Copy-Paste Variations](https://www.google.com/search?q=%23copy-paste-variations)
-* [No-op Updates](https://www.google.com/search?q=%23no-op-updates)
-* [TOCTOU Race Conditions](https://www.google.com/search?q=%23toctou-race-conditions)
-* [Overly Broad Operations](https://www.google.com/search?q=%23overly-broad-operations)
-* [Redundant State](https://www.google.com/search?q=%23redundant-state)
-* [General Quality Review Checklist](https://www.google.com/search?q=%23general-quality-review-checklist)
+- [Code Reuse Review](https://www.google.com/search?q=%23code-reuse-review)
+- [Parameter Bloat](https://www.google.com/search?q=%23parameter-bloat)
+- [Leaky Abstractions](https://www.google.com/search?q=%23leaky-abstractions)
+- [String Typing](https://www.google.com/search?q=%23string-typing)
+- [Nested Conditional Expressions](https://www.google.com/search?q=%23nested-conditional-expressions)
+- [Copy-Paste Variations](https://www.google.com/search?q=%23copy-paste-variations)
+- [No-op Updates](https://www.google.com/search?q=%23no-op-updates)
+- [TOCTOU Race Conditions](https://www.google.com/search?q=%23toctou-race-conditions)
+- [Overly Broad Operations](https://www.google.com/search?q=%23overly-broad-operations)
+- [Redundant State](https://www.google.com/search?q=%23redundant-state)
+- [General Quality Review Checklist](https://www.google.com/search?q=%23general-quality-review-checklist)
 
 ---
 
@@ -48,14 +48,13 @@ function debounce(fn, ms) {
 
 // ✅ Use the existing utility function
 import { debounce } from "@/utils/debounce";
-
 ```
 
 **Review Points:**
 
-* Is the new function a duplicate or overlap in functionality with an existing utility?
-* Can inline logic be extracted as a call to an existing module?
-* Check adjacent files and the `shared/utils` directory.
+- Is the new function a duplicate or overlap in functionality with an existing utility?
+- Can inline logic be extracted as a call to an existing module?
+- Check adjacent files and the `shared/utils` directory.
 
 ---
 
@@ -106,9 +105,9 @@ function renderWidget(options: WidgetOptions) { ... }
 
 **Review Points:**
 
-* Does the function have $\ge 4$ parameters? Consider an options object / dataclass.
-* Is the new parameter just a boolean flag? Consider an enum or strategy pattern.
-* Are there mutually exclusive parameters like `enable_x` and `disable_y`?
+- Does the function have $\ge 4$ parameters? Consider an options object / dataclass.
+- Is the new parameter just a boolean flag? Consider an enum or strategy pattern.
+- Are there mutually exclusive parameters like `enable_x` and `disable_y`?
 
 ---
 
@@ -143,9 +142,9 @@ interface UserSummary {
 
 **Review Points:**
 
-* Does the function return type leak underlying implementations (ORM, HTTP client, file format)?
-* Does the component/function depend on the data structure of an external system?
-* Does it break existing abstraction boundaries?
+- Does the function return type leak underlying implementations (ORM, HTTP client, file format)?
+- Does the component/function depend on the data structure of an external system?
+- Does it break existing abstraction boundaries?
 
 ---
 
@@ -182,14 +181,13 @@ const Events = {
   USER_SUSPENDED: "userSuspended",
 } as const;
 emitter.emit(Events.USER_CREATED, data);
-
 ```
 
 **Review Points:**
 
-* Are strings used instead of existing enums/union types?
-* Are event names, action types, or status values scattered across multiple files?
-* Are string comparisons case-sensitive but unvalidated?
+- Are strings used instead of existing enums/union types?
+- Are event names, action types, or status values scattered across multiple files?
+- Are string comparisons case-sensitive but unvalidated?
 
 ---
 
@@ -219,8 +217,12 @@ label = ROLE_LABELS.get(role, "Unknown")
 ```typescript
 // ❌ Nested ternaries
 const bg = isHovered
-  ? isSelected ? "blue" : "gray"
-  : isSelected ? "navy" : "white";
+  ? isSelected
+    ? "blue"
+    : "gray"
+  : isSelected
+    ? "navy"
+    : "white";
 
 // ✅ Lookup map
 const bgMap: Record<string, string> = {
@@ -230,7 +232,6 @@ const bgMap: Record<string, string> = {
   "false-false": "white",
 };
 const bg = bgMap[`${isHovered}-${isSelected}`];
-
 ```
 
 ```python
@@ -255,9 +256,9 @@ def process(order):
 
 **Review Points:**
 
-* Is the ternary expression nested $\ge 2$ levels?
-* Is the if/else nesting $\ge 3$ levels deep?
-* Can it be replaced with a lookup table, early return, or match statement?
+- Is the ternary expression nested $\ge 2$ levels?
+- Is the if/else nesting $\ge 3$ levels deep?
+- Can it be replaced with a lookup table, early return, or match statement?
 
 ---
 
@@ -295,14 +296,13 @@ async function deleteResource(resource: string, id: string) {
   await fetch(`/api/${resource}/${id}`, { method: "DELETE" });
   router.push(`/${resource}`);
 }
-
 ```
 
 **Review Points:**
 
-* Are there $\ge 2$ blocks of code that differ only by variable names/URLs/strings?
-* Can a parameterized shared function be extracted?
-* Can variations be eliminated using a template method or strategy pattern?
+- Are there $\ge 2$ blocks of code that differ only by variable names/URLs/strings?
+- Can a parameterized shared function be extracted?
+- Can variations be eliminated using a template method or strategy pattern?
 
 ---
 
@@ -314,7 +314,9 @@ async function deleteResource(resource: string, id: string) {
 // ❌ Triggering update on every poll—even if data hasn't changed
 useEffect(() => {
   const interval = setInterval(() => {
-    fetch("/api/status").then(r => r.json()).then(setStatus);
+    fetch("/api/status")
+      .then((r) => r.json())
+      .then(setStatus);
   }, 5000);
   return () => clearInterval(interval);
 }, []);
@@ -323,14 +325,13 @@ useEffect(() => {
 useEffect(() => {
   const interval = setInterval(() => {
     fetch("/api/status")
-      .then(r => r.json())
-      .then(data => {
-        setStatus(prev => isEqual(prev, data) ? prev : data);
+      .then((r) => r.json())
+      .then((data) => {
+        setStatus((prev) => (isEqual(prev, data) ? prev : data));
       });
   }, 5000);
   return () => clearInterval(interval);
 }, []);
-
 ```
 
 ```python
@@ -350,9 +351,9 @@ for item in items:
 
 **Review Points:**
 
-* Do polling/interval/event handlers update unconditionally?
-* Does the wrapper function respect same-reference returns?
-* Do DB writes check for actual changes?
+- Do polling/interval/event handlers update unconditionally?
+- Does the wrapper function respect same-reference returns?
+- Do DB writes check for actual changes?
 
 ---
 
@@ -398,17 +399,17 @@ if (!fileExists(path)) {
 try {
   await writeFile(path, content, { flag: "wx" });
 } catch (e) {
-  if (e.code === "EEXIST") { /* handle */ }
-  else throw e;
+  if (e.code === "EEXIST") {
+    /* handle */
+  } else throw e;
 }
-
 ```
 
 **Review Points:**
 
-* Can the `if exists → operate` pattern be replaced with `try operate → catch`?
-* Are multi-step state changes handled within a transaction or lock?
-* In async operations, is there an `await` between the check and the act?
+- Can the `if exists → operate` pattern be replaced with `try operate → catch`?
+- Are multi-step state changes handled within a transaction or lock?
+- In async operations, is there an `await` between the check and the act?
 
 ---
 
@@ -432,13 +433,12 @@ with open("log.txt") as f:
 ```typescript
 // ❌ Loading all items then filtering
 const allItems = await db.query("SELECT * FROM orders");
-const pending = allItems.filter(o => o.status === "pending");
+const pending = allItems.filter((o) => o.status === "pending");
 
 // ✅ Database-level filtering
-const pending = await db.query(
-  "SELECT * FROM orders WHERE status = ?", ["pending"]
-);
-
+const pending = await db.query("SELECT * FROM orders WHERE status = ?", [
+  "pending",
+]);
 ```
 
 ```python
@@ -453,9 +453,9 @@ user = User.objects.get(id=user_id)
 
 **Review Points:**
 
-* Is the entire collection/file being read only to use a small part?
-* Can filtering be pushed to the database/storage layer?
-* Do API calls support pagination/limit parameters?
+- Is the entire collection/file being read only to use a small part?
+- Can filtering be pushed to the database/storage layer?
+- Do API calls support pagination/limit parameters?
 
 ---
 
@@ -468,7 +468,7 @@ user = User.objects.get(id=user_id)
 interface User {
   firstName: string;
   lastName: string;
-  fullName: string;  // redundant
+  fullName: string; // redundant
 }
 
 // ✅ fullName is a derived value
@@ -477,7 +477,6 @@ interface User {
   lastName: string;
 }
 const fullName = `${user.firstName} ${user.lastName}`;
-
 ```
 
 ```python
@@ -503,21 +502,21 @@ class Order:
 
 **Review Points:**
 
-* Are there fields that can be derived from others?
-* Is there an invalidation mechanism for cached values?
-* Can observers/effects be replaced with direct calls?
+- Are there fields that can be derived from others?
+- Is there an invalidation mechanism for cached values?
+- Can observers/effects be replaced with direct calls?
 
 ---
 
 ## General Quality Review Checklist
 
-* [ ] **Reuse Review**: Have existing utilities/helpers been searched? No reinventing the wheel?
-* [ ] **Parameter Count**: Are function parameters $\le 3$? If more, is an options object / dataclass used?
-* [ ] **Abstraction Boundaries**: Does the return type avoid exposing internal implementation details (ORM, HTTP client, file format)?
-* [ ] **Type Safety**: Are magic strings avoided in favor of existing enums/constants/union types?
-* [ ] **Conditional Depth**: Is ternary nesting $\le 1$ level? Is if/else nesting $\le 2$ levels?
-* [ ] **DRY**: Is there no copy-paste-with-variation ($\ge 2$ similar code blocks)?
-* [ ] **No-op Protection**: Do polling / interval / event handlers have change-detection guards?
-* [ ] **TOCTOU**: Is `if exists → operate` replaced with `try operate → catch`?
-* [ ] **Data Precision**: Is the code avoiding reading entire collections/files just for a subset?
-* [ ] **Redundant State**: are there any stored fields that could be derived from others?
+- [ ] **Reuse Review**: Have existing utilities/helpers been searched? No reinventing the wheel?
+- [ ] **Parameter Count**: Are function parameters $\le 3$? If more, is an options object / dataclass used?
+- [ ] **Abstraction Boundaries**: Does the return type avoid exposing internal implementation details (ORM, HTTP client, file format)?
+- [ ] **Type Safety**: Are magic strings avoided in favor of existing enums/constants/union types?
+- [ ] **Conditional Depth**: Is ternary nesting $\le 1$ level? Is if/else nesting $\le 2$ levels?
+- [ ] **DRY**: Is there no copy-paste-with-variation ($\ge 2$ similar code blocks)?
+- [ ] **No-op Protection**: Do polling / interval / event handlers have change-detection guards?
+- [ ] **TOCTOU**: Is `if exists → operate` replaced with `try operate → catch`?
+- [ ] **Data Precision**: Is the code avoiding reading entire collections/files just for a subset?
+- [ ] **Redundant State**: are there any stored fields that could be derived from others?

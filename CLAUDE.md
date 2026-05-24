@@ -19,11 +19,13 @@ A single root-level `.env` feeds all packages. Vite reads it via `loadEnv` again
 ## Package details
 
 <!-- always loaded — needed for almost every task -->
+
 @packages/backend/README.md
 @packages/shared/types/README.md
 
 <!-- loaded on demand — only needed for frontend tasks -->
-For frontend module structure and routing conventions, 
+
+For frontend module structure and routing conventions,
 see @packages/frontend/README.md
 
 ## Common Commands
@@ -75,19 +77,21 @@ docker compose up --build         # full stack: db + backend + frontend
 ## Project Summary: EMS Portal
 
 ### What is it?
-* A **digital marketplace** to connect clients with engineering experts.
-* A platform built using a **client-server architecture**.
+
+- A **digital marketplace** to connect clients with engineering experts.
+- A platform built using a **client-server architecture**.
 
 ### Why build it?
-* To solve the difficulty of finding the right engineer using an **intelligent matching algorithm**.
-* To ensure the system is **secure**, **fast**, and handles network traffic efficiently.
+
+- To solve the difficulty of finding the right engineer using an **intelligent matching algorithm**.
+- To ensure the system is **secure**, **fast**, and handles network traffic efficiently.
 
 ### Key Features
-* **Smart Matching:** Ranks providers based on skills, availability, cost, location, and ratings.
-* **User Roles:** Separate portals for **Clients**, **Service Providers**, and **Admins**.
-* **Skill Management:** Allows providers to showcase their specific engineering talents.
-* **Rating System:** A feedback loop to keep service quality high.
 
+- **Smart Matching:** Ranks providers based on skills, availability, cost, location, and ratings.
+- **User Roles:** Separate portals for **Clients**, **Service Providers**, and **Admins**.
+- **Skill Management:** Allows providers to showcase their specific engineering talents.
+- **Rating System:** A feedback loop to keep service quality high.
 
 ## Architecture Notes
 
@@ -131,6 +135,7 @@ GitHub Actions in `.github/workflows/`. `pr-check.yaml` is the entry point and f
 - New backend features: prefer `yarn scaffold:backend "<name>"` to get the controller/service/repository/entity/module scaffolding consistent.
 
 ## Exploration guidelines
+
 - Codebase map is above — trust it before exploring
 - New modules follow the pattern in packages/backend/src/users/
 - Read at most 2-3 reference files before planning, not the entire tree
