@@ -1,40 +1,74 @@
-# Product Specification Document: Digital Marketplace for Engineering Services
+# Product Specification: Digital Marketplace for Engineering Services
 
-## 1. Project Summary: The Core Vision
-
-The project focuses on building a **Digital Marketplace Platform for Engineering Services** that intelligently bridges the gap between clients and service providers.
-
-- **Primary Objective:** To design and implement an intelligent multi-criteria service matching mechanism for ranking and recommending providers.
-
-- **Engineering Dual-Focus:**
-- **Software Engineering:** Employs a modular architecture, layered design (presentation, logic, data), and structured requirement analysis.
-- **Network Engineering:** Adopts a secure client-server architecture, evaluating communication efficiency through latency and response time metrics.
-- **Key Deliverables:** A functional web-based system featuring secure authentication (JWT/RBAC), skill management, and matching algorithms .
+This document outlines the design and implementation of a specialized marketplace platform, emphasizing automated matching and network performance evaluation.
 
 ---
 
-## 2. Database & Persistence Layer
+## 1. Project Overview: The Core Vision
 
-The relational schema is designed to support both standard CRUD operations and the complex inputs required for the weighted scoring model.
+The project aims to develop a **Digital Marketplace Platform for Engineering Services** that bridges the gap between clients and service providers through automation.
 
-### The Matching Logic Entity
+* **Primary Objective:** To design and implement an **intelligent multi-criteria service matching mechanism** for ranking and recommending providers.
 
-The database must facilitate the multi-criteria matching objective. The intelligent matching algorithm will process data based on:
+
+* **Dual Engineering Perspectives:**
+* **Software Engineering:** Focuses on structured requirement analysis, modular architecture design, and systematic testing.
+* **Network Engineering:** Adopts a secure client-server architecture, emphasizing secure communication protocols and performance evaluation under various usage scenarios.
+
+---
+
+## 2. System Architecture & Design
+
+The platform will be built following modular and scalable principles to ensure maintainability.
+
+### Architectural Framework
+
+* **Requirement Modeling:** Use of UML diagrams for system behavior and data flow modeling.
+* **Layered Architecture:** Implementation of a three-layered design consisting of the **Presentation**, **Business Logic**, and **Data layers**.
+* **Communication:** A secure client-server interaction model featuring API design and detailed documentation.
+
+---
+
+## 3. Core Functional Modules & Persistence
+
+The system is designed to handle complex data relationships and secure user interactions.
+
+### User & Data Management
+
+* **Authentication & Access:** Secure user registration and **Role-Based Access Control (RBAC)** for three distinct roles: Client, Service Provider, and Administrator.
+* **Database Design:** A relational database schema focusing on data integrity, validation, and transaction handling.
+* **Profiles:** Dedicated modules for managing service provider profiles, skills, and service request submissions.
+
+### Intelligent Multi-Criteria Matching
+
+The core innovation lies in the matching engine which evaluates providers based on five primary criteria:
+
+1. **Skill Compatibility** 
+2. **Availability** 
+3. **Cost Range** 
+4. **Location Proximity** 
+5. **User Rating** 
+
+The system will utilize a **weighted scoring model** for provider ranking, allowing for an adjustable weighting mechanism. This logic can be formally expressed as:
 
 $$Score = \sum_{i=1}^{n} (w_i \cdot c_i)$$
 
-Where $w$ is the adjustable weight and $c$ is the criterion (e.g., skill compatibility, cost, or location).
-
-### Key Entities & Relations
-
-- **User & Profile:** Separates identity (authentication) from domain data (skills and availability).
-- **Service Requests:** Captures client needs, including budget and proximity requirements .
-- **Provider Skills:** Junction table linking providers to specific engineering skills with proficiency levels.
-- **Match Results:** Stores calculated scores to allow for the comparison between basic and intelligent matching approaches.
-- **Ratings:** Feeds back into the matching algorithm to improve recommendation accuracy over time.
+*(Where $w$ represents the adjustable weight and $c$ represents the criterion score.)*
 
 ---
 
-This structure directly satisfies your thesis requirement to "analyze system requirements and design a scalable client-server architecture" while ensuring your database is ready for "intelligent matching" performance evaluations.
+## 4. Network, Security & Evaluation
 
-Do you want to deep dive into the specific logic for the **Weighted Scoring Model** next, or should we refine the **Service Layer** methods?
+As a Network Engineering project, the system must undergo rigorous performance and security scrutiny.
+
+### Security & Communication
+
+* **Protocols:** Implementation of secure client-server communication using HTTPS.
+* **Vulnerability Protection:** Basic security mechanisms against common web vulnerabilities and session management.
+
+### System Evaluation
+
+* **Network Performance:** Analysis of network interaction efficiency, specifically monitoring **latency** and **response times**.
+* **Testing Suites:** Execution of functional testing and performance testing under different user loads.
+* **Effectiveness Review:** A direct comparison between basic matching and intelligent matching approaches to validate the algorithm's success.
+* **Scalability:** A final discussion on system limitations and future scalability.
