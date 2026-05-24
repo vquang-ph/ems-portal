@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { databaseConfig } from "@/config/database.config";
+import { databaseConfig } from "@/config/database";
 import { TodoStatus } from "@ems-portal/types";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TodoService } from "@/modules/todo/todo.service";

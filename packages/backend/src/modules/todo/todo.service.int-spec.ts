@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TodoService } from "./todo.service";
 import { TodoRepository } from "./todo.repository";
 import { TodoEntity } from "./entites/todo.entity";
-import { databaseConfig } from "@/config/database.config";
+import { databaseConfig } from "@/config/database";
 import { TodoStatus } from "@ems-portal/types";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { INITIAL_TODOS } from "@/database/seeds/data/todo.data";

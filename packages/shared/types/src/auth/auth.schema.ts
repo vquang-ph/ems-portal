@@ -60,3 +60,10 @@ export const AuthResponseSchema = z.object({
 });
 
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+
+// Returned by POST /auth/refresh. Shape mirrors AuthResponse so frontend
+// code can treat login and refresh identically. The refresh token itself
+// rides in an httpOnly cookie and never appears in JS-readable payloads.
+export const RefreshResponseSchema = AuthResponseSchema;
+
+export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;

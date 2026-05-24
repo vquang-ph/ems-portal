@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -8,16 +9,31 @@ import type { AuthResponse } from "@ems-portal/types";
 import { UserService } from "@/modules/user/user.service";
 import type { UserEntity } from "@/modules/user/entites/user.entity";
 import type { LoginDto, RegisterDto } from "./dto/auth.dto";
+import { RefreshTokenService } from "./refresh-token.service";
 import type { JwtPayload } from "./strategies/jwt.strategy";
+
+// Adds the raw refresh token to AuthResponse for the controller to set as a
+// cookie. Never returned to the client in the response body.
+export interface AuthResult extends AuthResponse {
+  refreshToken: string;
+}
 
 @Injectable()
 export class AuthService {
   public constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  public async register(dto: RegisterDto): Promise<AuthResponse> {
+  /**
+   * Registers a new user and issues an access + refresh token pair.
+   *
+   * @param dto - Registration payload (email, name, role, password).
+   * @returns Access token, public user, and the raw refresh token.
+   * @throws ConflictException if the email is already registered.
+   */
+  public async register(dto: RegisterDto): Promise<AuthResult> {
     const existing = await this.userService.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException("Email already registered");
@@ -30,10 +46,17 @@ export class AuthService {
       password: dto.password,
     });
 
-    return this.buildAuthResponse(user);
+    return this.buildAuthResult(user);
   }
 
-  public async login(dto: LoginDto): Promise<AuthResponse> {
+  /**
+   * Verifies credentials and issues an access + refresh token pair.
+   *
+   * @param dto - Login payload (email and plaintext password).
+   * @returns Access token, public user, and the raw refresh token.
+   * @throws UnauthorizedException if the email or password is invalid.
+   */
+  public async login(dto: LoginDto): Promise<AuthResult> {
     const user = await this.userService.findByEmail(dto.email);
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");
@@ -47,19 +70,55 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    return this.buildAuthResponse(user);
+    return this.buildAuthResult(user);
   }
 
-  private buildAuthResponse(user: UserEntity): AuthResponse {
-    const payload: JwtPayload = { sub: user.id };
-    const accessToken = this.jwtService.sign(payload);
+  /**
+   * Consumes a refresh token, rotates it, and issues a new access token. The
+   * user record is re-read so demotions/promotions take effect on next refresh.
+   *
+   * @param rawRefreshToken - The raw refresh token from the client cookie.
+   * @returns Fresh access token, public user, and a rotated refresh token.
+   * @throws UnauthorizedException for missing/expired/revoked tokens
+   *         (and triggers family revocation on reuse).
+   */
+  public async refresh(rawRefreshToken: string): Promise<AuthResult> {
+    try {
+      const previous =
+        await this.refreshTokenService.validateAndConsume(rawRefreshToken);
+      const user = await this.userService.findById(previous.userId);
+      const refreshToken = await this.refreshTokenService.rotate(previous);
 
-    return {
-      accessToken,
-      user: AuthService.toPublicUser(user),
-    };
+      return {
+        accessToken: this.signAccessToken(user),
+        user: AuthService.toPublicUser(user),
+        refreshToken,
+      };
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw new UnauthorizedException("User no longer exists");
+      }
+
+      throw e;
+    }
   }
 
+  /**
+   * Revokes the given refresh token server-side. Idempotent — unknown or
+   * already-revoked tokens silently succeed so stale cookies don't break UX.
+   *
+   * @param rawRefreshToken - The raw refresh token from the client cookie.
+   */
+  public async logout(rawRefreshToken: string): Promise<void> {
+    await this.refreshTokenService.revokeOne(rawRefreshToken);
+  }
+
+  /**
+   * Maps a UserEntity to the public-facing user shape (strips sensitive fields).
+   *
+   * @param user - The user entity to project.
+   * @returns The user payload safe to return over the wire.
+   */
   public static toPublicUser(user: UserEntity): AuthResponse["user"] {
     return {
       id: user.id,
@@ -69,5 +128,31 @@ export class AuthService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  /**
+   * Issues a fresh access + refresh pair for an authenticated user.
+   *
+   * @param user - The authenticated user entity.
+   * @returns Access token, public user, and the raw refresh token.
+   */
+  private async buildAuthResult(user: UserEntity): Promise<AuthResult> {
+    const refreshToken = await this.refreshTokenService.issueNewFamily(user.id);
+    return {
+      accessToken: this.signAccessToken(user),
+      user: AuthService.toPublicUser(user),
+      refreshToken,
+    };
+  }
+
+  /**
+   * Signs a short-lived JWT access token for the given user.
+   *
+   * @param user - The user the token represents.
+   * @returns A signed JWT string.
+   */
+  private signAccessToken(user: UserEntity): string {
+    const payload: JwtPayload = { sub: user.id };
+    return this.jwtService.sign(payload);
   }
 }

@@ -9,6 +9,12 @@ export class UserRepository extends Repository<UserEntity> {
     super(UserEntity, dataSource.createEntityManager());
   }
 
+  /**
+   * Finds a user by email, normalizing the input to lowercase first.
+   *
+   * @param email - The email to look up (case-insensitive).
+   * @returns The matching user entity, or null if none exists.
+   */
   public async findByEmail(email: string): Promise<UserEntity | null> {
     return this.findOne({ where: { email: email.toLowerCase() } });
   }

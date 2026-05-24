@@ -1,11 +1,12 @@
+import fastifyCookie from "@fastify/cookie";
+import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
   FastifyAdapter,
   type NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { AppModule } from "./app.module";
-import { swaggerSetup } from "./config/swagger.config";
-import { Logger } from "@nestjs/common";
+import { swaggerSetup } from "./config/swagger";
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger("Bootstrap");
@@ -17,10 +18,17 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix("api");
 
+  await app.register(fastifyCookie);
+
   const swaggerPath = swaggerSetup(app);
 
+  // Cookies require an explicit origin (not "*") plus credentials: true on both
+  // ends. APP_FRONTEND_URL feeds the allowlist; falls back to localhost dev port.
+  const frontendUrl = process.env.APP_FRONTEND_URL ?? "http://localhost:3001";
+
   app.enableCors({
-    origin: true,
+    origin: frontendUrl,
+    credentials: true,
     methods: "GET,PATCH,POST,DELETE",
   });
 

@@ -4,6 +4,8 @@ import { Test } from "@nestjs/testing";
 import { JwtService } from "@nestjs/jwt";
 import { UserRole } from "@ems-portal/types";
 import { AuthService } from "./auth.service";
+import { RefreshTokenService } from "./refresh-token.service";
+import { RefreshTokenEntity } from "./entites/refresh-token.entity";
 import { UserService } from "@/modules/user/user.service";
 import { UserEntity } from "@/modules/user/entites/user.entity";
 import type { RegisterDto, LoginDto } from "./dto/auth.dto";
@@ -12,6 +14,7 @@ describe("AuthService", () => {
   let service: AuthService;
   let userService: jest.Mocked<UserService>;
   let jwtService: jest.Mocked<JwtService>;
+  let refreshTokenService: jest.Mocked<RefreshTokenService>;
 
   const makeUser = (overrides: Partial<UserEntity> = {}): UserEntity => {
     const user = new UserEntity();
@@ -26,6 +29,23 @@ describe("AuthService", () => {
     return user;
   };
 
+  const makeRefreshRecord = (
+    overrides: Partial<RefreshTokenEntity> = {},
+  ): RefreshTokenEntity => {
+    const record = new RefreshTokenEntity();
+    record.id = "rt_1";
+    record.userId = "user_1";
+    record.familyId = "fam_1";
+    record.tokenHash = "hash";
+    record.expiresAt = new Date(Date.now() + 60_000);
+    record.revokedAt = null;
+    record.replacedByTokenId = null;
+    record.createdAt = new Date();
+    record.updatedAt = null;
+    Object.assign(record, overrides);
+    return record;
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +54,7 @@ describe("AuthService", () => {
           provide: UserService,
           useValue: {
             findByEmail: jest.fn(),
+            findById: jest.fn(),
             createUser: jest.fn(),
             verifyPassword: jest.fn(),
           },
@@ -44,14 +65,30 @@ describe("AuthService", () => {
             sign: jest.fn().mockReturnValue("signed-token"),
           },
         },
+        {
+          provide: RefreshTokenService,
+          useValue: {
+            issueNewFamily: jest.fn().mockResolvedValue("raw-refresh"),
+            validateAndConsume: jest.fn(),
+            rotate: jest.fn().mockResolvedValue("rotated-refresh"),
+            revokeOne: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
     service = module.get(AuthService);
     userService = module.get(UserService);
     jwtService = module.get(JwtService);
+    refreshTokenService = module.get(RefreshTokenService);
 
     jest.clearAllMocks();
+    (refreshTokenService.issueNewFamily as jest.Mock).mockResolvedValue(
+      "raw-refresh",
+    );
+    (refreshTokenService.rotate as jest.Mock).mockResolvedValue(
+      "rotated-refresh",
+    );
   });
 
   describe("register", () => {
@@ -62,7 +99,7 @@ describe("AuthService", () => {
       password: "supersecret",
     };
 
-    it("creates user and returns access token + public user", async () => {
+    it("creates user and returns access + refresh tokens with public user", async () => {
       userService.findByEmail.mockResolvedValue(null);
       const user = makeUser();
       userService.createUser.mockResolvedValue(user);
@@ -76,7 +113,9 @@ describe("AuthService", () => {
         password: dto.password,
       });
       expect(jwtService.sign).toHaveBeenCalledWith({ sub: user.id });
+      expect(refreshTokenService.issueNewFamily).toHaveBeenCalledWith(user.id);
       expect(result.accessToken).toBe("signed-token");
+      expect(result.refreshToken).toBe("raw-refresh");
       expect(result.user).toEqual({
         id: user.id,
         email: user.email,
@@ -98,6 +137,7 @@ describe("AuthService", () => {
         ConflictException,
       );
       expect(userService.createUser).not.toHaveBeenCalled();
+      expect(refreshTokenService.issueNewFamily).not.toHaveBeenCalled();
     });
   });
 
@@ -107,7 +147,7 @@ describe("AuthService", () => {
       password: "supersecret",
     };
 
-    it("returns access token when credentials are valid", async () => {
+    it("returns access + refresh tokens when credentials are valid", async () => {
       const user = makeUser();
       userService.findByEmail.mockResolvedValue(user);
       userService.verifyPassword.mockResolvedValue(true);
@@ -115,7 +155,9 @@ describe("AuthService", () => {
       const result = await service.login(dto);
 
       expect(result.accessToken).toBe("signed-token");
+      expect(result.refreshToken).toBe("raw-refresh");
       expect(result.user.id).toBe(user.id);
+      expect(refreshTokenService.issueNewFamily).toHaveBeenCalledWith(user.id);
     });
 
     it("throws UnauthorizedException when user not found", async () => {
@@ -124,6 +166,7 @@ describe("AuthService", () => {
       await expect(service.login(dto)).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
+      expect(refreshTokenService.issueNewFamily).not.toHaveBeenCalled();
     });
 
     it("throws UnauthorizedException when password mismatch", async () => {
@@ -133,6 +176,46 @@ describe("AuthService", () => {
       await expect(service.login(dto)).rejects.toBeInstanceOf(
         UnauthorizedException,
       );
+      expect(refreshTokenService.issueNewFamily).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("refresh", () => {
+    it("validates, rotates, and re-issues access token using fresh user data", async () => {
+      const previous = makeRefreshRecord();
+      refreshTokenService.validateAndConsume.mockResolvedValue(previous);
+      const user = makeUser();
+      userService.findById.mockResolvedValue(user);
+
+      const result = await service.refresh("raw");
+
+      expect(refreshTokenService.validateAndConsume).toHaveBeenCalledWith(
+        "raw",
+      );
+      expect(userService.findById).toHaveBeenCalledWith(previous.userId);
+      expect(refreshTokenService.rotate).toHaveBeenCalledWith(previous);
+      expect(result.accessToken).toBe("signed-token");
+      expect(result.refreshToken).toBe("rotated-refresh");
+      expect(result.user.id).toBe(user.id);
+    });
+
+    it("throws UnauthorizedException when the underlying user is gone", async () => {
+      refreshTokenService.validateAndConsume.mockResolvedValue(
+        makeRefreshRecord(),
+      );
+      userService.findById.mockRejectedValue(new Error("not found"));
+
+      await expect(service.refresh("raw")).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
+      expect(refreshTokenService.rotate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("logout", () => {
+    it("delegates to refresh token service revokeOne", async () => {
+      await service.logout("raw");
+      expect(refreshTokenService.revokeOne).toHaveBeenCalledWith("raw");
     });
   });
 });

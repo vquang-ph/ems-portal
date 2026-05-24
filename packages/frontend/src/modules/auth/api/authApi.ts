@@ -1,6 +1,12 @@
 import { apiClient } from "@/lib/apiClient";
 import { parseObjectWithDates } from "@/utils/parseObjectWithDates";
-import type { AuthResponse, Login, Register, User } from "@ems-portal/types";
+import type {
+  AuthResponse,
+  Login,
+  Register,
+  RefreshResponse,
+  User,
+} from "@ems-portal/types";
 
 const authApi = {
   async login(body: Login): Promise<AuthResponse> {
@@ -17,6 +23,18 @@ const authApi = {
       ...res.data,
       user: parseObjectWithDates<User>(res.data.user),
     };
+  },
+
+  async refresh(): Promise<RefreshResponse> {
+    const res = await apiClient.post<RefreshResponse>("/auth/refresh");
+    return {
+      ...res.data,
+      user: parseObjectWithDates<User>(res.data.user),
+    };
+  },
+
+  async logout(): Promise<void> {
+    await apiClient.post("/auth/logout");
   },
 
   async me(): Promise<User> {
