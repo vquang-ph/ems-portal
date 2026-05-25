@@ -9,7 +9,7 @@ import { hasPermission, type Permission } from "@ems-portal/types";
 
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 import { PERMISSIONS_METADATA_KEY } from "../decorators/require-permissions.decorator";
-import type { UserEntity } from "@/modules/user/entities/user.entity";
+import { UserEntity } from "@/modules/user/entites/user.entity";
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -49,12 +49,9 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     if (!user) throw new ForbiddenException("Authentication required");
 
-    // Admin implicit grant — the only place in the codebase where admin gets blanket
-    // access. Keeping it here (not in ROLE_PERMISSIONS) means adding a new permission
-    // never requires touching the admin grant.
-    if (user.role === "admin") return true;
-
     // AND semantics: the caller must hold every listed permission, not just one.
+    // Admin implicit grant is handled inside `hasPermission` — keeping it in exactly
+    // one place means adding a new permission never requires touching the admin grant.
     const ok = required.every((perm) => hasPermission(user.role, perm));
     if (!ok) throw new ForbiddenException("Insufficient permissions");
     return true;

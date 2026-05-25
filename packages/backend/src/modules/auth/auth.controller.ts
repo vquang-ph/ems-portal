@@ -21,8 +21,9 @@ import {
   UserDto,
 } from "./dto/auth.dto";
 import { Public } from "./decorators/public.decorator";
-import type { UserEntity } from "@/modules/user/entities/user.entity";
+
 import { AuthResult } from "./interfaces/auth.interface";
+import { UserEntity } from "../user/entites/user.entity";
 
 @ApiTags("Auth")
 @Controller("auth")

@@ -4,7 +4,7 @@ import { PermissionsGuard } from "./permissions.guard";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator";
 import { PERMISSIONS_METADATA_KEY } from "../decorators/require-permissions.decorator";
 import type { Permission } from "@ems-portal/types";
-import type { UserEntity } from "@/modules/user/entities/user.entity";
+import { UserEntity } from "@/modules/user/entites/user.entity";
 
 function buildContext(
   user: Partial<UserEntity> | undefined,

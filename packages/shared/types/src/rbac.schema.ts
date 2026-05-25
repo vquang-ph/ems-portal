@@ -73,9 +73,6 @@ export const ROLE_PERMISSIONS: Record<
  * @returns `true` when the role holds the permission.
  */
 export function hasPermission(role: UserRole, permission: Permission): boolean {
-  return (
-    ROLE_PERMISSIONS[role as Exclude<UserRole, "admin">]?.includes(
-      permission,
-    ) ?? false
-  );
+  if (role === "admin") return true;
+  return ROLE_PERMISSIONS[role].includes(permission);
 }
