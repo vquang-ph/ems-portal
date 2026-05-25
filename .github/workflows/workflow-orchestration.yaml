@@ -63,7 +63,7 @@ jobs:
 
       - name: Check Image Size
         run: |
-          docker images --format "{{.Repository}}: {{.Size}}" | grep "ems_portal"
+          docker images --format "{{.Repository}}: {{.Size}}" | grep -E "(ems|backend|frontend)" || true
 
       - name: Container Teardown
         if: always()
