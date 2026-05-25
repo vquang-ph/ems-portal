@@ -21,6 +21,7 @@ jobs:
           echo "APP_DATABASE_PASSWORD=password" >> .env
           echo "APP_DATABASE_PORT=3306" >> .env
           echo "APP_BACKEND_URL=http://localhost:3000" >> .env
+          echo "APP_JWT_SECRET=test-secret-key" >> .env
 
       - name: Build All Images
         run: docker compose build
