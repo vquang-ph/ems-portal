@@ -3,6 +3,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import fastifyCookie from "@fastify/cookie";
 import { type AuthResponse, type User, UserRole } from "@ems-portal/types";
 import { AppModule } from "@/app.module";
 import { AuthService } from "./auth.service";
@@ -35,6 +36,11 @@ describe("Auth Controller & Global Guard Wiring (Integration)", () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
+
+    // Mirror main.ts: register @fastify/cookie so reply.setCookie() works in
+    // the /auth/login and /auth/register handlers. Without this the routes
+    // throw "reply.setCookie is not a function" and return 500.
+    await app.register(fastifyCookie);
 
     app.setGlobalPrefix("api");
     await app.init();
@@ -132,7 +138,7 @@ describe("Auth Controller & Global Guard Wiring (Integration)", () => {
       });
     });
 
-    it("POST /auth/register without token returns 200 (@Public on register)", async () => {
+    it("POST /auth/register without token returns 201 (@Public on register)", async () => {
       const email = newEmail("register");
 
       const response = await app.inject({
@@ -146,7 +152,9 @@ describe("Auth Controller & Global Guard Wiring (Integration)", () => {
         },
       });
 
-      expect(response.statusCode).toBe(200);
+      // POST defaults to 201 Created in Nest; /register does not override
+      // @HttpCode, unlike /login, /refresh, /logout.
+      expect(response.statusCode).toBe(201);
 
       const body = JSON.parse(response.payload) as AuthResponse;
       expect(body.accessToken).toBeDefined();
