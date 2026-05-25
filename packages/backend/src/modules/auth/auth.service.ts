@@ -78,24 +78,22 @@ export class AuthService {
    *         (and triggers family revocation on reuse).
    */
   public async refresh(rawRefreshToken: string): Promise<AuthResult> {
+    const previous =
+      await this.refreshTokenService.validateAndConsume(rawRefreshToken);
+
+    let user: UserEntity;
     try {
-      const previous =
-        await this.refreshTokenService.validateAndConsume(rawRefreshToken);
-      const user = await this.userService.findById(previous.userId);
-      const refreshToken = await this.refreshTokenService.rotate(previous);
-
-      return {
-        accessToken: this.signAccessToken(user),
-        user: AuthService.toPublicUser(user),
-        refreshToken,
-      };
-    } catch (e) {
-      if (e instanceof NotFoundException) {
-        throw new UnauthorizedException("User no longer exists");
-      }
-
-      throw e;
+      user = await this.userService.findById(previous.userId);
+    } catch {
+      throw new UnauthorizedException("User no longer exists");
     }
+
+    const refreshToken = await this.refreshTokenService.rotate(previous);
+    return {
+      accessToken: this.signAccessToken(user),
+      user: AuthService.toPublicUser(user),
+      refreshToken,
+    };
   }
 
   /**

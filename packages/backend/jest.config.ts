@@ -26,6 +26,11 @@ export default {
     "!database/datasource.ts",
     "!database/seeds/**/*.ts",
     "!database/seed-runner.ts",
+
+    // Infrastructure / boilerplate
+    "!**/decorators/**/*.ts",
+    "!**/strategies/**/*.ts",
+    "!**/interfaces/**/*.ts",
   ],
   coverageReporters: ["json-summary", "text", "lcov", "json"],
   coverageDirectory: "../coverage",

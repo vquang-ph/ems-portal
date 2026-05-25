@@ -9,7 +9,8 @@
       "Bash(yarn build:types)",
       "Bash(yarn lint *)",
       "Bash(yarn workspace *)",
-      "Bash(yarn test:int)"
+      "Bash(yarn test:int)",
+      "Bash(yarn install *)"
     ]
   }
 }
