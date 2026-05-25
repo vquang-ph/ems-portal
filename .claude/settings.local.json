@@ -5,7 +5,8 @@
       "Read(//tmp/**)",
       "Bash(yarn tsc *)",
       "Bash(git *)",
-      "Bash(yarn test *)"
+      "Bash(yarn test *)",
+      "Bash(yarn build:types)"
     ]
   }
 }
