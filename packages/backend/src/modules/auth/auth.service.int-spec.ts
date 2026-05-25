@@ -10,6 +10,9 @@ import { AuthService } from "./auth.service";
 import { UserService } from "@/modules/user/user.service";
 import { UserRepository } from "@/modules/user/user.repository";
 import { UserEntity } from "@/modules/user/entites/user.entity";
+import { RefreshTokenService } from "./refresh-token/refresh-token.service";
+import { RefreshTokenRepository } from "./refresh-token/refresh-token.repository";
+import { RefreshTokenEntity } from "./refresh-token/entities/refresh-token.entity";
 
 /**
  * Integration tests for AuthService.
@@ -32,19 +35,25 @@ describe("AuthService (Integration)", () => {
           inject: [ConfigService],
           useFactory: (config: ConfigService) => ({
             ...databaseConfig(config),
-            entities: [UserEntity],
+            entities: [UserEntity, RefreshTokenEntity],
             synchronize: false,
             dropSchema: false,
           }),
         }),
-        TypeOrmModule.forFeature([UserEntity]),
+        TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
         JwtModule.registerAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: jwtModuleConfig,
         }),
       ],
-      providers: [AuthService, UserService, UserRepository],
+      providers: [
+        AuthService,
+        UserService,
+        UserRepository,
+        RefreshTokenService,
+        RefreshTokenRepository,
+      ],
     }).compile();
 
     authService = module.get(AuthService);

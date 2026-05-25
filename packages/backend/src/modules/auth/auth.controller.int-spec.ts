@@ -4,6 +4,7 @@ import {
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import fastifyCookie from "@fastify/cookie";
+import { MemoryHealthIndicator } from "@nestjs/terminus";
 import { type AuthResponse, type User, UserRole } from "@ems-portal/types";
 import { AppModule } from "@/app.module";
 import { AuthService } from "./auth.service";
@@ -28,7 +29,23 @@ describe("Auth Controller & Global Guard Wiring (Integration)", () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(MemoryHealthIndicator)
+      .useValue({
+        checkHeap: (key: string, _ignoredLimit: number) => {
+          const limit = 600 * 1024 * 1024;
+          const used = process.memoryUsage().heapUsed;
+          if (used >= limit) throw new Error(`Heap used (${used}) exceeded limit (${limit})`);
+          return { [key]: { status: "up" } };
+        },
+        checkRSS: (key: string, _ignoredLimit: number) => {
+          const limit = 600 * 1024 * 1024;
+          const used = process.memoryUsage().rss;
+          if (used >= limit) throw new Error(`RSS used (${used}) exceeded limit (${limit})`);
+          return { [key]: { status: "up" } };
+        },
+      })
+      .compile();
 
     authService = moduleFixture.get(AuthService);
     userRepo = moduleFixture.get(UserRepository);
