@@ -30,9 +30,9 @@
       },
       {
         "matcher": "Read|Grep|Glob",
-        "hook": [
+        "hooks": [
           {
-            "types": "command",
+            "type": "command",
             "command": ".claude/hooks/require-deep-explore.sh",
             "timeout": 5
           }
