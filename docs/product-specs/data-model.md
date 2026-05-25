@@ -7,16 +7,16 @@
 
 ## 1. How the Model Maps to `spec.md`
 
-| `spec.md` requirement | How the schema delivers |
-|---|---|
-| §3 RBAC for Client / Service Provider / Admin | `users.role` enum + `users.status` + role-conditional `provider_profiles` |
-| §3 Provider profiles, skills, service request submissions | `provider_profiles`, `skill_categories`, `skills`, `provider_skills`, `service_requests` |
-| §3 Five matching criteria (skill, availability, cost, location, rating) | Five explicit score columns on `match_results` |
-| §3 Weighted scoring with adjustable weights | `matching_configs` holds named weight sets; every `match_results` row references the config used |
-| §3 Database integrity, validation, transaction handling | DB-level CHECK constraints, unique constraints, FK enforcement, status enums driving state machines |
-| §4 Effectiveness review: basic vs. intelligent matching | `matching_configs.algorithm_version` + audit-log semantics on `match_results` |
-| §4 Scalability | `engagements` decouples recommendation volume from rating volume; denormalized aggregates on `provider_profiles`; monthly-partitioning plan for `match_results` |
-| §4 Security & session management | `refresh_tokens` rotation chain; `email_verified_at`, `last_login_at`, soft-delete `deleted_at` on `users` |
+| `spec.md` requirement                                                   | How the schema delivers                                                                                                                                         |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| §3 RBAC for Client / Service Provider / Admin                           | `users.role` enum + `users.status` + role-conditional `provider_profiles`                                                                                       |
+| §3 Provider profiles, skills, service request submissions               | `provider_profiles`, `skill_categories`, `skills`, `provider_skills`, `service_requests`                                                                        |
+| §3 Five matching criteria (skill, availability, cost, location, rating) | Five explicit score columns on `match_results`                                                                                                                  |
+| §3 Weighted scoring with adjustable weights                             | `matching_configs` holds named weight sets; every `match_results` row references the config used                                                                |
+| §3 Database integrity, validation, transaction handling                 | DB-level CHECK constraints, unique constraints, FK enforcement, status enums driving state machines                                                             |
+| §4 Effectiveness review: basic vs. intelligent matching                 | `matching_configs.algorithm_version` + audit-log semantics on `match_results`                                                                                   |
+| §4 Scalability                                                          | `engagements` decouples recommendation volume from rating volume; denormalized aggregates on `provider_profiles`; monthly-partitioning plan for `match_results` |
+| §4 Security & session management                                        | `refresh_tokens` rotation chain; `email_verified_at`, `last_login_at`, soft-delete `deleted_at` on `users`                                                      |
 
 Sections 2 and 3 expand on each entity and the cross-cutting decisions.
 
@@ -128,7 +128,7 @@ The audit log of "we recommended provider X to request Y under algorithm Z."
 The actual work record. Distinguishes "we recommended" from "they did the work."
 
 - **Satisfies:** spec §3 data integrity; spec §4 scalability; enables a clean rating workflow.
-- **Why it exists:** a match is a *recommendation*, not a contract. Ratings hanging off `match_results` would let users rate work that never happened. `engagements` bridges `service_requests` → provider → `ratings`.
+- **Why it exists:** a match is a _recommendation_, not a contract. Ratings hanging off `match_results` would let users rate work that never happened. `engagements` bridges `service_requests` → provider → `ratings`.
 - **State machine:** `pending → accepted → in_progress → completed | cancelled`. Ratings are only valid when `status = completed`.
 - **Notable fields:**
   - `request_id`, `provider_id`, `client_id` — all three retained explicitly so "a provider's completed jobs" and "a client's history" don't require traversing requests.
@@ -141,7 +141,7 @@ Feedback. Closes the loop on matching criterion #5 (user rating).
 - **Satisfies:** spec §3 rating system; feeds `provider_profiles.rating_average`.
 - **Notable fields:**
   - `engagement_id` FK — ratings attach to engagements, never matches.
-  - `rater_id`, `ratee_id` — explicit on the row. Enables bidirectional ratings (client rates provider *and* provider rates client) without future restructuring.
+  - `rater_id`, `ratee_id` — explicit on the row. Enables bidirectional ratings (client rates provider _and_ provider rates client) without future restructuring.
   - `score int CHECK (score BETWEEN 1 AND 5)` — DB-level integrity, not just Zod.
 - **Integrity rule:** application enforces `engagement.status = 'completed'` before insert.
 
@@ -197,19 +197,19 @@ Per `CLAUDE.md`'s data-mapper convention, every entity `implements` the correspo
 
 ## 4. Table Summary
 
-| Table | Purpose |
-|---|---|
-| `users` | Identity, role, and status for every actor. |
-| `refresh_tokens` | Rotation chain for JWT refresh flow. |
-| `provider_profiles` | Provider-only profile; supplies 4 of 5 matching criteria. |
-| `skill_categories` | Taxonomy parent for skills. |
-| `skills` | Master skill catalog. |
-| `provider_skills` | Provider × skill join (skill compatibility input). |
-| `service_requests` | Client demand; triggers matching. |
-| `matching_configs` | Named weight sets per algorithm version (basic / intelligent). |
-| `match_results` | Audit log of recommendations with five score columns + total. |
-| `engagements` | Actual work record — bridges matches to ratings. |
-| `ratings` | Bidirectional feedback; feeds provider aggregates. |
+| Table               | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `users`             | Identity, role, and status for every actor.                    |
+| `refresh_tokens`    | Rotation chain for JWT refresh flow.                           |
+| `provider_profiles` | Provider-only profile; supplies 4 of 5 matching criteria.      |
+| `skill_categories`  | Taxonomy parent for skills.                                    |
+| `skills`            | Master skill catalog.                                          |
+| `provider_skills`   | Provider × skill join (skill compatibility input).             |
+| `service_requests`  | Client demand; triggers matching.                              |
+| `matching_configs`  | Named weight sets per algorithm version (basic / intelligent). |
+| `match_results`     | Audit log of recommendations with five score columns + total.  |
+| `engagements`       | Actual work record — bridges matches to ratings.               |
+| `ratings`           | Bidirectional feedback; feeds provider aggregates.             |
 
 ---
 

@@ -17,6 +17,7 @@ Two new NestJS modules (`provider-profile`, `skills`) backed by one migration an
 **File:** `src/database/migrations/<timestamp>-AddUserFieldsAndProviderProfileTables.ts`
 
 Generate via:
+
 ```bash
 yarn workspace @ems-portal/backend migration:generate \
   src/database/migrations/AddUserFieldsAndProviderProfileTables
@@ -26,12 +27,12 @@ yarn workspace @ems-portal/backend migration:generate \
 
 **`users` table — add columns:**
 
-| Column | Type | Notes |
-|---|---|---|
-| `status` | `ENUM('active','suspended','deleted')` | DEFAULT `'active'` |
-| `deleted_at` | `TIMESTAMPTZ` | NULLABLE; soft delete |
-| `email_verified_at` | `TIMESTAMPTZ` | NULLABLE |
-| `last_login_at` | `TIMESTAMPTZ` | NULLABLE |
+| Column              | Type                                   | Notes                 |
+| ------------------- | -------------------------------------- | --------------------- |
+| `status`            | `ENUM('active','suspended','deleted')` | DEFAULT `'active'`    |
+| `deleted_at`        | `TIMESTAMPTZ`                          | NULLABLE; soft delete |
+| `email_verified_at` | `TIMESTAMPTZ`                          | NULLABLE              |
+| `last_login_at`     | `TIMESTAMPTZ`                          | NULLABLE              |
 
 **New type:** `CREATE TYPE "public"."user_status_enum" AS ENUM('active', 'suspended', 'deleted')`
 
@@ -90,6 +91,7 @@ CREATE TABLE "provider_skills" (
 ```
 
 **Indexes:**
+
 ```sql
 CREATE INDEX "IDX_skills_category_id" ON "skills" ("category_id");
 CREATE INDEX "IDX_provider_skills_skill_id" ON "provider_skills" ("skill_id");
@@ -109,8 +111,17 @@ CREATE INDEX "IDX_users_role" ON "users" ("role")
 import { z } from "zod";
 import { BaseSchema } from "../base.schema";
 
-export const VERIFICATION_STATUS_VALUES = ["unverified", "pending", "verified"] as const;
-export const PROFICIENCY_LEVEL_VALUES = ["junior", "mid", "senior", "expert"] as const;
+export const VERIFICATION_STATUS_VALUES = [
+  "unverified",
+  "pending",
+  "verified",
+] as const;
+export const PROFICIENCY_LEVEL_VALUES = [
+  "junior",
+  "mid",
+  "senior",
+  "expert",
+] as const;
 
 export const VerificationStatusSchema = z.enum(VERIFICATION_STATUS_VALUES);
 export const ProficiencyLevelSchema = z.enum(PROFICIENCY_LEVEL_VALUES);
@@ -177,6 +188,7 @@ export type AddProviderSkill = z.infer<typeof AddProviderSkillSchema>;
 
 **Update `src/auth/auth.schema.ts`:**
 Add to `UserSchema`:
+
 ```ts
 status: z.enum(["active", "suspended", "deleted"]).optional(),
 emailVerifiedAt: z.coerce.date().nullable().optional(),
@@ -209,6 +221,7 @@ src/modules/skills/
 ### Entities
 
 **`entities/skill-category.entity.ts`**
+
 ```ts
 @Entity({ name: "skill_categories" })
 export class SkillCategoryEntity implements SkillCategory {
@@ -221,6 +234,7 @@ export class SkillCategoryEntity implements SkillCategory {
 ```
 
 **`entities/skill.entity.ts`**
+
 ```ts
 @Entity({ name: "skills" })
 export class SkillEntity implements Skill {
@@ -254,9 +268,9 @@ One `skills.repository.ts` covering both entities (both are read-only catalog qu
 @Injectable()
 export class SkillsRepository {
   // Two TypeORM repos injected; covers both entities
-  findAllCategories(): Promise<SkillCategoryEntity[]>
-  findSkillsByCategoryId(categoryId?: number): Promise<SkillEntity[]>
-  findSkillsByIds(ids: number[]): Promise<SkillEntity[]>
+  findAllCategories(): Promise<SkillCategoryEntity[]>;
+  findSkillsByCategoryId(categoryId?: number): Promise<SkillEntity[]>;
+  findSkillsByIds(ids: number[]): Promise<SkillEntity[]>;
 }
 ```
 
@@ -265,9 +279,9 @@ export class SkillsRepository {
 ```ts
 @Injectable()
 export class SkillsService {
-  getCategories(): Promise<SkillCategory[]>
-  getSkills(categoryId?: number): Promise<Skill[]>
-  getSkillsByIds(ids: number[]): Promise<Skill[]>  // used by provider-profile service
+  getCategories(): Promise<SkillCategory[]>;
+  getSkills(categoryId?: number): Promise<Skill[]>;
+  getSkillsByIds(ids: number[]): Promise<Skill[]>; // used by provider-profile service
 }
 ```
 
@@ -275,10 +289,10 @@ export class SkillsService {
 
 Both endpoints are public (no auth required for catalog access):
 
-| Method | Path | Guard | Permission | Returns |
-|---|---|---|---|---|
-| `GET` | `/skills/categories` | `@Public()` | — | `SkillCategory[]` |
-| `GET` | `/skills` | `@Public()` | — | `Skill[]` (optional `?categoryId=`) |
+| Method | Path                 | Guard       | Permission | Returns                             |
+| ------ | -------------------- | ----------- | ---------- | ----------------------------------- |
+| `GET`  | `/skills/categories` | `@Public()` | —          | `SkillCategory[]`                   |
+| `GET`  | `/skills`            | `@Public()` | —          | `Skill[]` (optional `?categoryId=`) |
 
 ```ts
 @ApiTags("Skills")
@@ -319,9 +333,13 @@ src/modules/provider-profile/
 ### Entities
 
 **`entities/provider-profile.entity.ts`**
+
 ```ts
 @Entity({ name: "provider_profiles" })
-export class ProviderProfileEntity extends BaseEntity implements ProviderProfile {
+export class ProviderProfileEntity
+  extends BaseEntity
+  implements ProviderProfile
+{
   @Column({ name: "user_id", type: "uuid" })
   public userId: string;
 
@@ -337,13 +355,31 @@ export class ProviderProfileEntity extends BaseEntity implements ProviderProfile
   @Column({ name: "is_available", default: true })
   public isAvailable: boolean;
 
-  @Column({ name: "hourly_rate_min", type: "numeric", precision: 12, scale: 2, nullable: true })
+  @Column({
+    name: "hourly_rate_min",
+    type: "numeric",
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   public hourlyRateMin: number | null;
 
-  @Column({ name: "hourly_rate_max", type: "numeric", precision: 12, scale: 2, nullable: true })
+  @Column({
+    name: "hourly_rate_max",
+    type: "numeric",
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   public hourlyRateMax: number | null;
 
-  @Column({ name: "rating_average", type: "numeric", precision: 3, scale: 2, default: 0 })
+  @Column({
+    name: "rating_average",
+    type: "numeric",
+    precision: 3,
+    scale: 2,
+    default: 0,
+  })
   public ratingAverage: number;
 
   @Column({ name: "rating_count", default: 0 })
@@ -368,6 +404,7 @@ export class ProviderProfileEntity extends BaseEntity implements ProviderProfile
 ```
 
 **`entities/provider-skill.entity.ts`**
+
 ```ts
 @Entity({ name: "provider_skills" })
 export class ProviderSkillEntity {
@@ -386,7 +423,9 @@ export class ProviderSkillEntity {
   @CreateDateColumn({ name: "created_at" })
   public createdAt: Date;
 
-  @ManyToOne(() => ProviderProfileEntity, (p) => p.providerSkills, { onDelete: "CASCADE" })
+  @ManyToOne(() => ProviderProfileEntity, (p) => p.providerSkills, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "profile_id" })
   public profile: ProviderProfileEntity;
 
@@ -402,8 +441,12 @@ Note: `ProviderSkillEntity` does not extend `BaseEntity` — it has a composite 
 
 ```ts
 // Wire DTOs — HTTP boundary, Swagger + Zod validation
-export class CreateProviderProfileDto extends createZodDto(CreateProviderProfileSchema) {}
-export class UpdateProviderProfileDto extends createZodDto(UpdateProviderProfileSchema) {}
+export class CreateProviderProfileDto extends createZodDto(
+  CreateProviderProfileSchema,
+) {}
+export class UpdateProviderProfileDto extends createZodDto(
+  UpdateProviderProfileSchema,
+) {}
 export class ProviderProfileDto extends createZodDto(ProviderProfileSchema) {}
 export class AddProviderSkillDto extends createZodDto(AddProviderSkillSchema) {}
 
@@ -416,17 +459,20 @@ export type CreateProfileInput = CreateProviderProfile & { userId: string };
 ```ts
 @Injectable()
 export class ProviderProfileRepository extends Repository<ProviderProfileEntity> {
-  findByUserId(userId: string): Promise<ProviderProfileEntity | null>
-    // Eager-loads providerSkills relation
+  findByUserId(userId: string): Promise<ProviderProfileEntity | null>;
+  // Eager-loads providerSkills relation
 
-  findByUserIdOrFail(userId: string): Promise<ProviderProfileEntity>
-    // Throws EntityNotFoundError (→ 404 via TypeOrmExceptionFilter)
+  findByUserIdOrFail(userId: string): Promise<ProviderProfileEntity>;
+  // Throws EntityNotFoundError (→ 404 via TypeOrmExceptionFilter)
 
-  addSkill(profileId: string, dto: AddProviderSkill): Promise<ProviderSkillEntity>
-    // Upsert-safe: conflict on (profile_id, skill_id) updates level + years
+  addSkill(
+    profileId: string,
+    dto: AddProviderSkill,
+  ): Promise<ProviderSkillEntity>;
+  // Upsert-safe: conflict on (profile_id, skill_id) updates level + years
 
-  removeSkill(profileId: string, skillId: number): Promise<void>
-    // Soft-fail if row doesn't exist
+  removeSkill(profileId: string, skillId: number): Promise<void>;
+  // Soft-fail if row doesn't exist
 }
 ```
 
@@ -435,23 +481,26 @@ export class ProviderProfileRepository extends Repository<ProviderProfileEntity>
 ```ts
 @Injectable()
 export class ProviderProfileService {
-  getOwnProfile(userId: string): Promise<ProviderProfile>
-    // @throws NotFoundException if no profile exists for this user
+  getOwnProfile(userId: string): Promise<ProviderProfile>;
+  // @throws NotFoundException if no profile exists for this user
 
-  getProfileByUserId(userId: string): Promise<ProviderProfile>
-    // Public read — same query, same 404 semantics
+  getProfileByUserId(userId: string): Promise<ProviderProfile>;
+  // Public read — same query, same 404 semantics
 
-  createProfile(input: CreateProfileInput): Promise<ProviderProfile>
-    // @throws ConflictException if profile already exists for userId
+  createProfile(input: CreateProfileInput): Promise<ProviderProfile>;
+  // @throws ConflictException if profile already exists for userId
 
-  updateProfile(userId: string, dto: UpdateProviderProfile): Promise<ProviderProfile>
-    // @throws NotFoundException if no profile exists
+  updateProfile(
+    userId: string,
+    dto: UpdateProviderProfile,
+  ): Promise<ProviderProfile>;
+  // @throws NotFoundException if no profile exists
 
-  addSkill(userId: string, dto: AddProviderSkill): Promise<ProviderSkill>
-    // @throws NotFoundException if no profile or if skillId doesn't exist
+  addSkill(userId: string, dto: AddProviderSkill): Promise<ProviderSkill>;
+  // @throws NotFoundException if no profile or if skillId doesn't exist
 
-  removeSkill(userId: string, skillId: number): Promise<void>
-    // @throws NotFoundException if no profile exists
+  removeSkill(userId: string, skillId: number): Promise<void>;
+  // @throws NotFoundException if no profile exists
 }
 ```
 
@@ -459,14 +508,14 @@ export class ProviderProfileService {
 
 All routes are under `@Controller("provider-profiles")`. Both guards are active globally — only `@RequirePermissions()` and `@CurrentUser()` needed here.
 
-| Method | Path | Permission | Description |
-|---|---|---|---|
-| `POST` | `/provider-profiles` | `provider_profile:create:own` | Create own profile (provider only) |
-| `GET` | `/provider-profiles/me` | *(auth only, no perm check)* | Read own profile with skills |
-| `PATCH` | `/provider-profiles/me` | `provider_profile:update:own` | Update own profile |
-| `GET` | `/provider-profiles/:userId` | `provider_profile:read:any` | Read any provider's profile (client + admin) |
-| `POST` | `/provider-profiles/me/skills` | `provider_profile:update:own` | Add a skill to own profile |
-| `DELETE` | `/provider-profiles/me/skills/:skillId` | `provider_profile:update:own` | Remove a skill from own profile |
+| Method   | Path                                    | Permission                    | Description                                  |
+| -------- | --------------------------------------- | ----------------------------- | -------------------------------------------- |
+| `POST`   | `/provider-profiles`                    | `provider_profile:create:own` | Create own profile (provider only)           |
+| `GET`    | `/provider-profiles/me`                 | _(auth only, no perm check)_  | Read own profile with skills                 |
+| `PATCH`  | `/provider-profiles/me`                 | `provider_profile:update:own` | Update own profile                           |
+| `GET`    | `/provider-profiles/:userId`            | `provider_profile:read:any`   | Read any provider's profile (client + admin) |
+| `POST`   | `/provider-profiles/me/skills`          | `provider_profile:update:own` | Add a skill to own profile                   |
+| `DELETE` | `/provider-profiles/me/skills/:skillId` | `provider_profile:update:own` | Remove a skill from own profile              |
 
 ```ts
 @ApiTags("Provider Profiles")
@@ -541,6 +590,7 @@ Creates a `provider_profiles` row for the `provider@ems.local` seed user. Attach
 ## 6. Module Registration (`src/app.module.ts`)
 
 Add to the `imports` array:
+
 ```ts
 import { SkillsModule } from "./modules/skills/skills.module";
 import { ProviderProfileModule } from "./modules/provider-profile/provider-profile.module";
@@ -557,18 +607,21 @@ ProviderProfileModule,
 ### Unit Tests (co-located `*.spec.ts`)
 
 **`provider-profile.service.spec.ts`:**
+
 - `createProfile` — throws `ConflictException` on duplicate `userId`
 - `getOwnProfile` — throws `NotFoundException` when repository returns null
 - `addSkill` — verifies skill existence via `SkillsService` before inserting
 - `removeSkill` — idempotent (no error if row absent)
 
 **`provider-profile.controller.spec.ts`:**
+
 - `POST /provider-profiles` with `client` role user → `@RequirePermissions` check via guard mock
 - `GET /provider-profiles/me` returns service result mapped to DTO
 
 ### Integration Tests (`*.int-spec.ts`)
 
 **`provider-profile.int-spec.ts`:**
+
 - Authenticates as `provider@ems.local` (from seed)
 - `POST /api/provider-profiles` — creates profile, asserts 201 + returned ProviderProfile shape
 - `GET /api/provider-profiles/me` — asserts profile returned with skills array
@@ -585,16 +638,16 @@ ProviderProfileModule,
 
 ## 8. Gap Analysis vs Data Model
 
-| Data Model field | Status |
-|---|---|
-| `users.status` | ✅ Migration adds column; entity updated |
-| `users.deleted_at` | ✅ Migration adds column; soft-delete pattern ready |
-| `users.email_verified_at` | ✅ Migration adds column |
-| `users.last_login_at` | ✅ Migration adds column |
-| `provider_profiles` (all fields) | ✅ Entity covers all data-model columns |
-| `skill_categories` + `skills` | ✅ Seeded with initial catalog |
-| `provider_skills` composite PK | ✅ Enforced at DB + entity level |
-| `provider_profiles.rating_*` denormalized | ✅ Columns present; updated in Phase 5 when ratings land |
+| Data Model field                                                | Status                                                                             |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `users.status`                                                  | ✅ Migration adds column; entity updated                                           |
+| `users.deleted_at`                                              | ✅ Migration adds column; soft-delete pattern ready                                |
+| `users.email_verified_at`                                       | ✅ Migration adds column                                                           |
+| `users.last_login_at`                                           | ✅ Migration adds column                                                           |
+| `provider_profiles` (all fields)                                | ✅ Entity covers all data-model columns                                            |
+| `skill_categories` + `skills`                                   | ✅ Seeded with initial catalog                                                     |
+| `provider_skills` composite PK                                  | ✅ Enforced at DB + entity level                                                   |
+| `provider_profiles.rating_*` denormalized                       | ✅ Columns present; updated in Phase 5 when ratings land                           |
 | `provider_profile:read:any` missing for `service_provider` role | ⚠️ Providers can only read own profile via `/me`; adjust RBAC if needed in Phase 4 |
 
 ---

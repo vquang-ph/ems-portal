@@ -9,7 +9,7 @@ This document predates the data-model and RBAC docs and should be read first —
 
 ## 1. Identity vs. Role
 
-A **user** is *anyone with credentials in the system*. Authentication answers "are you who you say you are." A **role** answers "what are you allowed to do."
+A **user** is _anyone with credentials in the system_. Authentication answers "are you who you say you are." A **role** answers "what are you allowed to do."
 
 The current model glues them together: `users.role` is a single enum column. This is a deliberate v1 simplification, not a permanent truth. The data model should treat identity and role as separable so future evolution (multi-role users, organization membership) doesn't require schema upheaval.
 
@@ -34,7 +34,7 @@ A Client can be suspended; a Provider can be unverified. These cut across roles 
 
 ### 2.2 Client
 
-- **Definition:** A user who *consumes* engineering services through the platform.
+- **Definition:** A user who _consumes_ engineering services through the platform.
 - **Capabilities:**
   - Submit service requests (entry point of the matching pipeline).
   - View ranked provider matches for their requests.
@@ -45,7 +45,7 @@ A Client can be suspended; a Provider can be unverified. These cut across roles 
 
 ### 2.3 Service Provider
 
-- **Definition:** A user who *offers* engineering services through the platform.
+- **Definition:** A user who _offers_ engineering services through the platform.
 - **Capabilities:**
   - Maintain a discoverable profile (bio, location, availability, rate, skills).
   - Appear in ranked match results for relevant requests.
@@ -71,6 +71,7 @@ A Client can be suspended; a Provider can be unverified. These cut across roles 
 The single `admin` role gives anyone handling a customer complaint the same powers as someone reconfiguring the matching algorithm. Real-world security risk and common audit finding.
 
 In practice the split is:
+
 - **Super Admin** — system config, manage other admins, modify matching weights. Tiny number of people.
 - **Moderator / Support** — handle disputes, suspend marketplace users, view (not edit) sensitive data. Larger number of people.
 
@@ -87,9 +88,10 @@ Engineering work has a credibility problem. Anyone can claim to be a "senior net
 Engineering work is often B2B. A company hires through "Acme Corp," not "Jane the procurement officer's account." Currently no concept of organizations.
 
 Affects:
+
 - Ownership of service requests (Jane or Acme?).
 - Payment (Jane's card or Acme's contract?).
-- Acting on behalf of an org (Jane *and* Bob from procurement).
+- Acting on behalf of an org (Jane _and_ Bob from procurement).
 - Provider-side firms vs. solo freelancers.
 
 **V1 recommendation:** Individuals only. **Document explicitly** that multi-seat was deliberately out of scope, not forgotten. Retrofitting is painful — every "current user is X" query has to change.

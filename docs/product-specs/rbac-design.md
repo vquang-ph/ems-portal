@@ -34,16 +34,22 @@ The existing `RolesGuard` machinery, made real.
 
 ### Layer 2 — Permission check (verb + resource)
 
-Roles answer "who"; permissions answer "can do what." Once a Service Provider can do *some* things a Client can't and *some* things a Client can, role enums alone tangle.
+Roles answer "who"; permissions answer "can do what." Once a Service Provider can do _some_ things a Client can't and _some_ things a Client can, role enums alone tangle.
 
 **Proposed shape:**
 
 ```ts
 // packages/shared/types/src/auth/permission.schema.ts
 export const PERMISSION_VALUES = [
-  "job:create", "job:read:any", "job:read:own", "job:update:own",
-  "profile:update:own", "rating:create", "user:manage",
-  "system:configure", "dispute:resolve",
+  "job:create",
+  "job:read:any",
+  "job:read:own",
+  "job:update:own",
+  "profile:update:own",
+  "rating:create",
+  "user:manage",
+  "system:configure",
+  "dispute:resolve",
 ] as const;
 export type Permission = (typeof PERMISSION_VALUES)[number];
 ```
@@ -51,9 +57,15 @@ export type Permission = (typeof PERMISSION_VALUES)[number];
 ```ts
 // packages/backend/src/modules/auth/rbac/role-permissions.ts
 export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
-  client:           ["job:create", "job:read:own", "job:update:own", "profile:update:own", "rating:create"],
+  client: [
+    "job:create",
+    "job:read:own",
+    "job:update:own",
+    "profile:update:own",
+    "rating:create",
+  ],
   service_provider: ["job:read:any", "profile:update:own", "rating:create"],
-  admin:            PERMISSION_VALUES,
+  admin: PERMISSION_VALUES,
 };
 ```
 
@@ -63,7 +75,7 @@ Then a `@RequirePermissions('job:create')` decorator + `PermissionsGuard` reads 
 
 ### Layer 3 — Ownership / attribute check (per-resource)
 
-"Client can update *their own* profile" can't be answered without loading the resource. **Do not** express this in a decorator — keep it in the service:
+"Client can update _their own_ profile" can't be answered without loading the resource. **Do not** express this in a decorator — keep it in the service:
 
 ```ts
 public async update(id: string, dto: UpdateProfileDto, actor: UserEntity) {
@@ -83,15 +95,15 @@ A `@Owns('profile')` decorator is tempting but rejected: it either double-fetche
 
 Both layers exist because each catches what the other misses.
 
-| Question | Layer | Mechanism |
-|---|---|---|
-| "Can clients create jobs?" | API | `@RequirePermissions` |
-| "Can admins delete users?" | API | `@RequirePermissions` |
-| "Can this client edit *this* job?" | Resource | `assertOwnerOrAdmin` |
-| "Can this provider see *this* client's contact info?" | Resource | Service-layer check |
-| "Can only published jobs be applied to?" | Resource (state) | Service-layer check |
+| Question                                              | Layer            | Mechanism             |
+| ----------------------------------------------------- | ---------------- | --------------------- |
+| "Can clients create jobs?"                            | API              | `@RequirePermissions` |
+| "Can admins delete users?"                            | API              | `@RequirePermissions` |
+| "Can this client edit _this_ job?"                    | Resource         | `assertOwnerOrAdmin`  |
+| "Can this provider see _this_ client's contact info?" | Resource         | Service-layer check   |
+| "Can only published jobs be applied to?"              | Resource (state) | Service-layer check   |
 
-**Naming convention:** `:any` and `:create` are API-level. `:own` always implies a resource-level check too — the permission tells you the *role can*; the service check enforces the *which instance*. Cheap belt-and-braces.
+**Naming convention:** `:any` and `:create` are API-level. `:own` always implies a resource-level check too — the permission tells you the _role can_; the service check enforces the _which instance_. Cheap belt-and-braces.
 
 Skip API-level and every service method has to re-check authentication — easy to forget, silent escalation. Skip resource-level and `job:update:own` becomes a lie because the guard has no resource context.
 

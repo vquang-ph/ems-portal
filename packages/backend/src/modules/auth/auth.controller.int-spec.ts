@@ -35,13 +35,15 @@ describe("Auth Controller & Global Guard Wiring (Integration)", () => {
         checkHeap: (key: string, _ignoredLimit: number) => {
           const limit = 600 * 1024 * 1024;
           const used = process.memoryUsage().heapUsed;
-          if (used >= limit) throw new Error(`Heap used (${used}) exceeded limit (${limit})`);
+          if (used >= limit)
+            throw new Error(`Heap used (${used}) exceeded limit (${limit})`);
           return { [key]: { status: "up" } };
         },
         checkRSS: (key: string, _ignoredLimit: number) => {
           const limit = 600 * 1024 * 1024;
           const used = process.memoryUsage().rss;
-          if (used >= limit) throw new Error(`RSS used (${used}) exceeded limit (${limit})`);
+          if (used >= limit)
+            throw new Error(`RSS used (${used}) exceeded limit (${limit})`);
           return { [key]: { status: "up" } };
         },
       })

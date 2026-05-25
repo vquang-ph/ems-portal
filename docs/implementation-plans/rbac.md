@@ -41,19 +41,19 @@ The frontend will mirror the permission map for UI affordances; the backend rema
 
 Three layers, in execution order per request:
 
-| Layer | Mechanism | Location |
-|---|---|---|
-| 1. Endpoint | `@RequirePermissions('verb:resource:scope')` + `PermissionsGuard` | Backend route handler |
-| 2. Mapping | `ROLE_PERMISSIONS: Record<Role, Permission[]>` + `hasPermission(role, perm)` | `@ems-portal/types` (shared with frontend) |
-| 3. Resource | `assertOwnerOrAdmin(resource, actor, ownerKey)` invoked inside service methods | Backend service layer |
+| Layer       | Mechanism                                                                      | Location                                   |
+| ----------- | ------------------------------------------------------------------------------ | ------------------------------------------ |
+| 1. Endpoint | `@RequirePermissions('verb:resource:scope')` + `PermissionsGuard`              | Backend route handler                      |
+| 2. Mapping  | `ROLE_PERMISSIONS: Record<Role, Permission[]>` + `hasPermission(role, perm)`   | `@ems-portal/types` (shared with frontend) |
+| 3. Resource | `assertOwnerOrAdmin(resource, actor, ownerKey)` invoked inside service methods | Backend service layer                      |
 
-**Why permissions, not roles, on controllers:** the spec mandates decoupling so roles can evolve (future "super admin" / "moderator" split) without rewriting controllers. Controllers declare *what action is being taken*; the permission map decides *which roles can take it*.
+**Why permissions, not roles, on controllers:** the spec mandates decoupling so roles can evolve (future "super admin" / "moderator" split) without rewriting controllers. Controllers declare _what action is being taken_; the permission map decides _which roles can take it_.
 
 **Why ownership checks live in services, not decorators:** decorators run before the resource is loaded. Pushing ownership checks into decorators forces a double fetch or tight coupling to repository internals. Services already load the resource — they assert ownership inline.
 
-**Admin implicit grant:** the `PermissionsGuard` short-circuits true when `user.role === 'admin'`. `assertOwnerOrAdmin` likewise lets admins through. This is the *only* place admin gets special treatment; the permission map does not enumerate admin perms.
+**Admin implicit grant:** the `PermissionsGuard` short-circuits true when `user.role === 'admin'`. `assertOwnerOrAdmin` likewise lets admins through. This is the _only_ place admin gets special treatment; the permission map does not enumerate admin perms.
 
-**Default-secure routing:** `JwtAuthGuard` runs globally. Routes without `@Public()` require an authenticated user. Today only `/auth/me` is authed; after this change the *omission* of `@Public()` is what protects a route, not the *presence* of `@UseGuards`.
+**Default-secure routing:** `JwtAuthGuard` runs globally. Routes without `@Public()` require an authenticated user. Today only `/auth/me` is authed; after this change the _omission_ of `@Public()` is what protects a route, not the _presence_ of `@UseGuards`.
 
 ---
 
@@ -61,37 +61,37 @@ Three layers, in execution order per request:
 
 ### Create
 
-| Path | Purpose |
-|---|---|
-| `packages/shared/types/src/rbac.schema.ts` | `PERMISSION_VALUES`, `PermissionSchema`, `Permission` type, `ROLE_PERMISSIONS` map, `hasPermission()` helper |
-| `packages/backend/src/modules/auth/decorators/public.decorator.ts` | `@Public()` + `IS_PUBLIC_KEY` |
-| `packages/backend/src/modules/auth/decorators/require-permissions.decorator.ts` | `@RequirePermissions(...perms)` + `PERMISSIONS_METADATA_KEY` |
-| `packages/backend/src/modules/auth/guards/permissions.guard.ts` | `PermissionsGuard` — reads metadata, applies admin grant, calls `hasPermission` |
-| `packages/backend/src/common/auth/assert-owner-or-admin.ts` | `assertOwnerOrAdmin()` helper |
-| `packages/backend/src/common/auth/index.ts` | Barrel export for the helper |
-| `packages/backend/src/modules/auth/guards/permissions.guard.spec.ts` | Unit tests |
-| `packages/backend/src/modules/auth/guards/jwt-auth.guard.spec.ts` | Unit tests (update if exists, create if not) |
-| `packages/backend/src/common/auth/assert-owner-or-admin.spec.ts` | Unit tests |
+| Path                                                                            | Purpose                                                                                                      |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `packages/shared/types/src/rbac.schema.ts`                                      | `PERMISSION_VALUES`, `PermissionSchema`, `Permission` type, `ROLE_PERMISSIONS` map, `hasPermission()` helper |
+| `packages/backend/src/modules/auth/decorators/public.decorator.ts`              | `@Public()` + `IS_PUBLIC_KEY`                                                                                |
+| `packages/backend/src/modules/auth/decorators/require-permissions.decorator.ts` | `@RequirePermissions(...perms)` + `PERMISSIONS_METADATA_KEY`                                                 |
+| `packages/backend/src/modules/auth/guards/permissions.guard.ts`                 | `PermissionsGuard` — reads metadata, applies admin grant, calls `hasPermission`                              |
+| `packages/backend/src/common/auth/assert-owner-or-admin.ts`                     | `assertOwnerOrAdmin()` helper                                                                                |
+| `packages/backend/src/common/auth/index.ts`                                     | Barrel export for the helper                                                                                 |
+| `packages/backend/src/modules/auth/guards/permissions.guard.spec.ts`            | Unit tests                                                                                                   |
+| `packages/backend/src/modules/auth/guards/jwt-auth.guard.spec.ts`               | Unit tests (update if exists, create if not)                                                                 |
+| `packages/backend/src/common/auth/assert-owner-or-admin.spec.ts`                | Unit tests                                                                                                   |
 
 ### Modify
 
-| Path | Change |
-|---|---|
-| `packages/shared/types/src/index.ts` | Re-export from `./rbac.schema` |
-| `packages/backend/src/modules/auth/guards/jwt-auth.guard.ts` | Inject `Reflector`; honor `@Public()` metadata; otherwise delegate to `super.canActivate()` |
-| `packages/backend/src/modules/auth/auth.module.ts` | Provide & export `PermissionsGuard`; remove `RolesGuard` from providers/exports |
-| `packages/backend/src/app.module.ts` | Register `JwtAuthGuard` and `PermissionsGuard` as `APP_GUARD` in that order |
-| `packages/backend/src/modules/auth/auth.controller.ts` | Remove per-route `@UseGuards(JwtAuthGuard)`; add `@Public()` to `register`, `login`, `refresh`, `logout` |
-| `packages/backend/src/modules/health/health.controller.ts` | Add `@Public()` to `GET /health` |
-| `packages/backend/src/modules/metric/metric.controller.ts` | Add `@Public()` to `GET /metrics` |
+| Path                                                         | Change                                                                                                   |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `packages/shared/types/src/index.ts`                         | Re-export from `./rbac.schema`                                                                           |
+| `packages/backend/src/modules/auth/guards/jwt-auth.guard.ts` | Inject `Reflector`; honor `@Public()` metadata; otherwise delegate to `super.canActivate()`              |
+| `packages/backend/src/modules/auth/auth.module.ts`           | Provide & export `PermissionsGuard`; remove `RolesGuard` from providers/exports                          |
+| `packages/backend/src/app.module.ts`                         | Register `JwtAuthGuard` and `PermissionsGuard` as `APP_GUARD` in that order                              |
+| `packages/backend/src/modules/auth/auth.controller.ts`       | Remove per-route `@UseGuards(JwtAuthGuard)`; add `@Public()` to `register`, `login`, `refresh`, `logout` |
+| `packages/backend/src/modules/health/health.controller.ts`   | Add `@Public()` to `GET /health`                                                                         |
+| `packages/backend/src/modules/metric/metric.controller.ts`   | Add `@Public()` to `GET /metrics`                                                                        |
 
 ### Delete
 
-| Path | Reason |
-|---|---|
-| `packages/backend/src/modules/auth/guards/roles.guard.ts` | Replaced by `PermissionsGuard`; spec forbids role-on-controller decorators |
-| `packages/backend/src/modules/auth/decorators/roles.decorator.ts` | Same |
-| Any `roles.guard.spec.ts` / `roles.decorator.spec.ts` | Same |
+| Path                                                              | Reason                                                                     |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `packages/backend/src/modules/auth/guards/roles.guard.ts`         | Replaced by `PermissionsGuard`; spec forbids role-on-controller decorators |
+| `packages/backend/src/modules/auth/decorators/roles.decorator.ts` | Same                                                                       |
+| Any `roles.guard.spec.ts` / `roles.decorator.spec.ts`             | Same                                                                       |
 
 Search for `@Roles(` and `RolesGuard` across the repo before deleting — confirm zero call sites (deep-explore reported none, but verify).
 
@@ -147,7 +147,10 @@ export type Permission = z.infer<typeof PermissionSchema>;
  * admin implicit access at runtime. This keeps the admin grant in exactly
  * one place (guard + helper) instead of duplicating the full permission list.
  */
-export const ROLE_PERMISSIONS: Record<Exclude<UserRole, "admin">, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<
+  Exclude<UserRole, "admin">,
+  Permission[]
+> = {
   client: [
     "provider_profile:read:any",
     "service_request:create:own",
@@ -358,15 +361,15 @@ Confirm `AuthModule` is imported by `app.module.ts` so the guards' dependencies 
 
 ### 5.8 Endpoint updates
 
-| Route | Change |
-|---|---|
-| `POST /auth/register` | Add `@Public()` |
-| `POST /auth/login` | Add `@Public()` |
-| `POST /auth/refresh` | Add `@Public()` (cookie-based, intentionally unauthenticated) |
-| `POST /auth/logout` | Add `@Public()` (always 204) |
-| `GET /auth/me` | Remove `@UseGuards(JwtAuthGuard)` — global guard now handles auth; no `@RequirePermissions` needed (any authed user reads their own profile) |
-| `GET /health` | Add `@Public()` |
-| `GET /metrics` | Add `@Public()` |
+| Route                 | Change                                                                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /auth/register` | Add `@Public()`                                                                                                                              |
+| `POST /auth/login`    | Add `@Public()`                                                                                                                              |
+| `POST /auth/refresh`  | Add `@Public()` (cookie-based, intentionally unauthenticated)                                                                                |
+| `POST /auth/logout`   | Add `@Public()` (always 204)                                                                                                                 |
+| `GET /auth/me`        | Remove `@UseGuards(JwtAuthGuard)` — global guard now handles auth; no `@RequirePermissions` needed (any authed user reads their own profile) |
+| `GET /health`         | Add `@Public()`                                                                                                                              |
+| `GET /metrics`        | Add `@Public()`                                                                                                                              |
 
 No `@RequirePermissions()` usage in this PR — no current endpoint needs one. The first real use will appear with the `provider_profiles` module.
 

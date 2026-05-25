@@ -31,40 +31,35 @@ Five endpoints: `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`,
 
 ## Gap Analysis vs. Data Model
 
-| Data Model Field | Status |
-|---|---|
-| `users.role` (client / service_provider / admin) | ✅ Implemented |
-| `users.status` (active / suspended / deleted) | ❌ Missing — admins have no lever to suspend accounts |
-| `users.deleted_at` (soft delete) | ❌ Missing — hard delete would corrupt provider rating history |
-| `users.email_verified_at` | ❌ Missing |
-| `users.last_login_at` | ❌ Missing |
-| `refresh_tokens.family_id` | ✅ Implemented |
-| `refresh_tokens.token_hash` (sha256) | ✅ Implemented |
-| `refresh_tokens.replaced_by_token_id` | ✅ Implemented |
-| `refresh_tokens.revoked_at` | ✅ Implemented |
-| `RolesGuard` enforced globally | ⚠️ Exists, not wired — RBAC is a core spec §3 requirement |
-| `provider_profiles` table | ❌ Not started |
+| Data Model Field                                 | Status                                                         |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `users.role` (client / service_provider / admin) | ✅ Implemented                                                 |
+| `users.status` (active / suspended / deleted)    | ❌ Missing — admins have no lever to suspend accounts          |
+| `users.deleted_at` (soft delete)                 | ❌ Missing — hard delete would corrupt provider rating history |
+| `users.email_verified_at`                        | ❌ Missing                                                     |
+| `users.last_login_at`                            | ❌ Missing                                                     |
+| `refresh_tokens.family_id`                       | ✅ Implemented                                                 |
+| `refresh_tokens.token_hash` (sha256)             | ✅ Implemented                                                 |
+| `refresh_tokens.replaced_by_token_id`            | ✅ Implemented                                                 |
+| `refresh_tokens.revoked_at`                      | ✅ Implemented                                                 |
+| `RolesGuard` enforced globally                   | ⚠️ Exists, not wired — RBAC is a core spec §3 requirement      |
+| `provider_profiles` table                        | ❌ Not started                                                 |
 
 ---
 
 ## Key Gaps by Priority
 
 **High — spec / data model requirements:**
+
 1. `users.status` — no account suspension; permanent deletion corrupts rating aggregates (see data-model §3.1).
 2. `users.deleted_at` — soft delete is required before any user-facing delete action is exposed.
 3. `users.email_verified_at` / `last_login_at` — security telemetry missing from the entity.
 4. `RolesGuard` not globally active — RBAC exists in code but enforces nothing yet.
 5. `provider_profiles` — prerequisite for the matching engine (supplies 4 of 5 matching criteria).
 
-**Medium — spec §4 / operational:**
-6. No password reset / forgot-password flow.
-7. No email verification flow.
-8. No audit log for admin actions (suspensions, role changes).
-9. No paginated `findAll()` for the admin user-management view.
+**Medium — spec §4 / operational:** 6. No password reset / forgot-password flow. 7. No email verification flow. 8. No audit log for admin actions (suspensions, role changes). 9. No paginated `findAll()` for the admin user-management view.
 
-**Low / future:**
-10. No 2FA/MFA.
-11. Admin role promotion via API (currently seed-only).
+**Low / future:** 10. No 2FA/MFA. 11. Admin role promotion via API (currently seed-only).
 
 ---
 

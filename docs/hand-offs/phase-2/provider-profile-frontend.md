@@ -10,16 +10,16 @@
 
 The frontend is built against these endpoints. Both agents work in parallel — this table is the shared contract.
 
-| Method | Path | Auth / Permission | Request Body | Returns |
-|---|---|---|---|---|
-| `GET` | `/skills/categories` | Public | — | `SkillCategory[]` |
-| `GET` | `/skills?categoryId=` | Public | — | `Skill[]` |
-| `POST` | `/provider-profiles` | JWT + `provider_profile:create:own` | `CreateProviderProfile` | `ProviderProfile` (201) |
-| `GET` | `/provider-profiles/me` | JWT only | — | `ProviderProfile` (with `skills[]`) |
-| `PATCH` | `/provider-profiles/me` | JWT + `provider_profile:update:own` | `UpdateProviderProfile` | `ProviderProfile` |
-| `GET` | `/provider-profiles/:userId` | JWT + `provider_profile:read:any` | — | `ProviderProfile` (with `skills[]`) |
-| `POST` | `/provider-profiles/me/skills` | JWT + `provider_profile:update:own` | `AddProviderSkill` | `ProviderSkill` (201) |
-| `DELETE` | `/provider-profiles/me/skills/:skillId` | JWT + `provider_profile:update:own` | — | *(empty, 204)* |
+| Method   | Path                                    | Auth / Permission                   | Request Body            | Returns                             |
+| -------- | --------------------------------------- | ----------------------------------- | ----------------------- | ----------------------------------- |
+| `GET`    | `/skills/categories`                    | Public                              | —                       | `SkillCategory[]`                   |
+| `GET`    | `/skills?categoryId=`                   | Public                              | —                       | `Skill[]`                           |
+| `POST`   | `/provider-profiles`                    | JWT + `provider_profile:create:own` | `CreateProviderProfile` | `ProviderProfile` (201)             |
+| `GET`    | `/provider-profiles/me`                 | JWT only                            | —                       | `ProviderProfile` (with `skills[]`) |
+| `PATCH`  | `/provider-profiles/me`                 | JWT + `provider_profile:update:own` | `UpdateProviderProfile` | `ProviderProfile`                   |
+| `GET`    | `/provider-profiles/:userId`            | JWT + `provider_profile:read:any`   | —                       | `ProviderProfile` (with `skills[]`) |
+| `POST`   | `/provider-profiles/me/skills`          | JWT + `provider_profile:update:own` | `AddProviderSkill`      | `ProviderSkill` (201)               |
+| `DELETE` | `/provider-profiles/me/skills/:skillId` | JWT + `provider_profile:update:own` | —                       | _(empty, 204)_                      |
 
 **403 behaviour:** Clients calling `POST /provider-profiles` or `PATCH /provider-profiles/me` receive 403. Providers calling `GET /provider-profiles/:userId` (another user) receive 403 — they use `/me` instead.
 
@@ -30,23 +30,24 @@ The frontend is built against these endpoints. Both agents work in parallel — 
 ### Shared Types (`@ems-portal/types`)
 
 **`src/auth/auth.schema.ts`** — `UserSchema` extended:
+
 - `status: z.enum(["active", "suspended", "deleted"]).optional()`
 - `emailVerifiedAt: z.coerce.date().nullable().optional()`
 - `lastLoginAt: z.coerce.date().nullable().optional()`
 
 **`src/provider-profile/provider-profile.schema.ts`** — new file:
 
-| Schema | Purpose |
-|---|---|
-| `VerificationStatusSchema` | `unverified \| pending \| verified` |
-| `ProficiencyLevelSchema` | `junior \| mid \| senior \| expert` |
-| `SkillCategorySchema` | `{ id: number, name: string }` |
-| `SkillSchema` | `{ id: number, name: string, categoryId: number }` |
-| `ProviderSkillSchema` | `{ skillId, level, yearsOfExperience, createdAt }` |
-| `ProviderProfileSchema` | Full profile (extends `BaseSchema`); includes denormalized rating fields + optional `skills[]` |
-| `CreateProviderProfileSchema` | Input for `POST` — bio, location, rate, availability |
-| `UpdateProviderProfileSchema` | Alias of `CreateProviderProfileSchema` (all fields optional) |
-| `AddProviderSkillSchema` | `{ skillId, level, yearsOfExperience }` |
+| Schema                        | Purpose                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `VerificationStatusSchema`    | `unverified \| pending \| verified`                                                            |
+| `ProficiencyLevelSchema`      | `junior \| mid \| senior \| expert`                                                            |
+| `SkillCategorySchema`         | `{ id: number, name: string }`                                                                 |
+| `SkillSchema`                 | `{ id: number, name: string, categoryId: number }`                                             |
+| `ProviderSkillSchema`         | `{ skillId, level, yearsOfExperience, createdAt }`                                             |
+| `ProviderProfileSchema`       | Full profile (extends `BaseSchema`); includes denormalized rating fields + optional `skills[]` |
+| `CreateProviderProfileSchema` | Input for `POST` — bio, location, rate, availability                                           |
+| `UpdateProviderProfileSchema` | Alias of `CreateProviderProfileSchema` (all fields optional)                                   |
+| `AddProviderSkillSchema`      | `{ skillId, level, yearsOfExperience }`                                                        |
 
 **`src/index.ts`** — exports all new schemas and inferred types.
 
@@ -90,49 +91,49 @@ providerProfileKeys.mutation.removeSkill()
 
 #### Queries (`hooks/queries/`)
 
-| Hook | File | Behaviour |
-|---|---|---|
-| `useMyProfileQuery` | `useMyProfileQuery.ts` | `enabled` only when `currentUserAtom.role === "service_provider"` |
-| `useProviderProfileQuery` | `useProviderProfileQuery.ts` | Enabled when `userId` is defined; used for public profile view |
-| `useSkillCategoriesQuery` | `useSkillCategoriesQuery.ts` | `staleTime: Infinity` — catalog rarely changes |
-| `useSkillsQuery` | `useSkillsQuery.ts` | Accepts optional `categoryId`; re-fetches when it changes |
+| Hook                      | File                         | Behaviour                                                         |
+| ------------------------- | ---------------------------- | ----------------------------------------------------------------- |
+| `useMyProfileQuery`       | `useMyProfileQuery.ts`       | `enabled` only when `currentUserAtom.role === "service_provider"` |
+| `useProviderProfileQuery` | `useProviderProfileQuery.ts` | Enabled when `userId` is defined; used for public profile view    |
+| `useSkillCategoriesQuery` | `useSkillCategoriesQuery.ts` | `staleTime: Infinity` — catalog rarely changes                    |
+| `useSkillsQuery`          | `useSkillsQuery.ts`          | Accepts optional `categoryId`; re-fetches when it changes         |
 
 #### Mutations (`hooks/mutations/`)
 
-| Hook | File | `onSuccess` behaviour |
-|---|---|---|
+| Hook                       | File                          | `onSuccess` behaviour                            |
+| -------------------------- | ----------------------------- | ------------------------------------------------ |
 | `useCreateProfileMutation` | `useCreateProfileMutation.ts` | Invalidates `query.me()`, navigate to `/profile` |
-| `useUpdateProfileMutation` | `useUpdateProfileMutation.ts` | Invalidates `query.me()` |
-| `useAddSkillMutation` | `useAddSkillMutation.ts` | Invalidates `query.me()` |
-| `useRemoveSkillMutation` | `useRemoveSkillMutation.ts` | Invalidates `query.me()` |
+| `useUpdateProfileMutation` | `useUpdateProfileMutation.ts` | Invalidates `query.me()`                         |
+| `useAddSkillMutation`      | `useAddSkillMutation.ts`      | Invalidates `query.me()`                         |
+| `useRemoveSkillMutation`   | `useRemoveSkillMutation.ts`   | Invalidates `query.me()`                         |
 
 All four follow the auth mutation shape: `useMutation({ mutationKey, mutationFn, onSuccess })`.
 
 #### Components
 
-| Component | File | Description |
-|---|---|---|
-| `ProfileForm` | `ProfileForm.tsx` | `react-hook-form` + `zodResolver(UpdateProviderProfileSchema)`. Fields: bio (Textarea), hourlyRateMin/Max (Input, type number), isAvailable (Switch), latitude/longitude (Input, type number, optional). Accepts `defaultValues` prop — shared by create and update modes. |
-| `SkillsManager` | `SkillsManager.tsx` | Current skills as removable Badge list. Combobox (shadcn `Command`) to search/select. Proficiency level Select + years Input per addition. Calls `useAddSkillMutation` / `useRemoveSkillMutation` inline. |
-| `ProfileCard` | `ProfileCard.tsx` | Read-only: Avatar, name, bio, rate range, availability Badge, star rating display, skills list. |
+| Component       | File                | Description                                                                                                                                                                                                                                                                |
+| --------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ProfileForm`   | `ProfileForm.tsx`   | `react-hook-form` + `zodResolver(UpdateProviderProfileSchema)`. Fields: bio (Textarea), hourlyRateMin/Max (Input, type number), isAvailable (Switch), latitude/longitude (Input, type number, optional). Accepts `defaultValues` prop — shared by create and update modes. |
+| `SkillsManager` | `SkillsManager.tsx` | Current skills as removable Badge list. Combobox (shadcn `Command`) to search/select. Proficiency level Select + years Input per addition. Calls `useAddSkillMutation` / `useRemoveSkillMutation` inline.                                                                  |
+| `ProfileCard`   | `ProfileCard.tsx`   | Read-only: Avatar, name, bio, rate range, availability Badge, star rating display, skills list.                                                                                                                                                                            |
 
 #### Pages
 
-| Page | File | Route | Access |
-|---|---|---|---|
-| `ProfileSetupPage` | `ProfileSetupPage.tsx` | `/profile/setup` | Provider only |
-| `ProfileSkillsPage` | `ProfileSkillsPage.tsx` | `/profile/skills` | Provider only |
-| `ProfilePage` | `ProfilePage.tsx` | `/profile` | All authenticated users |
+| Page                | File                    | Route             | Access                  |
+| ------------------- | ----------------------- | ----------------- | ----------------------- |
+| `ProfileSetupPage`  | `ProfileSetupPage.tsx`  | `/profile/setup`  | Provider only           |
+| `ProfileSkillsPage` | `ProfileSkillsPage.tsx` | `/profile/skills` | Provider only           |
+| `ProfilePage`       | `ProfilePage.tsx`       | `/profile`        | All authenticated users |
 
 `ProfileSetupPage` detects mode: if `useMyProfileQuery` returns data → pre-fill `ProfileForm` and call `useUpdateProfileMutation`; else → call `useCreateProfileMutation`.
 
 #### Test files
 
-| File | Contents |
-|---|---|
+| File               | Contents                                                     |
+| ------------------ | ------------------------------------------------------------ |
 | `test/fixtures.ts` | Mock `ProviderProfile`, `Skill[]`, `SkillCategory[]` objects |
-| `test/testIds.ts` | `PROVIDER_PROFILE_TEST_IDS` constants |
-| `test/index.ts` | Barrel re-export |
+| `test/testIds.ts`  | `PROVIDER_PROFILE_TEST_IDS` constants                        |
+| `test/index.ts`    | Barrel re-export                                             |
 
 #### Barrel (`index.ts`)
 
@@ -144,12 +145,12 @@ Exports pages, hooks (queries + mutations), and components for consumption by ro
 
 Follows TanStack Router file-based naming. All routes sit under the existing `_app` auth guard.
 
-| File | Path | Guard |
-|---|---|---|
-| `_app.profile.tsx` | `/profile` (layout) | Auth only (inherits from `_app`) |
-| `_app.profile.index.tsx` | `/profile` | Any authenticated user; reads `?userId` search param, falls back to own id |
-| `_app.profile.setup.tsx` | `/profile/setup` | `beforeLoad`: role ≠ `service_provider` → redirect `/` |
-| `_app.profile.skills.tsx` | `/profile/skills` | `beforeLoad`: role ≠ `service_provider` → redirect `/` |
+| File                      | Path                | Guard                                                                      |
+| ------------------------- | ------------------- | -------------------------------------------------------------------------- |
+| `_app.profile.tsx`        | `/profile` (layout) | Auth only (inherits from `_app`)                                           |
+| `_app.profile.index.tsx`  | `/profile`          | Any authenticated user; reads `?userId` search param, falls back to own id |
+| `_app.profile.setup.tsx`  | `/profile/setup`    | `beforeLoad`: role ≠ `service_provider` → redirect `/`                     |
+| `_app.profile.skills.tsx` | `/profile/skills`   | `beforeLoad`: role ≠ `service_provider` → redirect `/`                     |
 
 Role guard pattern — mirrors `_app.tsx`:
 
@@ -191,16 +192,16 @@ Role-conditional header links using `currentUserAtom`:
 
 ## Gap Analysis vs Data Model
 
-| Data Model Field / Entity | Status |
-|---|---|
-| `users.status` | ✅ Added to `UserSchema`; displayable in UI (e.g. suspended badge) |
-| `users.email_verified_at` | ✅ Added to `UserSchema` |
-| `users.last_login_at` | ✅ Added to `UserSchema` |
-| `provider_profiles` | ✅ Full CRUD via `provider-profile` module |
-| `skill_categories` + `skills` catalog | ✅ Fetched and used in `SkillsManager` |
-| `provider_skills` (add/remove) | ✅ `useAddSkillMutation` / `useRemoveSkillMutation` |
-| `users.deleted_at` (soft delete) | ⚠️ Backend field exists; no delete-account flow in frontend yet |
-| `provider_profiles.verification_status` | ⚠️ Displayed read-only in `ProfileCard`; no verification workflow UI |
+| Data Model Field / Entity                      | Status                                                                                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `users.status`                                 | ✅ Added to `UserSchema`; displayable in UI (e.g. suspended badge)                                                              |
+| `users.email_verified_at`                      | ✅ Added to `UserSchema`                                                                                                        |
+| `users.last_login_at`                          | ✅ Added to `UserSchema`                                                                                                        |
+| `provider_profiles`                            | ✅ Full CRUD via `provider-profile` module                                                                                      |
+| `skill_categories` + `skills` catalog          | ✅ Fetched and used in `SkillsManager`                                                                                          |
+| `provider_skills` (add/remove)                 | ✅ `useAddSkillMutation` / `useRemoveSkillMutation`                                                                             |
+| `users.deleted_at` (soft delete)               | ⚠️ Backend field exists; no delete-account flow in frontend yet                                                                 |
+| `provider_profiles.verification_status`        | ⚠️ Displayed read-only in `ProfileCard`; no verification workflow UI                                                            |
 | `GET /provider-profiles/:userId` for providers | ⚠️ Providers lack `provider_profile:read:any` — they use `/me` only; coordinate with backend if cross-provider reads are needed |
 
 ---
@@ -208,12 +209,14 @@ Role-conditional header links using `currentUserAtom`:
 ## Tests
 
 **Unit tests (`*.test.tsx`, co-located in `test/`):**
+
 - `useMyProfileQuery.test.ts` — mock `apiClient`; assert `enabled: false` when role is `client`
 - `useCreateProfileMutation.test.ts` — mock `apiClient`; assert `query.me()` is invalidated on success
 - `ProfileForm.test.tsx` — render, fill all fields, submit; assert mutation called with correct payload
 - `SkillsManager.test.tsx` — render with existing skills; click remove badge → assert `useRemoveSkillMutation` called; select skill from combobox + submit → assert `useAddSkillMutation` called
 
 **Route guard tests:**
+
 - `_app.profile.setup` — render with `role = "client"` → assert redirect to `/`
 - `_app.profile.skills` — same guard assertion
 
