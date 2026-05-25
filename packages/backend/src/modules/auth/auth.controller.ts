@@ -7,7 +7,6 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -21,8 +20,8 @@ import {
   RegisterDto,
   UserDto,
 } from "./dto/auth.dto";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import type { UserEntity } from "@/modules/user/entites/user.entity";
+import { Public } from "./decorators/public.decorator";
+import type { UserEntity } from "@/modules/user/entities/user.entity";
 import { AuthResult } from "./interfaces/auth.interface";
 
 @ApiTags("Auth")
@@ -43,6 +42,7 @@ export class AuthController {
    * access token and public user.
    */
   @Post("register")
+  @Public()
   @ApiOperation({ summary: "Register a new Client or Service Provider" })
   public async register(
     @Body() dto: RegisterDto,
@@ -58,6 +58,7 @@ export class AuthController {
    * Refresh in httpOnly cookie; access token + user in the body.
    */
   @Post("login")
+  @Public()
   @HttpCode(200)
   @ApiOperation({ summary: "Log in with email + password" })
   public async login(
@@ -78,6 +79,7 @@ export class AuthController {
    *         or refers to a revoked token.
    */
   @Post("refresh")
+  @Public()
   @HttpCode(200)
   @ApiOperation({
     summary: "Rotate the refresh token and issue a new access token",
@@ -102,6 +104,7 @@ export class AuthController {
    * Always returns 204, even if the cookie is missing or already revoked.
    */
   @Post("logout")
+  @Public()
   @HttpCode(204)
   @ApiOperation({ summary: "Revoke the refresh token and clear the cookie" })
   public async logout(
@@ -119,7 +122,6 @@ export class AuthController {
    * Returns the currently authenticated user. Requires a valid access token.
    */
   @Get("me")
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get the currently authenticated user" })
   public me(@CurrentUser() user: UserEntity): UserDto {
     return AuthService.toPublicUser(user);

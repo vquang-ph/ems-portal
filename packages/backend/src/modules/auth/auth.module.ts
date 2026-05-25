@@ -11,7 +11,7 @@ import { RefreshTokenEntity } from "./refresh-token/entities/refresh-token.entit
 import { RefreshTokenRepository } from "./refresh-token/refresh-token.repository";
 import { RefreshTokenService } from "./refresh-token/refresh-token.service";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
-import { RolesGuard } from "./guards/roles.guard";
+import { PermissionsGuard } from "./guards/permissions.guard";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
 @Module({
@@ -30,10 +30,10 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     AuthService,
     JwtStrategy,
     JwtAuthGuard,
-    RolesGuard,
+    PermissionsGuard,
     RefreshTokenService,
     RefreshTokenRepository,
   ],
-  exports: [AuthService, JwtAuthGuard, RolesGuard],
+  exports: [AuthService, JwtAuthGuard, PermissionsGuard],
 })
 export class AuthModule {}
