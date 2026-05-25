@@ -10,7 +10,8 @@
       "Bash(yarn lint *)",
       "Bash(yarn workspace *)",
       "Bash(yarn test:int)",
-      "Bash(yarn install *)"
+      "Bash(yarn install *)",
+      "Bash(docker compose build *)"
     ]
   }
 }
