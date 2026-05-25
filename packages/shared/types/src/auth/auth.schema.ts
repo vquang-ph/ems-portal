@@ -28,6 +28,9 @@ export const UserSchema = BaseSchema.extend({
   email: z.string().email().max(254),
   name: z.string().min(1).max(120),
   role: z.enum(USER_ROLE_VALUES),
+  status: z.enum(["active", "suspended", "deleted"]).optional(),
+  emailVerifiedAt: z.coerce.date().nullable().optional(),
+  lastLoginAt: z.coerce.date().nullable().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

@@ -1,0 +1,191 @@
+import { INestApplication } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import * as request from "supertest";
+import { DataSource } from "typeorm";
+import { AppModule } from "@/app.module";
+import { ProviderProfileEntity } from "./entities/provider-profile.entity";
+
+describe("Provider Profile Endpoints (e2e)", () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
+  let providerToken: string;
+  let clientToken: string;
+  let providerUserId: string;
+  let createdProfileId: string;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.listen(0); // Use random port
+
+    dataSource = moduleFixture.get<DataSource>(DataSource);
+
+    // Login as provider@ems.local
+    const providerRes = await request(app.getHttpServer())
+      .post("/api/auth/login")
+      .send({
+        email: "provider@ems.local",
+        password: "password123",
+      });
+
+    providerToken = providerRes.body.accessToken;
+    providerUserId = providerRes.body.user.id;
+
+    // Login as client@ems.local
+    const clientRes = await request(app.getHttpServer())
+      .post("/api/auth/login")
+      .send({
+        email: "client@ems.local",
+        password: "password123",
+      });
+
+    clientToken = clientRes.body.accessToken;
+  });
+
+  afterAll(async () => {
+    // Cleanup: delete any created profiles
+    if (createdProfileId) {
+      await dataSource
+        .getRepository(ProviderProfileEntity)
+        .delete({ id: createdProfileId });
+    }
+    await app.close();
+  });
+
+  describe("POST /api/provider-profiles", () => {
+    it("should create a new provider profile", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/api/provider-profiles")
+        .set("Authorization", `Bearer ${providerToken}`)
+        .send({
+          bio: "Full-stack engineer",
+          isAvailable: true,
+          hourlyRateMin: 75,
+          hourlyRateMax: 150,
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.userId).toBe(providerUserId);
+      expect(res.body.bio).toBe("Full-stack engineer");
+      createdProfileId = res.body.id;
+    });
+
+    it("should return 403 for client user", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/api/provider-profiles")
+        .set("Authorization", `Bearer ${clientToken}`)
+        .send({
+          bio: "Test",
+        });
+
+      expect(res.status).toBe(403);
+    });
+  });
+
+  describe("GET /api/provider-profiles/me", () => {
+    it("should return authenticated user's profile", async () => {
+      const res = await request(app.getHttpServer())
+        .get("/api/provider-profiles/me")
+        .set("Authorization", `Bearer ${providerToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.userId).toBe(providerUserId);
+      expect(Array.isArray(res.body.skills)).toBe(true);
+    });
+
+    it("should require authentication", async () => {
+      const res = await request(app.getHttpServer()).get(
+        "/api/provider-profiles/me",
+      );
+
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe("PATCH /api/provider-profiles/me", () => {
+    it("should update provider profile", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/api/provider-profiles/me")
+        .set("Authorization", `Bearer ${providerToken}`)
+        .send({
+          bio: "Updated bio",
+          isAvailable: false,
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.bio).toBe("Updated bio");
+      expect(res.body.isAvailable).toBe(false);
+    });
+  });
+
+  describe("GET /api/provider-profiles/:userId", () => {
+    it("should retrieve any provider's profile (with permission)", async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/provider-profiles/${providerUserId}`)
+        .set("Authorization", `Bearer ${clientToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.userId).toBe(providerUserId);
+    });
+  });
+
+  describe("POST /api/provider-profiles/me/skills", () => {
+    it("should add a skill to user's profile", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/api/provider-profiles/me/skills")
+        .set("Authorization", `Bearer ${providerToken}`)
+        .send({
+          skillId: 1,
+          level: "senior",
+          yearsOfExperience: 5,
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.skillId).toBe(1);
+      expect(res.body.level).toBe("senior");
+    });
+  });
+
+  describe("DELETE /api/provider-profiles/me/skills/:skillId", () => {
+    it("should remove a skill from user's profile", async () => {
+      const res = await request(app.getHttpServer())
+        .delete("/api/provider-profiles/me/skills/1")
+        .set("Authorization", `Bearer ${providerToken}`);
+
+      expect(res.status).toBe(204);
+    });
+  });
+
+  describe("GET /api/skills/categories", () => {
+    it("should return all skill categories (public endpoint)", async () => {
+      const res = await request(app.getHttpServer()).get("/api/skills/categories");
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0]).toHaveProperty("name");
+    });
+  });
+
+  describe("GET /api/skills", () => {
+    it("should return all skills (public endpoint)", async () => {
+      const res = await request(app.getHttpServer()).get("/api/skills");
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThan(0);
+    });
+
+    it("should filter skills by categoryId", async () => {
+      const res = await request(app.getHttpServer()).get(
+        "/api/skills?categoryId=1",
+      );
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    });
+  });
+});
