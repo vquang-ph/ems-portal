@@ -27,6 +27,16 @@
             "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'packages/backend/src/database/migrations/' && echo 'ERROR: Do not create or edit files in migrations/. Generate with: cd packages/backend && npm run migration:generate -- src/database/migrations/MigrationName' && exit 1 || exit 0"
           }
         ]
+      },
+      {
+        "matcher": "Read|Grep|Glob",
+        "hook": [
+          {
+            "types": "command",
+            "command": ".claude/hooks/require-deep-explore.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [
