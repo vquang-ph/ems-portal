@@ -46,7 +46,6 @@ docker-compose.yml
 .prettierignore
 .prettierrc
 commitlint.config.js
-turbo.json
 
 # Logs
 *.log

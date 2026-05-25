@@ -5,7 +5,8 @@ import { UnauthorizedException } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { UserRole } from "@ems-portal/types";
 import { AuthController } from "./auth.controller";
-import { AuthService, AuthResult } from "./auth.service";
+import { AuthService } from "./auth.service";
+import type { AuthResult } from "./interfaces/auth.interface";
 import { UserEntity } from "@/modules/user/entites/user.entity";
 
 const REFRESH_COOKIE_NAME = "ems.refresh";

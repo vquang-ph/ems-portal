@@ -9,11 +9,18 @@ BACKEND_CHANGED=$(echo "$STAGED_FILES" | grep "^packages/backend/" || true)
 # Frontend Linting
 if [ -n "$FRONTEND_CHANGED" ]; then
   echo "Running lint for frontend..."
-  # Use workspace command to stay in root
   yarn workspace @ems-portal/frontend lint --max-warnings 0
 
   if [ $? -ne 0 ]; then
     echo "Frontend linting failed. Please fix errors before committing."
+    exit 1
+  fi
+
+  echo "Running unit tests for frontend..."
+  yarn workspace @ems-portal/frontend test
+
+  if [ $? -ne 0 ]; then
+    echo "Frontend unit tests failed. Please fix errors before committing."
     exit 1
   fi
 fi
@@ -21,13 +28,28 @@ fi
 # Backend Linting
 if [ -n "$BACKEND_CHANGED" ]; then
   echo "Running lint for backend..."
-  # Use workspace command to stay in root
   yarn workspace @ems-portal/backend lint --max-warnings 0
 
   if [ $? -ne 0 ]; then
     echo "Backend linting failed. Please fix errors before committing."
     exit 1
   fi
+
+  echo "Running unit tests for backend..."
+  yarn workspace @ems-portal/backend test
+
+  if [ $? -ne 0 ]; then
+    echo "Backend unit tests failed. Please fix errors before committing."
+    exit 1
+  fi
+
+  echo "Running integration tests for backend..."
+  yarn workspace @ems-portal/backend test:int
+
+  if [ $? -ne 0 ]; then
+    echo "Backend integration tests failed. Please fix errors before committing."
+    exit 1
+  fi
 fi
 
-echo "All linting checks passed!"
+echo "All checks passed! Linting, unit tests, and integration tests successful!"

@@ -29,9 +29,10 @@ services:
     container_name: ems_portal_backend
     ports:
       - "3000:3000"
+    env_file: .env
     environment:
       APP_DATABASE_HOST: db
-      APP_DATABASE_PORT: 3306
+      APP_DATABASE_PORT: ${APP_DATABASE_PORT:-5432}
       APP_DATABASE_USER: ${APP_DATABASE_USER}
       APP_DATABASE_PASSWORD: ${APP_DATABASE_PASSWORD}
       APP_DATABASE_NAME: ${APP_DATABASE_NAME}

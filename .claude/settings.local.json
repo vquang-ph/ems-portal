@@ -5,7 +5,13 @@
       "Read(//tmp/**)",
       "Bash(yarn tsc *)",
       "Bash(git *)",
-      "Bash(yarn test *)"
+      "Bash(yarn test *)",
+      "Bash(yarn build:types)",
+      "Bash(yarn lint *)",
+      "Bash(yarn workspace *)",
+      "Bash(yarn test:int)",
+      "Bash(yarn install *)",
+      "Bash(docker compose build *)"
     ]
   }
 }

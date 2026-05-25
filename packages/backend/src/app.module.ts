@@ -3,9 +3,11 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { databaseConfig } from "./config/database";
-import { APP_FILTER, APP_PIPE } from "@nestjs/core";
+import { APP_FILTER, APP_GUARD, APP_PIPE } from "@nestjs/core";
 import { ZodValidationPipe } from "nestjs-zod";
 import { TypeOrmExceptionFilter } from "./common/filters/typeorm-exception.filter";
+import { JwtAuthGuard } from "./modules/auth/guards/jwt-auth.guard";
+import { PermissionsGuard } from "./modules/auth/guards/permissions.guard";
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { MetricModule } from "./modules/metric/metric.module";
@@ -45,6 +47,8 @@ import { UserModule } from "./modules/user/user.module";
       provide: APP_FILTER,
       useClass: TypeOrmExceptionFilter,
     },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
   ],
 })
 export class AppModule {}

@@ -16,6 +16,29 @@ Turborepo monorepo (Yarn 1 workspaces) with three packages:
 
 A single root-level `.env` feeds all packages. Vite reads it via `loadEnv` against the repo root; the backend's standalone TypeORM CLI loads `../../../../.env` from `src/database/datasource.ts`.
 
+## Exploration Protocol (MANDATORY)
+
+**Before reading, searching, or exploring any code/files for a task, dispatch the `deep-explore` agent.** Act on its summary. This applies to main agent AND every subagent.
+
+### Rule
+
+- Do not create `worktree`, let edit directly or create new branch if needed.
+- Any task that needs `Read` / `Grep` / `Glob` / file exploration / codebase discovery → dispatch `Agent(subagent_type="deep-explore", ...)` first.
+- Only use `Read`/`Edit` directly when the target path was given verbatim by the user AND you are about to modify it.
+- `deep-explore` is the only agent permitted to perform raw reads/searches. Others delegate.
+
+### Why
+
+- Keeps raw tool output out of parent context (context-mode sandbox)
+- Forces use of `code-review-graph` for structural questions (cheaper, richer)
+- Returns caveman-compressed summaries (~75% fluff reduction)
+- Enforced by `PreToolUse` hook on `Read`/`Grep`/`Glob`
+
+### Exceptions
+
+- User message contains the exact file path AND request is "edit X" / "fix line N of X" → direct `Read` + `Edit` allowed.
+- Hook will block otherwise with: `"Dispatch deep-explore agent first (see CLAUDE.md Exploration Protocol)."`
+
 ## Package details
 
 <!-- always loaded — needed for almost every task -->

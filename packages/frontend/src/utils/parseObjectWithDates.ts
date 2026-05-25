@@ -13,9 +13,9 @@
  * @param input - Any value (object, array, primitive)
  * @returns The same structure with date strings converted to `Date`
  */
-export function parseObjectWithDates<T>(input: T): T {
+export function parseObjectWithDates<T>(input: unknown): T {
   if (input === null || input === undefined) {
-    return input;
+    return input as T;
   }
 
   // Convert valid date strings
@@ -24,7 +24,8 @@ export function parseObjectWithDates<T>(input: T): T {
     if (!Number.isNaN(parsed.getTime())) {
       return parsed as T;
     }
-    return input;
+
+    return input as T;
   }
 
   // Recursively handle arrays
@@ -43,5 +44,5 @@ export function parseObjectWithDates<T>(input: T): T {
     return result as T;
   }
 
-  return input;
+  return input as T;
 }
