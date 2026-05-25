@@ -15,13 +15,17 @@ jobs:
       - name: Create .env file
         # This is just for testing
         run: |
-          echo "APP_DATABASE_ROOT_PASSWORD=rootpassword" >> .env
-          echo "APP_DATABASE_NAME=boilerplate" >> .env
-          echo "APP_DATABASE_USER=user" >> .env
-          echo "APP_DATABASE_PASSWORD=password" >> .env
-          echo "APP_DATABASE_PORT=3306" >> .env
+          echo "APP_BACKEND_PORT=3000" >> .env
+          echo "APP_FRONTEND_PORT=3001" >> .env
+          echo "APP_DATABASE_HOST=db" >> .env
+          echo "APP_DATABASE_PORT=5432" >> .env
+          echo "APP_DATABASE_NAME=ems_portal" >> .env
+          echo "APP_DATABASE_USER=postgres" >> .env
+          echo "APP_DATABASE_PASSWORD=postgres" >> .env
+          echo "APP_DATABASE_ROOT_PASSWORD=postgres" >> .env
           echo "APP_BACKEND_URL=http://localhost:3000" >> .env
           echo "APP_JWT_SECRET=test-secret-key" >> .env
+          echo "APP_ENVIRONMENT=test" >> .env
 
       - name: Build All Images
         run: docker compose build
