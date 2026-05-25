@@ -6,7 +6,10 @@
       "Bash(yarn tsc *)",
       "Bash(git *)",
       "Bash(yarn test *)",
-      "Bash(yarn build:types)"
+      "Bash(yarn build:types)",
+      "Bash(yarn lint *)",
+      "Bash(yarn workspace *)",
+      "Bash(yarn test:int)"
     ]
   }
 }
