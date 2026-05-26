@@ -15,7 +15,9 @@
       "Bash(awk *)",
       "Bash(npx tsr *)",
       "Bash(npx @tanstack/router-cli generate)",
-      "Bash(yarn build *)"
+      "Bash(yarn build *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -E \"\\\\.\\(tsx\\)$\")"
     ]
   }
 }
