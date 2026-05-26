@@ -195,7 +195,10 @@ describe("SkillsRepository", () => {
   describe("findSkillsByIds", () => {
     it("should return skills matching the provided IDs", async () => {
       const ids = [1, 2];
-      (mockSkillRepo.find as jest.Mock).mockResolvedValue([mockSkill, mockSkill2]);
+      (mockSkillRepo.find as jest.Mock).mockResolvedValue([
+        mockSkill,
+        mockSkill2,
+      ]);
 
       const result = await repository.findSkillsByIds(ids);
 
@@ -226,7 +229,10 @@ describe("SkillsRepository", () => {
 
     it("should return partial results when some IDs don't match", async () => {
       const ids = [1, 999, 2];
-      (mockSkillRepo.find as jest.Mock).mockResolvedValue([mockSkill, mockSkill2]);
+      (mockSkillRepo.find as jest.Mock).mockResolvedValue([
+        mockSkill,
+        mockSkill2,
+      ]);
 
       const result = await repository.findSkillsByIds(ids);
 

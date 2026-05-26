@@ -9,7 +9,15 @@ export interface Session {
 
 // Persists in localStorage under "ems.session". Single source of truth for
 // who's logged in; swap implementation here if we move to cookies later.
-export const sessionAtom = atomWithStorage<Session | null>("ems.session", null);
+// `getOnInit: true` so non-React reads (router beforeLoad guards, axios
+// interceptors via jotaiStore.get) see the persisted value immediately on
+// page load, instead of the initial `null` until a React subscription mounts.
+export const sessionAtom = atomWithStorage<Session | null>(
+  "ems.session",
+  null,
+  undefined,
+  { getOnInit: true },
+);
 
 export const tokenAtom = atom((get) => get(sessionAtom)?.accessToken ?? null);
 

@@ -130,10 +130,13 @@ describe("RefreshTokenRepository", () => {
       const result = await repository.revokeIfActive("hash1");
 
       expect((repository as any).manager.transaction).toHaveBeenCalled();
-      expect(mockEntityManager.findOne).toHaveBeenCalledWith(RefreshTokenEntity, {
-        where: { tokenHash: "hash1" },
-        lock: { mode: "pessimistic_write" },
-      });
+      expect(mockEntityManager.findOne).toHaveBeenCalledWith(
+        RefreshTokenEntity,
+        {
+          where: { tokenHash: "hash1" },
+          lock: { mode: "pessimistic_write" },
+        },
+      );
       expect(mockEntityManager.save).toHaveBeenCalled();
       expect(result).toEqual({
         status: "consumed",
@@ -307,7 +310,7 @@ describe("RefreshTokenRepository", () => {
 
       await repository.revokeFamily("fam_1");
 
-      const [whereClause] = (updateSpy.mock.calls[0] as any);
+      const [whereClause] = updateSpy.mock.calls[0] as any;
       expect(whereClause.revokedAt).toEqual(IsNull());
     });
 
@@ -320,7 +323,7 @@ describe("RefreshTokenRepository", () => {
       await repository.revokeFamily("fam_1");
       const afterCall = Date.now();
 
-      const [, updateData] = (updateSpy.mock.calls[0] as any);
+      const [, updateData] = updateSpy.mock.calls[0] as any;
       expect(updateData.revokedAt).not.toBeNull();
       expect(updateData.revokedAt.getTime()).toBeGreaterThanOrEqual(beforeCall);
       expect(updateData.revokedAt.getTime()).toBeLessThanOrEqual(afterCall);

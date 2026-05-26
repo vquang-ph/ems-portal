@@ -95,7 +95,9 @@ describe("SkillsService", () => {
 
       const result = await service.getSkills(categoryId);
 
-      expect(repository.findSkillsByCategoryId).toHaveBeenCalledWith(categoryId);
+      expect(repository.findSkillsByCategoryId).toHaveBeenCalledWith(
+        categoryId,
+      );
       expect(result).toEqual(skills);
     });
 
