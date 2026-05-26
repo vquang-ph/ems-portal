@@ -6,6 +6,7 @@ export const VERIFICATION_STATUS_VALUES = [
   "pending",
   "verified",
 ] as const;
+
 export const PROFICIENCY_LEVEL_VALUES = [
   "junior",
   "mid",
@@ -14,6 +15,8 @@ export const PROFICIENCY_LEVEL_VALUES = [
 ] as const;
 
 export const VerificationStatusSchema = z.enum(VERIFICATION_STATUS_VALUES);
+export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+
 export const ProficiencyLevelSchema = z.enum(PROFICIENCY_LEVEL_VALUES);
 export type ProficiencyLevel = z.infer<typeof ProficiencyLevelSchema>;
 
