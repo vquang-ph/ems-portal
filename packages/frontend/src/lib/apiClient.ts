@@ -85,6 +85,13 @@ class ApiClient {
         const config = error.config as RetriedConfig | undefined;
         const status = error.response?.status;
 
+        // 403 = authenticated but not authorized. Do NOT clear the session
+        // or trigger a refresh; surface the error to the caller (TanStack
+        // Query's `error` state) so components can render an inline message.
+        if (status === 403) {
+          throw error;
+        }
+
         if (
           status !== 401 ||
           !config ||
