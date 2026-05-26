@@ -1,9 +1,10 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { UserRole } from "@ems-portal/types";
-import { UserMenu, currentUserAtom } from "@/modules/auth";
+import { UserMenu, currentUserAtom, useSessionRefresh } from "@/modules/auth";
 
 const RootLayout = () => {
+  useSessionRefresh();
   const user = useAtomValue(currentUserAtom);
   const isProvider = user?.role === UserRole.ServiceProvider;
 

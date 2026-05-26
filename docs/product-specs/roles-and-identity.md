@@ -53,7 +53,7 @@ A Client can be suspended; a Provider can be unverified. These cut across roles 
   - Deliver the service (off-platform; the platform does not model the work itself).
   - Receive ratings.
 - **Distinctive trait:** They are the **searchable surface** of the marketplace. Their data is read constantly; the matching algorithm depends on them.
-- **Implicit state machine:** "registered" ≠ "matchable." A provider must be `active AND available AND has-skills AND profile-complete` to appear in matches. Worth making explicit.
+- **Explicit profile lifecycle:** `draft → active → suspended`. Registration eagerly creates a `provider_profiles` row in `draft` (see `data-model.md` §2.3); the provider must explicitly publish via `PATCH /provider-profiles/me/publish` after filling required fields and attaching at least one skill. Publishing flips `profile_status` to `active` — the moment the provider opts into being matched. Matchability further requires `is_available = true` and `users.status = 'active'`. The status enum is stored, not derived, so the matching engine has one indexable filter and publishing has one hook for validation, audit, and (future) notifications.
 
 ### 2.4 Admin
 

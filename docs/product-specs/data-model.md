@@ -49,15 +49,17 @@ Persistent half of the JWT auth flow. Access tokens are stateless and short-live
 
 ### 2.3 `provider_profiles`
 
-Provider-specific data, 1:1 with `users` **only when `role = service_provider`**. Eagerly created at registration so the matching algorithm never sees a "provider with no profile" state.
+Provider-specific data, 1:1 with `users` **only when `role = service_provider`**. Eagerly created at registration (inside the same transaction as the `users` insert) so every service-provider user has a row from the moment they exist — the matching algorithm never sees a "provider with no profile" state, and `GET /provider-profiles/me` never returns 404 for a legitimate caller.
 
 - **Satisfies:** spec §3 provider profile management; supplies four of the five matching criteria (availability, cost, location, rating).
 - **Notable fields:**
   - `latitude`, `longitude` (`numeric(9,6)`) — geographic proximity input. Numeric lat/lng over PostGIS — see §3.4.
-  - `is_available` — availability criterion.
+  - `is_available` — availability criterion. **Default `false`** so eagerly-created stubs are not silently matchable.
   - `hourly_rate_min`, `hourly_rate_max` — cost criterion.
   - `rating_average`, `rating_count`, `completed_engagements_count` — denormalized aggregates so matching reads hot fields without joins. Maintained in the same transaction as the source writes (consistent with the codebase's explicit-service-layer pattern). Periodic reconciliation job optional.
   - `verification_status`, `verified_at` — placeholder for the future verification workflow (`roles-and-identity.md` §3.2).
+  - `profile_status` — `draft | active | suspended`, default `draft`. Explicit publish lifecycle: registration writes `draft`; the provider transitions to `active` via `PATCH /provider-profiles/me/publish` after filling required fields and attaching at least one skill. A stored enum (rather than a derived "is complete?" rule re-implemented at every reader) gives the matching engine an indexable filter and gives publishing a single hook point for validation, audit, and future notifications.
+- **Matchability filter:** `profile_status = 'active' AND is_available = true`. The two are orthogonal — publishing is a one-way intent ("I'm ready to be considered"), availability is a day-to-day hiatus toggle ("I'm too busy this week"). Keeping them separate avoids overloading either signal.
 - **Not introduced:** `client_profiles`. Clients have no profile data in v1; add the table only when concrete needs emerge (billing addresses, preferences).
 
 ### 2.4 `skill_categories`
@@ -166,6 +168,7 @@ Cascade-deleting a `users` row would silently shrink the linked provider's `rati
 Beyond the unique constraints defined per-entity:
 
 - `users(role)` partial index — provider filtering for matching.
+- `provider_profiles(profile_status) WHERE profile_status = 'active'` — partial index for the matching hot path; keeps stubs out of the candidate set without a full scan.
 - `provider_skills(skill_id)` — reverse lookup.
 - `service_requests(status, created_at DESC)` — "list open requests."
 - `service_requests(client_id, created_at DESC)` — "my requests" page.
@@ -277,7 +280,7 @@ erDiagram
           text bio "NULL"
           numeric_9_6 latitude "NULL"
           numeric_9_6 longitude "NULL"
-          boolean is_available "DEFAULT true"
+          boolean is_available "DEFAULT false"
           numeric_12_2 hourly_rate_min "NULL"
           numeric_12_2 hourly_rate_max "NULL"
           numeric_3_2 rating_average "denormalized for matching"
@@ -285,6 +288,7 @@ erDiagram
           int completed_engagements_count "denormalized"
           verification_status_enum verification_status "DEFAULT 'unverified'"
           timestamptz verified_at "NULL"
+          profile_status_enum profile_status "draft|active|suspended; DEFAULT 'draft'"
           timestamptz updated_at
       }
 
