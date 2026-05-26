@@ -61,7 +61,7 @@ describe("ProviderProfileService", () => {
         ratingAverage: 0,
         ratingCount: 0,
         completedEngagementsCount: 0,
-        verificationStatus: "unverified",
+        verificationStatus: "unverified" as const,
         verifiedAt: null,
         latitude: null,
         longitude: null,
@@ -71,7 +71,7 @@ describe("ProviderProfileService", () => {
       };
 
       jest.spyOn(repository, "findByUserId").mockResolvedValue(null);
-      jest.spyOn(repository, "save").mockResolvedValue(savedProfile);
+      jest.spyOn(repository, "save").mockResolvedValue(savedProfile as any);
 
       const result = await service.createProfile(input);
 

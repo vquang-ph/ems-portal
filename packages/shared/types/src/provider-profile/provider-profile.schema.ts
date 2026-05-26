@@ -63,9 +63,7 @@ export const CreateProviderProfileSchema = z.object({
   hourlyRateMin: z.number().positive().nullable().optional(),
   hourlyRateMax: z.number().positive().nullable().optional(),
 });
-export type CreateProviderProfile = z.infer<
-  typeof CreateProviderProfileSchema
->;
+export type CreateProviderProfile = z.infer<typeof CreateProviderProfileSchema>;
 
 export const UpdateProviderProfileSchema = CreateProviderProfileSchema;
 export type UpdateProviderProfile = CreateProviderProfile;
