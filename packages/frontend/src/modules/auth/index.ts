@@ -3,6 +3,7 @@ export { default as RegisterPage } from "./pages/RegisterPage";
 export { default as AppHomePage } from "./pages/AppHomePage";
 export { default as UserMenu } from "./components/UserMenu";
 export { default as useSession } from "./hooks/useSession";
+export { default as useSessionRefresh } from "./hooks/useSessionRefresh";
 export {
   sessionAtom,
   tokenAtom,

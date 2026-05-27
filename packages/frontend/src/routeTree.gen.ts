@@ -15,10 +15,18 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_a
 import { Route as AnonymousRegisterRouteImport } from './routes/_anonymous/register'
 import { Route as AnonymousLoginRouteImport } from './routes/_anonymous/login'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/_app/index'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppProvidersRouteImport } from './routes/_authenticated/_app/providers'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/_app/profile'
+import { Route as AuthenticatedAppMessagesRouteImport } from './routes/_authenticated/_app/messages'
+import { Route as AuthenticatedAppBookingsRouteImport } from './routes/_authenticated/_app/bookings'
+import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/_app/admin'
 import { Route as AuthenticatedAppProfileIndexRouteImport } from './routes/_authenticated/_app/profile/index'
 import { Route as AuthenticatedAppProfileSkillsRouteImport } from './routes/_authenticated/_app/profile/skills'
 import { Route as AuthenticatedAppProfileSetupRouteImport } from './routes/_authenticated/_app/profile/setup'
+import { Route as AuthenticatedAppAdminVerificationRouteImport } from './routes/_authenticated/_app/admin/verification'
+import { Route as AuthenticatedAppAdminUsersRouteImport } from './routes/_authenticated/_app/admin/users'
+import { Route as AuthenticatedAppAdminSkillsRouteImport } from './routes/_authenticated/_app/admin/skills'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -47,9 +55,38 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProvidersRoute =
+  AuthenticatedAppProvidersRouteImport.update({
+    id: '/providers',
+    path: '/providers',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppMessagesRoute =
+  AuthenticatedAppMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBookingsRoute =
+  AuthenticatedAppBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAdminRoute = AuthenticatedAppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppProfileIndexRoute =
@@ -70,12 +107,38 @@ const AuthenticatedAppProfileSetupRoute =
     path: '/setup',
     getParentRoute: () => AuthenticatedAppProfileRoute,
   } as any)
+const AuthenticatedAppAdminVerificationRoute =
+  AuthenticatedAppAdminVerificationRouteImport.update({
+    id: '/verification',
+    path: '/verification',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
+const AuthenticatedAppAdminUsersRoute =
+  AuthenticatedAppAdminUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
+const AuthenticatedAppAdminSkillsRoute =
+  AuthenticatedAppAdminSkillsRouteImport.update({
+    id: '/skills',
+    path: '/skills',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedAppIndexRoute
   '/login': typeof AnonymousLoginRoute
   '/register': typeof AnonymousRegisterRoute
+  '/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/bookings': typeof AuthenticatedAppBookingsRoute
+  '/messages': typeof AuthenticatedAppMessagesRoute
   '/profile': typeof AuthenticatedAppProfileRouteWithChildren
+  '/providers': typeof AuthenticatedAppProvidersRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
   '/profile/setup': typeof AuthenticatedAppProfileSetupRoute
   '/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
   '/profile/': typeof AuthenticatedAppProfileIndexRoute
@@ -84,6 +147,14 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedAppIndexRoute
   '/login': typeof AnonymousLoginRoute
   '/register': typeof AnonymousRegisterRoute
+  '/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/bookings': typeof AuthenticatedAppBookingsRoute
+  '/messages': typeof AuthenticatedAppMessagesRoute
+  '/providers': typeof AuthenticatedAppProvidersRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
   '/profile/setup': typeof AuthenticatedAppProfileSetupRoute
   '/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
   '/profile': typeof AuthenticatedAppProfileIndexRoute
@@ -95,8 +166,16 @@ export interface FileRoutesById {
   '/_anonymous/login': typeof AnonymousLoginRoute
   '/_anonymous/register': typeof AnonymousRegisterRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/_app/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/_authenticated/_app/bookings': typeof AuthenticatedAppBookingsRoute
+  '/_authenticated/_app/messages': typeof AuthenticatedAppMessagesRoute
   '/_authenticated/_app/profile': typeof AuthenticatedAppProfileRouteWithChildren
+  '/_authenticated/_app/providers': typeof AuthenticatedAppProvidersRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/_app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/_app/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/_authenticated/_app/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/_authenticated/_app/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
   '/_authenticated/_app/profile/setup': typeof AuthenticatedAppProfileSetupRoute
   '/_authenticated/_app/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
   '/_authenticated/_app/profile/': typeof AuthenticatedAppProfileIndexRoute
@@ -107,7 +186,15 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/admin'
+    | '/bookings'
+    | '/messages'
     | '/profile'
+    | '/providers'
+    | '/settings'
+    | '/admin/skills'
+    | '/admin/users'
+    | '/admin/verification'
     | '/profile/setup'
     | '/profile/skills'
     | '/profile/'
@@ -116,6 +203,14 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/admin'
+    | '/bookings'
+    | '/messages'
+    | '/providers'
+    | '/settings'
+    | '/admin/skills'
+    | '/admin/users'
+    | '/admin/verification'
     | '/profile/setup'
     | '/profile/skills'
     | '/profile'
@@ -126,8 +221,16 @@ export interface FileRouteTypes {
     | '/_anonymous/login'
     | '/_anonymous/register'
     | '/_authenticated/_app'
+    | '/_authenticated/_app/admin'
+    | '/_authenticated/_app/bookings'
+    | '/_authenticated/_app/messages'
     | '/_authenticated/_app/profile'
+    | '/_authenticated/_app/providers'
+    | '/_authenticated/_app/settings'
     | '/_authenticated/_app/'
+    | '/_authenticated/_app/admin/skills'
+    | '/_authenticated/_app/admin/users'
+    | '/_authenticated/_app/admin/verification'
     | '/_authenticated/_app/profile/setup'
     | '/_authenticated/_app/profile/skills'
     | '/_authenticated/_app/profile/'
@@ -182,11 +285,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/providers': {
+      id: '/_authenticated/_app/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof AuthenticatedAppProvidersRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/profile': {
       id: '/_authenticated/_app/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/messages': {
+      id: '/_authenticated/_app/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedAppMessagesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/bookings': {
+      id: '/_authenticated/_app/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof AuthenticatedAppBookingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/admin': {
+      id: '/_authenticated/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAppAdminRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/profile/': {
@@ -210,6 +348,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProfileSetupRouteImport
       parentRoute: typeof AuthenticatedAppProfileRoute
     }
+    '/_authenticated/_app/admin/verification': {
+      id: '/_authenticated/_app/admin/verification'
+      path: '/verification'
+      fullPath: '/admin/verification'
+      preLoaderRoute: typeof AuthenticatedAppAdminVerificationRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
+    }
+    '/_authenticated/_app/admin/users': {
+      id: '/_authenticated/_app/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAppAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
+    }
+    '/_authenticated/_app/admin/skills': {
+      id: '/_authenticated/_app/admin/skills'
+      path: '/skills'
+      fullPath: '/admin/skills'
+      preLoaderRoute: typeof AuthenticatedAppAdminSkillsRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
+    }
   }
 }
 
@@ -226,6 +385,24 @@ const AnonymousRouteChildren: AnonymousRouteChildren = {
 const AnonymousRouteWithChildren = AnonymousRoute._addFileChildren(
   AnonymousRouteChildren,
 )
+
+interface AuthenticatedAppAdminRouteChildren {
+  AuthenticatedAppAdminSkillsRoute: typeof AuthenticatedAppAdminSkillsRoute
+  AuthenticatedAppAdminUsersRoute: typeof AuthenticatedAppAdminUsersRoute
+  AuthenticatedAppAdminVerificationRoute: typeof AuthenticatedAppAdminVerificationRoute
+}
+
+const AuthenticatedAppAdminRouteChildren: AuthenticatedAppAdminRouteChildren = {
+  AuthenticatedAppAdminSkillsRoute: AuthenticatedAppAdminSkillsRoute,
+  AuthenticatedAppAdminUsersRoute: AuthenticatedAppAdminUsersRoute,
+  AuthenticatedAppAdminVerificationRoute:
+    AuthenticatedAppAdminVerificationRoute,
+}
+
+const AuthenticatedAppAdminRouteWithChildren =
+  AuthenticatedAppAdminRoute._addFileChildren(
+    AuthenticatedAppAdminRouteChildren,
+  )
 
 interface AuthenticatedAppProfileRouteChildren {
   AuthenticatedAppProfileSetupRoute: typeof AuthenticatedAppProfileSetupRoute
@@ -246,12 +423,22 @@ const AuthenticatedAppProfileRouteWithChildren =
   )
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRouteWithChildren
+  AuthenticatedAppBookingsRoute: typeof AuthenticatedAppBookingsRoute
+  AuthenticatedAppMessagesRoute: typeof AuthenticatedAppMessagesRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRouteWithChildren
+  AuthenticatedAppProvidersRoute: typeof AuthenticatedAppProvidersRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAdminRoute: AuthenticatedAppAdminRouteWithChildren,
+  AuthenticatedAppBookingsRoute: AuthenticatedAppBookingsRoute,
+  AuthenticatedAppMessagesRoute: AuthenticatedAppMessagesRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRouteWithChildren,
+  AuthenticatedAppProvidersRoute: AuthenticatedAppProvidersRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 

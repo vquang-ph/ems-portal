@@ -2,7 +2,10 @@ import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { JwtService } from "@nestjs/jwt";
+import { getDataSourceToken } from "@nestjs/typeorm";
+import { DataSource, EntityManager } from "typeorm";
 import { UserRole } from "@ems-portal/types";
+import { ProviderProfileRepository } from "@/modules/provider-profile/provider-profile.repository";
 import { AuthService } from "./auth.service";
 import { RefreshTokenService } from "./refresh-token/refresh-token.service";
 import { RefreshTokenEntity } from "./refresh-token/entities/refresh-token.entity";
@@ -15,6 +18,10 @@ describe("AuthService", () => {
   let userService: jest.Mocked<UserService>;
   let jwtService: jest.Mocked<JwtService>;
   let refreshTokenService: jest.Mocked<RefreshTokenService>;
+  let providerProfileRepository: jest.Mocked<
+    Pick<ProviderProfileRepository, "createStub">
+  >;
+  const fakeManager = {} as unknown as EntityManager;
 
   const makeUser = (overrides: Partial<UserEntity> = {}): UserEntity => {
     const user = new UserEntity();
@@ -74,6 +81,21 @@ describe("AuthService", () => {
             revokeOne: jest.fn().mockResolvedValue(undefined),
           },
         },
+        {
+          provide: ProviderProfileRepository,
+          useValue: {
+            createStub: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: getDataSourceToken(),
+          useValue: {
+            transaction: jest.fn(
+              async (cb: (em: EntityManager) => Promise<unknown>) =>
+                cb(fakeManager),
+            ),
+          } as unknown as DataSource,
+        },
       ],
     }).compile();
 
@@ -81,6 +103,7 @@ describe("AuthService", () => {
     userService = module.get(UserService);
     jwtService = module.get(JwtService);
     refreshTokenService = module.get(RefreshTokenService);
+    providerProfileRepository = module.get(ProviderProfileRepository);
 
     jest.clearAllMocks();
     (refreshTokenService.issueNewFamily as jest.Mock).mockResolvedValue(
@@ -106,12 +129,16 @@ describe("AuthService", () => {
 
       const result = await service.register(dto);
 
-      expect(userService.createUser).toHaveBeenCalledWith({
-        email: dto.email,
-        name: dto.name,
-        role: dto.role,
-        password: dto.password,
-      });
+      expect(userService.createUser).toHaveBeenCalledWith(
+        {
+          email: dto.email,
+          name: dto.name,
+          role: dto.role,
+          password: dto.password,
+        },
+        fakeManager,
+      );
+      expect(providerProfileRepository.createStub).not.toHaveBeenCalled();
       expect(jwtService.sign).toHaveBeenCalledWith({ sub: user.id });
       expect(refreshTokenService.issueNewFamily).toHaveBeenCalledWith(user.id);
       expect(result.accessToken).toBe("signed-token");
@@ -130,6 +157,24 @@ describe("AuthService", () => {
       ).not.toHaveProperty("passwordHash");
     });
 
+    it("creates a stub provider profile in the same transaction for service_provider role", async () => {
+      userService.findByEmail.mockResolvedValue(null);
+      const user = makeUser({ id: "user_42", role: UserRole.ServiceProvider });
+      userService.createUser.mockResolvedValue(user);
+
+      const providerDto: RegisterDto = {
+        ...dto,
+        role: UserRole.ServiceProvider,
+      };
+
+      await service.register(providerDto);
+
+      expect(providerProfileRepository.createStub).toHaveBeenCalledWith(
+        user.id,
+        fakeManager,
+      );
+    });
+
     it("throws ConflictException when email already in use", async () => {
       userService.findByEmail.mockResolvedValue(makeUser());
 
@@ -137,6 +182,7 @@ describe("AuthService", () => {
         ConflictException,
       );
       expect(userService.createUser).not.toHaveBeenCalled();
+      expect(providerProfileRepository.createStub).not.toHaveBeenCalled();
       expect(refreshTokenService.issueNewFamily).not.toHaveBeenCalled();
     });
   });

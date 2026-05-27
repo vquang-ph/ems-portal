@@ -17,7 +17,11 @@
       "Bash(npx @tanstack/router-cli generate)",
       "Bash(yarn build *)",
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
-      "Bash(grep -E \"\\\\.\\(tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx\\)$\")",
+      "Bash(grep -E \"\\\\.\\(tsx?|jsx?\\)$\")",
+      "Bash(mkdir -p /Users/quang/Documents/pet_project/worktrees/ems-portal/poised-bunting/ems-portal/packages/frontend/src/app/layout)",
+      "Bash(mkdir -p /Users/quang/Documents/pet_project/worktrees/ems-portal/poised-bunting/ems-portal/packages/frontend/src/app/navigation)",
+      "Bash(mkdir -p /Users/quang/Documents/pet_project/worktrees/ems-portal/poised-bunting/ems-portal/packages/frontend/src/components/common/test)"
     ]
   }
 }

@@ -20,6 +20,7 @@ So this refactor is mostly **composition + extraction**, not new dependencies. N
 ## Goals & Non-Goals
 
 **Goals**
+
 - Replace `RootLayout` with a sidebar + topbar shell that is role-aware, responsive, and ready for ≥4 more sections.
 - Polish every authenticated page that already exists (home, profile view, profile setup, manage skills).
 - Redesign the unauthenticated screens (login, register) onto a shared `AuthLayout`.
@@ -27,6 +28,7 @@ So this refactor is mostly **composition + extraction**, not new dependencies. N
 - Reserve nav slots and route placeholders for: `/providers` (client), `/admin/*` (admin), `/bookings` (both), `/messages` + notifications bell (both) — **placeholders only, no real screens**.
 
 **Non-goals**
+
 - Dark mode toggle (CSS is wired, but no UI toggle this pass — explicit user decision).
 - New design-token system, new icon library beyond `lucide-react` (already pulled in by shadcn).
 - Backend changes. No new endpoints; no schema changes.
@@ -69,9 +71,9 @@ A single declarative nav config drives both the sidebar and any future command p
 export type NavItem = {
   key: string;
   label: string;
-  to: string;            // typed via TanStack Router's FileRoutesByPath
+  to: string; // typed via TanStack Router's FileRoutesByPath
   icon: LucideIcon;
-  roles: UserRole[];     // empty array = visible to all authenticated users
+  roles: UserRole[]; // empty array = visible to all authenticated users
   group?: "main" | "admin";
   badge?: () => string | number | null; // future: unread counts
 };
@@ -79,18 +81,18 @@ export type NavItem = {
 
 Items shipped (with `roles` filter — empty = everyone authenticated):
 
-| key | label | to | roles | group |
-|---|---|---|---|---|
-| `home` | Dashboard | `/` | `[]` | main |
-| `profile` | My Profile | `/profile` | `[ServiceProvider]` | main |
-| `skills` | Skills | `/profile/skills` | `[ServiceProvider]` | main |
-| `providers` | Find providers | `/providers` | `[Client]` | main |
-| `bookings` | Bookings | `/bookings` | `[Client, ServiceProvider]` | main |
-| `messages` | Messages | `/messages` | `[]` | main |
-| `admin-users` | Users | `/admin/users` | `[Admin]` | admin |
-| `admin-skills` | Skills taxonomy | `/admin/skills` | `[Admin]` | admin |
-| `admin-verify` | Verification | `/admin/verification` | `[Admin]` | admin |
-| `settings` | Settings | `/settings` | `[]` | main (pinned bottom) |
+| key            | label           | to                    | roles                       | group                |
+| -------------- | --------------- | --------------------- | --------------------------- | -------------------- |
+| `home`         | Dashboard       | `/`                   | `[]`                        | main                 |
+| `profile`      | My Profile      | `/profile`            | `[ServiceProvider]`         | main                 |
+| `skills`       | Skills          | `/profile/skills`     | `[ServiceProvider]`         | main                 |
+| `providers`    | Find providers  | `/providers`          | `[Client]`                  | main                 |
+| `bookings`     | Bookings        | `/bookings`           | `[Client, ServiceProvider]` | main                 |
+| `messages`     | Messages        | `/messages`           | `[]`                        | main                 |
+| `admin-users`  | Users           | `/admin/users`        | `[Admin]`                   | admin                |
+| `admin-skills` | Skills taxonomy | `/admin/skills`       | `[Admin]`                   | admin                |
+| `admin-verify` | Verification    | `/admin/verification` | `[Admin]`                   | admin                |
+| `settings`     | Settings        | `/settings`           | `[]`                        | main (pinned bottom) |
 
 Placeholders for `/providers`, `/bookings`, `/messages`, `/admin/*`, `/settings`: each is a new file under `src/routes/_authenticated/_app/...` exporting a route whose component renders `<EmptyState>` (see component inventory). `beforeLoad` enforces the role gate using the same pattern as the existing `profile/skills.tsx`.
 
@@ -99,6 +101,7 @@ Placeholders for `/providers`, `/bookings`, `/messages`, `/admin/*`, `/settings`
 All under `packages/frontend/src/`.
 
 ### `app/layout/` (new folder)
+
 - **`AppShell.tsx`** — top-level. Renders `<SidebarProvider><AppSidebar /><SidebarInset><Topbar /><Outlet /></SidebarInset></SidebarProvider>`. Replaces today's `RootLayout`.
 - **`AppSidebar.tsx`** — reads `navConfig`, filters by `useSession().user.role`, splits into `main` + `admin` groups, renders shadcn `SidebarMenu` items.
 - **`Topbar.tsx`** — breadcrumbs (from `useMatches`), notifications bell button (disabled tooltip "Coming soon"), `UserMenu`.
@@ -106,9 +109,11 @@ All under `packages/frontend/src/`.
 - **`Breadcrumbs.tsx`** — small helper that maps active matches to breadcrumb items. Each route exports an optional `staticData: { breadcrumb: "Skills" }` (TanStack Router pattern).
 
 ### `layouts/AuthLayout.tsx` (new)
+
 Two-column on `≥md` (brand panel left, form panel right), single-column below. Replaces the bare `Card` wrappers currently on `login.tsx` / `register.tsx`. Brand panel: app name + a short value-prop line + a subtle gradient using existing tokens. Form panel: centered `Card` with form, footer link to the other auth page.
 
 ### `components/common/` (new folder for shared, non-shadcn primitives)
+
 - **`PageHeader.tsx`** — `{ title, description?, actions? }`. Standard top-of-page bar. Used by every page so spacing/typography stay consistent.
 - **`StatCard.tsx`** — `{ label, value, icon?, trend?, hint? }`. Card with big number; used on the new dashboard and reserved for future dashboards.
 - **`EmptyState.tsx`** — thin wrapper over shadcn `empty.tsx` with `{ icon, title, description, action? }`. Use for placeholder routes and "no data" states.
@@ -175,6 +180,7 @@ Each step is a self-contained commit; the shell can land before the page polish 
 ## Critical files
 
 **Will be created**
+
 - `packages/frontend/src/app/layout/AppShell.tsx`
 - `packages/frontend/src/app/layout/AppSidebar.tsx`
 - `packages/frontend/src/app/layout/Topbar.tsx`
@@ -186,6 +192,7 @@ Each step is a self-contained commit; the shell can land before the page polish 
 - 7 new route files under `src/routes/_authenticated/_app/` (placeholders)
 
 **Will be modified**
+
 - `packages/frontend/src/routes/__root.tsx` (drop layout responsibility)
 - `packages/frontend/src/routes/_authenticated/_app.tsx` (mount `AppShell`)
 - `packages/frontend/src/routes/_anonymous/{login,register}.tsx` (wrap in `AuthLayout`)
@@ -196,6 +203,7 @@ Each step is a self-contained commit; the shell can land before the page polish 
 - `packages/frontend/README.md` (new conventions section).
 
 **Will be deleted**
+
 - `packages/frontend/src/layouts/RootLayout.tsx` (replaced by `AppShell`)
 
 ## Reuse — what already exists, don't rebuild

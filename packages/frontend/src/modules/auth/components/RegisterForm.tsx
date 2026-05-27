@@ -172,13 +172,6 @@ const RegisterForm = () => {
       >
         {isPending ? "Creating account..." : "Create account"}
       </Button>
-
-      <p className="text-sm text-muted-foreground text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="underline">
-          Sign in
-        </Link>
-      </p>
     </form>
   );
 };

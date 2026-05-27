@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { isAxiosError } from "axios";
 import type { UpdateProviderProfile } from "@ems-portal/types";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,76 +9,103 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ProfileForm from "../components/ProfileForm";
-import useCreateProfileMutation from "../hooks/mutations/useCreateProfileMutation";
+import usePublishProfileMutation from "../hooks/mutations/usePublishProfileMutation";
 import useUpdateProfileMutation from "../hooks/mutations/useUpdateProfileMutation";
 import useMyProfileQuery from "../hooks/queries/useMyProfileQuery";
 
 const ProfileSetupPage = () => {
   const navigate = useNavigate();
-  const { data: profile, isLoading, error } = useMyProfileQuery();
+  const { data: profile, isLoading } = useMyProfileQuery();
 
-  const createMutation = useCreateProfileMutation();
   const updateMutation = useUpdateProfileMutation();
-
-  // Treat 404 as "no profile yet" → create mode.
-  const missingProfile = isAxiosError(error) && error.response?.status === 404;
-  const isEditMode = !!profile && !missingProfile;
-  const activeMutation = isEditMode ? updateMutation : createMutation;
+  const publishMutation = usePublishProfileMutation();
 
   const handleSubmit = (data: UpdateProviderProfile) => {
-    if (isEditMode) {
-      updateMutation.mutate(data, {
-        onSuccess: () => void navigate({ to: "/profile" }),
-      });
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: () => void navigate({ to: "/profile" }),
-      });
-    }
+    updateMutation.mutate(data, {
+      onSuccess: () => void navigate({ to: "/profile" }),
+    });
+  };
+
+  const handlePublish = () => {
+    publishMutation.mutate(undefined, {
+      onSuccess: () => void navigate({ to: "/profile" }),
+    });
   };
 
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Loading profile…</p>;
   }
 
+  if (!profile) {
+    return (
+      <p className="text-sm text-destructive" role="alert">
+        Could not load profile.
+      </p>
+    );
+  }
+
+  const isDraft = profile.profileStatus === "draft";
+
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>
-            {isEditMode ? "Edit your profile" : "Set up your profile"}
+            {isDraft ? "Set up your profile" : "Edit your profile"}
           </CardTitle>
           <CardDescription>
-            {isEditMode
-              ? "Update your bio, rates, and availability."
-              : "Tell clients about your experience to start getting matched."}
+            {isDraft
+              ? "Tell clients about your experience, then publish to start getting matched."
+              : "Update your bio, rates, and availability."}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ProfileForm
-            defaultValues={
-              isEditMode && profile
-                ? {
-                    bio: profile.bio,
-                    hourlyRateMin: profile.hourlyRateMin,
-                    hourlyRateMax: profile.hourlyRateMax,
-                    isAvailable: profile.isAvailable,
-                    latitude: profile.latitude,
-                    longitude: profile.longitude,
-                  }
-                : undefined
-            }
+            defaultValues={{
+              bio: profile.bio,
+              hourlyRateMin: profile.hourlyRateMin,
+              hourlyRateMax: profile.hourlyRateMax,
+              isAvailable: profile.isAvailable,
+              latitude: profile.latitude,
+              longitude: profile.longitude,
+            }}
             onSubmit={handleSubmit}
-            isSubmitting={activeMutation.isPending}
-            submitLabel={isEditMode ? "Save changes" : "Create profile"}
+            isSubmitting={updateMutation.isPending}
+            submitLabel="Save changes"
           />
-          {activeMutation.error && (
+          {updateMutation.error && (
             <p className="mt-4 text-sm text-destructive" role="alert">
               Could not save profile. Please try again.
             </p>
           )}
         </CardContent>
       </Card>
+
+      {isDraft && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Publish your profile</CardTitle>
+            <CardDescription>
+              Once published, your profile becomes visible to matching. You need
+              a bio, location, hourly rate range, and at least one skill.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={handlePublish}
+              disabled={publishMutation.isPending}
+            >
+              {publishMutation.isPending ? "Publishing…" : "Publish profile"}
+            </Button>
+            {publishMutation.error && (
+              <p className="mt-4 text-sm text-destructive" role="alert">
+                Could not publish. Make sure required fields and at least one
+                skill are filled in.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

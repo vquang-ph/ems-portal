@@ -1,4 +1,9 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ProviderProfileRepository } from "./provider-profile.repository";
 import { ProviderProfileService } from "./provider-profile.service";
@@ -97,12 +102,72 @@ describe("ProviderProfileService", () => {
   });
 
   describe("getOwnProfile", () => {
-    it("should throw NotFoundException when profile does not exist", async () => {
+    it("throws InternalServerErrorException when the eager-creation invariant is violated", async () => {
+      jest.spyOn(repository, "findByUserId").mockResolvedValue(null);
+
+      await expect(service.getOwnProfile("user-123")).rejects.toBeInstanceOf(
+        InternalServerErrorException,
+      );
+    });
+  });
+
+  describe("publishOwnProfile", () => {
+    const userId = "user-123";
+
+    const draftProfile = {
+      id: "profile-123",
+      userId,
+      bio: "exp engineer",
+      latitude: 1,
+      longitude: 2,
+      hourlyRateMin: 50,
+      hourlyRateMax: 100,
+      providerSkills: [{ skillId: 1 }],
+      profileStatus: "draft",
+      verificationStatus: "unverified",
+      verifiedAt: null,
+      isAvailable: false,
+      ratingAverage: 0,
+      ratingCount: 0,
+      completedEngagementsCount: 0,
+    };
+
+    it("flips draft → active when all required fields and a skill are present", async () => {
       jest
         .spyOn(repository, "findByUserIdOrFail")
-        .mockRejectedValue(new Error("Not found"));
+        .mockResolvedValue({ ...draftProfile } as any);
+      jest.spyOn(repository, "save").mockImplementation((p: any) => p);
 
-      await expect(service.getOwnProfile("user-123")).rejects.toThrow();
+      const result = await service.publishOwnProfile(userId);
+
+      expect(result.profileStatus).toBe("active");
+      expect(repository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ profileStatus: "active" }),
+      );
+    });
+
+    it("rejects publish with 422 when required fields are missing", async () => {
+      const incomplete = { ...draftProfile, bio: null, providerSkills: [] };
+      jest
+        .spyOn(repository, "findByUserIdOrFail")
+        .mockResolvedValue(incomplete as any);
+
+      await expect(service.publishOwnProfile(userId)).rejects.toBeInstanceOf(
+        UnprocessableEntityException,
+      );
+    });
+
+    it("is idempotent when profile is already active", async () => {
+      const active = { ...draftProfile, profileStatus: "active" };
+      jest
+        .spyOn(repository, "findByUserIdOrFail")
+        .mockResolvedValue(active as any);
+      const saveSpy = jest.spyOn(repository, "save");
+
+      const result = await service.publishOwnProfile(userId);
+
+      expect(result.profileStatus).toBe("active");
+      expect(saveSpy).not.toHaveBeenCalled();
     });
   });
 

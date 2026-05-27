@@ -36,6 +36,7 @@ export const run = async (
       hourlyRateMin: 75,
       hourlyRateMax: 150,
       verificationStatus: "unverified",
+      profileStatus: "active",
     },
     { conflictPaths: ["userId"], skipUpdateIfNoValuesChanged: true },
   );

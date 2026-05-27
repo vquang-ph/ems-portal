@@ -21,6 +21,7 @@ export const fakeProviderProfile = (
   completedEngagementsCount: 15,
   verificationStatus: "verified",
   verifiedAt: new Date("2026-04-01T00:00:00.000Z"),
+  profileStatus: "active",
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
   updatedAt: new Date("2026-05-01T00:00:00.000Z"),
   skills: [],

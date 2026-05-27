@@ -32,6 +32,13 @@ const providerProfileApi = {
     return parseObjectWithDates<ProviderProfile>(res.data);
   },
 
+  async publishMyProfile(): Promise<ProviderProfile> {
+    const res = await apiClient.patch<ProviderProfile>(
+      "/provider-profiles/me/publish",
+    );
+    return parseObjectWithDates<ProviderProfile>(res.data);
+  },
+
   async getProfileByUserId(userId: string): Promise<ProviderProfile> {
     const res = await apiClient.get<ProviderProfile>(
       `/provider-profiles/${userId}`,

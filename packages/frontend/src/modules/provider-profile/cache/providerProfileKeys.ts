@@ -11,6 +11,7 @@ const providerProfileKeys = {
   mutation: {
     create: () => [...providerProfileKeys.all, "create"] as const,
     update: () => [...providerProfileKeys.all, "update"] as const,
+    publish: () => [...providerProfileKeys.all, "publish"] as const,
     addSkill: () => [...providerProfileKeys.all, "add-skill"] as const,
     removeSkill: () => [...providerProfileKeys.all, "remove-skill"] as const,
   },

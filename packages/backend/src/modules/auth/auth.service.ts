@@ -4,7 +4,10 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import type { AuthResponse } from "@ems-portal/types";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+import { UserRole, type AuthResponse } from "@ems-portal/types";
+import { ProviderProfileRepository } from "@/modules/provider-profile/provider-profile.repository";
 import { UserService } from "@/modules/user/user.service";
 import type { UserEntity } from "@/modules/user/entites/user.entity";
 import type { LoginDto, RegisterDto } from "./dto/auth.dto";
@@ -18,10 +21,15 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly providerProfileRepository: ProviderProfileRepository,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   /**
    * Registers a new user and issues an access + refresh token pair.
+   *
+   * For the service-provider role, a stub `provider_profiles` row is inserted in the
+   * same transaction so `GET /provider-profiles/me` always resolves.
    *
    * @param dto - Registration payload (email, name, role, password).
    * @returns Access token, public user, and the raw refresh token.
@@ -33,11 +41,22 @@ export class AuthService {
       throw new ConflictException("Email already registered");
     }
 
-    const user = await this.userService.createUser({
-      email: dto.email,
-      name: dto.name,
-      role: dto.role,
-      password: dto.password,
+    const user = await this.dataSource.transaction(async (manager) => {
+      const created = await this.userService.createUser(
+        {
+          email: dto.email,
+          name: dto.name,
+          role: dto.role,
+          password: dto.password,
+        },
+        manager,
+      );
+
+      if (created.role === UserRole.ServiceProvider) {
+        await this.providerProfileRepository.createStub(created.id, manager);
+      }
+
+      return created;
     });
 
     return this.buildAuthResult(user);

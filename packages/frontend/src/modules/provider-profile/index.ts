@@ -10,6 +10,7 @@ export { default as useSkillCategoriesQuery } from "./hooks/queries/useSkillCate
 export { default as useSkillsQuery } from "./hooks/queries/useSkillsQuery";
 export { default as useCreateProfileMutation } from "./hooks/mutations/useCreateProfileMutation";
 export { default as useUpdateProfileMutation } from "./hooks/mutations/useUpdateProfileMutation";
+export { default as usePublishProfileMutation } from "./hooks/mutations/usePublishProfileMutation";
 export { default as useAddSkillMutation } from "./hooks/mutations/useAddSkillMutation";
 export { default as useRemoveSkillMutation } from "./hooks/mutations/useRemoveSkillMutation";
 export { default as providerProfileKeys } from "./cache/providerProfileKeys";

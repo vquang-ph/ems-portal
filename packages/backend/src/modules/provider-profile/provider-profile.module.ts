@@ -14,5 +14,6 @@ import { ProviderProfileService } from "./provider-profile.service";
   ],
   providers: [ProviderProfileRepository, ProviderProfileService],
   controllers: [ProviderProfileController],
+  exports: [ProviderProfileRepository],
 })
 export class ProviderProfileModule {}

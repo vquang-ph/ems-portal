@@ -1,5 +1,6 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/app/layout/AppShell";
 
 export const Route = createFileRoute("/_authenticated/_app")({
-  component: Outlet,
+  component: AppShell,
 });

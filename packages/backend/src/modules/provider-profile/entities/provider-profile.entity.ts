@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
-import { type ProviderProfile } from "@ems-portal/types";
+import { type ProfileStatus, type ProviderProfile } from "@ems-portal/types";
 import { BaseEntity } from "@/common/entities/base.entity";
 import { UserEntity } from "@/modules/user/entites/user.entity";
 import { ProviderSkillEntity } from "./provider-skill.entity";
@@ -21,7 +21,7 @@ export class ProviderProfileEntity
   @Column({ type: "numeric", precision: 9, scale: 6, nullable: true })
   public longitude: number | null;
 
-  @Column({ name: "is_available", default: true })
+  @Column({ name: "is_available", default: false })
   public isAvailable: boolean;
 
   @Column({
@@ -62,6 +62,9 @@ export class ProviderProfileEntity
 
   @Column({ name: "verified_at", type: "timestamptz", nullable: true })
   public verifiedAt: Date | null;
+
+  @Column({ name: "profile_status", length: 20, default: "draft" })
+  public profileStatus: ProfileStatus;
 
   @ManyToOne(() => UserEntity, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "user_id" })

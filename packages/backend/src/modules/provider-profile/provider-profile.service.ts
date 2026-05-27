@@ -2,7 +2,10 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import {
   type AddProviderSkill,
@@ -12,26 +15,42 @@ import {
 } from "@ems-portal/types";
 import { SkillsService } from "@/modules/skills/skills.service";
 import { CreateProfileInput } from "./dto/provider-profile.dto";
+import {
+  PROVIDER_PROFILE_REQUIRED_FIELDS,
+  type ProviderProfileRequiredField,
+} from "./provider-profile.constants";
 import { ProviderProfileRepository } from "./provider-profile.repository";
 import { ProviderProfileEntity } from "./entities/provider-profile.entity";
 import { ProviderSkillEntity } from "./entities/provider-skill.entity";
 
 @Injectable()
 export class ProviderProfileService {
+  private readonly logger = new Logger(ProviderProfileService.name);
+
   public constructor(
     @Inject() private readonly repository: ProviderProfileRepository,
     @Inject() private readonly skillsService: SkillsService,
   ) {}
 
   /**
-   * Retrieves the authenticated user's own provider profile.
+   * Retrieves the authenticated user's own provider profile. A profile row is
+   * eagerly created at registration for every service-provider user, so a
+   * missing row here is an invariant violation rather than a business state.
    *
    * @param userId - The user's UUID.
    * @returns The provider profile with embedded skills.
-   * @throws NotFoundException if no profile exists for the user.
+   * @throws InternalServerErrorException if the invariant is violated.
    */
   public async getOwnProfile(userId: string): Promise<ProviderProfile> {
-    const profile = await this.repository.findByUserIdOrFail(userId);
+    const profile = await this.repository.findByUserId(userId);
+    if (!profile) {
+      this.logger.error(
+        `Provider profile missing for user ${userId}. Expected to be eagerly created at registration.`,
+      );
+      throw new InternalServerErrorException(
+        "Provider profile is missing for this account.",
+      );
+    }
     return this.mapToProfile(profile);
   }
 
@@ -154,6 +173,45 @@ export class ProviderProfileService {
   }
 
   /**
+   * Promotes the authenticated user's profile from `draft` to `active`,
+   * making it eligible to appear in match results. Validates that every
+   * required field is populated and that at least one skill is attached.
+   * Republishing an already-active profile is a no-op (idempotent).
+   *
+   * @param userId - The user's UUID.
+   * @returns The published provider profile.
+   * @throws UnprocessableEntityException listing missing fields when the
+   *         profile is not yet complete enough to publish.
+   */
+  public async publishOwnProfile(userId: string): Promise<ProviderProfile> {
+    const profile = await this.repository.findByUserIdOrFail(userId);
+
+    if (profile.profileStatus === "active") {
+      return this.mapToProfile(profile);
+    }
+
+    const missing: ProviderProfileRequiredField[] =
+      PROVIDER_PROFILE_REQUIRED_FIELDS.filter(
+        (field) => profile[field] === null || profile[field] === undefined,
+      );
+
+    const hasSkill = (profile.providerSkills ?? []).length > 0;
+    const reasons: string[] = [...missing];
+    if (!hasSkill) reasons.push("skills");
+
+    if (reasons.length > 0) {
+      throw new UnprocessableEntityException({
+        message: "Profile is not complete enough to publish.",
+        missing: reasons,
+      });
+    }
+
+    profile.profileStatus = "active";
+    const saved = await this.repository.save(profile);
+    return this.mapToProfile(saved);
+  }
+
+  /**
    * Maps a ProviderProfileEntity to the domain ProviderProfile type.
    */
   private mapToProfile(entity: ProviderProfileEntity): ProviderProfile {
@@ -179,6 +237,7 @@ export class ProviderProfileService {
       completedEngagementsCount: entity.completedEngagementsCount,
       verificationStatus: entity.verificationStatus,
       verifiedAt: entity.verifiedAt,
+      profileStatus: entity.profileStatus,
       skills: entity.providerSkills?.map((ps: ProviderSkillEntity) => ({
         skillId: ps.skillId,
         level: ps.level,

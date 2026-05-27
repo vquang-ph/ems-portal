@@ -49,23 +49,18 @@ const ProfilePage = () => {
       );
     }
     if (
-      !isViewingOther &&
+      isViewingOther &&
       isAxiosError(error) &&
       error.response?.status === 404
     ) {
       return (
         <Card className="mx-auto max-w-2xl">
           <CardHeader>
-            <CardTitle>You don&apos;t have a profile yet</CardTitle>
+            <CardTitle>Profile not found</CardTitle>
             <CardDescription>
-              Set up your provider profile to start getting matched.
+              This provider does not exist or has not published a profile.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link to="/profile/setup">Set up profile</Link>
-            </Button>
-          </CardContent>
         </Card>
       );
     }
@@ -82,6 +77,28 @@ const ProfilePage = () => {
 
   const isOwnProfile =
     !isViewingOther && currentUser?.role === UserRole.ServiceProvider;
+
+  if (isOwnProfile && profile.profileStatus === "draft") {
+    return (
+      <Card className="mx-auto max-w-2xl">
+        <CardHeader>
+          <CardTitle>Your profile is in draft</CardTitle>
+          <CardDescription>
+            Finish filling it in and publish to start getting matched with
+            clients.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-2">
+          <Button asChild>
+            <Link to="/profile/setup">Continue setup</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/profile/skills">Manage skills</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">

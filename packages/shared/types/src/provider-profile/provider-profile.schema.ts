@@ -7,6 +7,8 @@ export const VERIFICATION_STATUS_VALUES = [
   "verified",
 ] as const;
 
+export const PROFILE_STATUS_VALUES = ["draft", "active", "suspended"] as const;
+
 export const PROFICIENCY_LEVEL_VALUES = [
   "junior",
   "mid",
@@ -16,6 +18,9 @@ export const PROFICIENCY_LEVEL_VALUES = [
 
 export const VerificationStatusSchema = z.enum(VERIFICATION_STATUS_VALUES);
 export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+
+export const ProfileStatusSchema = z.enum(PROFILE_STATUS_VALUES);
+export type ProfileStatus = z.infer<typeof ProfileStatusSchema>;
 
 export const ProficiencyLevelSchema = z.enum(PROFICIENCY_LEVEL_VALUES);
 export type ProficiencyLevel = z.infer<typeof ProficiencyLevelSchema>;
@@ -54,6 +59,7 @@ export const ProviderProfileSchema = BaseSchema.extend({
   completedEngagementsCount: z.number().int(),
   verificationStatus: VerificationStatusSchema,
   verifiedAt: z.coerce.date().nullable(),
+  profileStatus: ProfileStatusSchema,
   skills: z.array(ProviderSkillSchema).optional(),
 });
 export type ProviderProfile = z.infer<typeof ProviderProfileSchema>;

@@ -248,7 +248,7 @@ describe("RefreshTokenRepository", () => {
 
       const mockEntityManager = {
         findOne: jest.fn().mockResolvedValue(activeToken),
-        save: jest.fn().mockImplementation((record) => {
+        save: jest.fn().mockImplementation(async (record) => {
           activeToken.revokedAt = record.revokedAt;
           return Promise.resolve(record);
         }),
