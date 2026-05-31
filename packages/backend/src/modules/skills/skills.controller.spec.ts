@@ -11,16 +11,12 @@ describe("SkillsController", () => {
   const mockSkillCategory: SkillCategory = {
     id: 1,
     name: "Backend",
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   const mockSkill: Skill = {
     id: 1,
     name: "TypeScript",
     categoryId: 1,
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   beforeEach(async () => {

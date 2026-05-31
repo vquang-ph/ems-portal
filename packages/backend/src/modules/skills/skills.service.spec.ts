@@ -3,6 +3,7 @@ import { Test } from "@nestjs/testing";
 import type { Skill, SkillCategory } from "@ems-portal/types";
 import { SkillsService } from "./skills.service";
 import { SkillsRepository } from "./skills.repository";
+import type { SkillEntity } from "./entities/skill.entity";
 
 describe("SkillsService", () => {
   let service: SkillsService;
@@ -11,24 +12,18 @@ describe("SkillsService", () => {
   const mockSkillCategory: SkillCategory = {
     id: 1,
     name: "Backend",
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   const mockSkill: Skill = {
     id: 1,
     name: "TypeScript",
     categoryId: 1,
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   const mockSkill2: Skill = {
     id: 2,
     name: "Node.js",
     categoryId: 1,
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   beforeEach(async () => {
@@ -80,7 +75,9 @@ describe("SkillsService", () => {
   describe("getSkills", () => {
     it("retrieves all skills when no category filter provided", async () => {
       const skills = [mockSkill, mockSkill2];
-      repository.findSkillsByCategoryId.mockResolvedValue(skills);
+      repository.findSkillsByCategoryId.mockResolvedValue(
+        skills as unknown as SkillEntity[],
+      );
 
       const result = await service.getSkills();
 
@@ -91,7 +88,9 @@ describe("SkillsService", () => {
     it("retrieves skills filtered by category ID", async () => {
       const categoryId = 1;
       const skills = [mockSkill, mockSkill2];
-      repository.findSkillsByCategoryId.mockResolvedValue(skills);
+      repository.findSkillsByCategoryId.mockResolvedValue(
+        skills as unknown as SkillEntity[],
+      );
 
       const result = await service.getSkills(categoryId);
 
@@ -121,7 +120,9 @@ describe("SkillsService", () => {
     it("retrieves multiple skills by their IDs", async () => {
       const ids = [1, 2];
       const skills = [mockSkill, mockSkill2];
-      repository.findSkillsByIds.mockResolvedValue(skills);
+      repository.findSkillsByIds.mockResolvedValue(
+        skills as unknown as SkillEntity[],
+      );
 
       const result = await service.getSkillsByIds(ids);
 
@@ -141,7 +142,9 @@ describe("SkillsService", () => {
     it("returns partial results when some IDs don't match", async () => {
       const ids = [1, 999];
       const skills = [mockSkill];
-      repository.findSkillsByIds.mockResolvedValue(skills);
+      repository.findSkillsByIds.mockResolvedValue(
+        skills as unknown as SkillEntity[],
+      );
 
       const result = await service.getSkillsByIds(ids);
 

@@ -1,3 +1,4 @@
+import * as path from "path";
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
@@ -13,6 +14,11 @@ import { UserEntity } from "@/modules/user/entites/user.entity";
 import { RefreshTokenService } from "./refresh-token/refresh-token.service";
 import { RefreshTokenRepository } from "./refresh-token/refresh-token.repository";
 import { RefreshTokenEntity } from "./refresh-token/entities/refresh-token.entity";
+import { ProviderProfileRepository } from "@/modules/provider-profile/provider-profile.repository";
+import { ProviderProfileEntity } from "@/modules/provider-profile/entities/provider-profile.entity";
+import { ProviderSkillEntity } from "@/modules/provider-profile/entities/provider-skill.entity";
+import { SkillEntity } from "@/modules/skills/entities/skill.entity";
+import { SkillCategoryEntity } from "@/modules/skills/entities/skill-category.entity";
 
 /**
  * Integration tests for AuthService.
@@ -22,6 +28,7 @@ import { RefreshTokenEntity } from "./refresh-token/entities/refresh-token.entit
 describe("AuthService (Integration)", () => {
   let authService: AuthService;
   let userRepo: UserRepository;
+  let providerProfileRepo: ProviderProfileRepository;
   let module: TestingModule;
 
   const TEST_EMAIL_PREFIX = "auth-int-test-";
@@ -29,18 +36,35 @@ describe("AuthService (Integration)", () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({ isGlobal: true, envFilePath: ".env" }),
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: [path.resolve(process.cwd(), "../../.env"), ".env"],
+        }),
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: (config: ConfigService) => ({
             ...databaseConfig(config),
-            entities: [UserEntity, RefreshTokenEntity],
+            entities: [
+              UserEntity,
+              RefreshTokenEntity,
+              ProviderProfileEntity,
+              ProviderSkillEntity,
+              SkillEntity,
+              SkillCategoryEntity,
+            ],
             synchronize: false,
             dropSchema: false,
           }),
         }),
-        TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
+        TypeOrmModule.forFeature([
+          UserEntity,
+          RefreshTokenEntity,
+          ProviderProfileEntity,
+          ProviderSkillEntity,
+          SkillEntity,
+          SkillCategoryEntity,
+        ]),
         JwtModule.registerAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
@@ -53,11 +77,13 @@ describe("AuthService (Integration)", () => {
         UserRepository,
         RefreshTokenService,
         RefreshTokenRepository,
+        ProviderProfileRepository,
       ],
     }).compile();
 
     authService = module.get(AuthService);
     userRepo = module.get(UserRepository);
+    providerProfileRepo = module.get(ProviderProfileRepository);
   });
 
   afterAll(async () => {
@@ -65,7 +91,21 @@ describe("AuthService (Integration)", () => {
   });
 
   afterEach(async () => {
-    // Remove anything this test suite created.
+    // Delete provider profiles first (ON DELETE RESTRICT prevents removing users first).
+    const testUsers = await userRepo.find({
+      where: {},
+      select: ["id", "email"],
+    });
+    const testUserIds = testUsers
+      .filter((u) => u.email.startsWith(TEST_EMAIL_PREFIX))
+      .map((u) => u.id);
+    if (testUserIds.length > 0) {
+      await providerProfileRepo
+        .createQueryBuilder()
+        .delete()
+        .where("user_id IN (:...ids)", { ids: testUserIds })
+        .execute();
+    }
     await userRepo
       .createQueryBuilder()
       .delete()

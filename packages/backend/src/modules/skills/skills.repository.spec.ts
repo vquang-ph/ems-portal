@@ -16,16 +16,12 @@ describe("SkillsRepository", () => {
   const mockSkillCategory: SkillCategoryEntity = {
     id: 1,
     name: "Backend",
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
   };
 
   const mockSkill: SkillEntity = {
     id: 1,
     name: "TypeScript",
     categoryId: 1,
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
     category: mockSkillCategory,
   };
 
@@ -33,8 +29,6 @@ describe("SkillsRepository", () => {
     id: 2,
     name: "Node.js",
     categoryId: 1,
-    createdAt: new Date("2026-05-24T00:00:00.000Z"),
-    updatedAt: null,
     category: mockSkillCategory,
   };
 

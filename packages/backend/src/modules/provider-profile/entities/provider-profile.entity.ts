@@ -63,7 +63,12 @@ export class ProviderProfileEntity
   @Column({ name: "verified_at", type: "timestamptz", nullable: true })
   public verifiedAt: Date | null;
 
-  @Column({ name: "profile_status", length: 20, default: "draft" })
+  @Column({
+    name: "profile_status",
+    type: "varchar",
+    length: 20,
+    default: "draft",
+  })
   public profileStatus: ProfileStatus;
 
   @ManyToOne(() => UserEntity, { onDelete: "RESTRICT" })

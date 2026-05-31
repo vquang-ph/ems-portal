@@ -1,10 +1,10 @@
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { getDataSourceToken } from "@nestjs/typeorm";
-import { DataSource, IsNull, Repository } from "typeorm";
+import { DataSource, IsNull } from "typeorm";
 import { RefreshTokenEntity } from "./entities/refresh-token.entity";
 import { RefreshTokenRepository } from "./refresh-token.repository";
-import type { RevokeIfActiveResult } from "./types/refresh-token.types";
+import type { UserEntity } from "@/modules/user/entites/user.entity";
 
 describe("RefreshTokenRepository", () => {
   let repository: RefreshTokenRepository;
@@ -20,6 +20,7 @@ describe("RefreshTokenRepository", () => {
     replacedByTokenId: null,
     createdAt: new Date("2026-05-24T00:00:00.000Z"),
     updatedAt: null,
+    user: {} as UserEntity,
   };
 
   const mockRevokedToken: RefreshTokenEntity = {
@@ -32,6 +33,7 @@ describe("RefreshTokenRepository", () => {
     replacedByTokenId: null,
     createdAt: new Date("2026-05-24T00:00:00.000Z"),
     updatedAt: null,
+    user: {} as UserEntity,
   };
 
   const mockExpiredToken: RefreshTokenEntity = {
@@ -44,6 +46,7 @@ describe("RefreshTokenRepository", () => {
     replacedByTokenId: null,
     createdAt: new Date("2026-05-24T00:00:00.000Z"),
     updatedAt: null,
+    user: {} as UserEntity,
   };
 
   beforeEach(async () => {
@@ -124,7 +127,7 @@ describe("RefreshTokenRepository", () => {
       );
 
       (repository as any).manager = {
-        transaction: jest.fn(async (callback) => callback(mockEntityManager)),
+        transaction: jest.fn((callback) => callback(mockEntityManager)),
       };
 
       const result = await repository.revokeIfActive("hash1");
@@ -152,7 +155,7 @@ describe("RefreshTokenRepository", () => {
       };
 
       (repository as any).manager = {
-        transaction: jest.fn(async (callback) => callback(mockEntityManager)),
+        transaction: jest.fn((callback) => callback(mockEntityManager)),
       };
 
       const result = await repository.revokeIfActive("nonexistent");
@@ -169,7 +172,7 @@ describe("RefreshTokenRepository", () => {
       };
 
       (repository as any).manager = {
-        transaction: jest.fn(async (callback) => callback(mockEntityManager)),
+        transaction: jest.fn((callback) => callback(mockEntityManager)),
       };
 
       const result = await repository.revokeIfActive("hash2");
@@ -193,7 +196,7 @@ describe("RefreshTokenRepository", () => {
       };
 
       (repository as any).manager = {
-        transaction: jest.fn(async (callback) => callback(mockEntityManager)),
+        transaction: jest.fn((callback) => callback(mockEntityManager)),
       };
 
       const result = await repository.revokeIfActive("hash3");
@@ -219,7 +222,7 @@ describe("RefreshTokenRepository", () => {
       };
 
       (repository as any).manager = {
-        transaction: jest.fn(async (callback) => callback(mockEntityManager)),
+        transaction: jest.fn((callback) => callback(mockEntityManager)),
       };
 
       await repository.revokeIfActive("hash1");
