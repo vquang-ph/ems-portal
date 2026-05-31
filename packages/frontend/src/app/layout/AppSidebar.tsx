@@ -12,12 +12,11 @@ import {
 import { NAV_CONFIG, type NavItem } from "@/app/navigation/navConfig";
 import useSession from "@/modules/auth/hooks/useSession";
 import { Link, useLocation } from "@tanstack/react-router";
-import type { UserRole } from "@ems-portal/types";
 
 export function AppSidebar() {
   const { user } = useSession();
   const { pathname } = useLocation();
-  const userRole = user?.role as UserRole | undefined;
+  const userRole = user?.role;
 
   const mainItems = NAV_CONFIG.filter(
     (item) =>
@@ -86,7 +85,10 @@ export function AppSidebar() {
 
     return (
       <SidebarMenuItem key={item.key}>
-        <SidebarMenuButton asChild className={active ? "bg-sidebar-accent" : ""}>
+        <SidebarMenuButton
+          asChild
+          className={active ? "bg-sidebar-accent" : ""}
+        >
           <Link to={item.to || "#"}>
             <item.icon className="h-4 w-4" />
             <span>{item.label}</span>

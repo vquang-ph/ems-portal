@@ -5,10 +5,10 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/_app/providers")({
-  beforeLoad: async () => {
+  beforeLoad: () => {
     const user = jotaiStore.get(currentUserAtom);
     if (user?.role !== "client") {
-      throw redirect({ to: "/" });
+      return redirect({ to: "/" });
     }
   },
   component: ProvidersPage,

@@ -35,14 +35,14 @@ The system is built as a modern web application separated into three coordinated
 
 The work is organised into six phases, intentionally sequenced so that each builds on the previous one. The table below summarises where the project stands at the time of writing.
 
-| Phase       | Scope                                                                                                       | Status                                                  |
-| ----------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| **Phase 1** | User accounts and secure authentication (registration, login, session handling)                             | ✅ Completed                                            |
-| **Phase 2** | Extended user profiles, dedicated service-provider profiles, and a managed catalogue of engineering skills  | 🟡 In progress — final publication workflow under way   |
-| **Phase 3** | Service requests posted by clients                                                                          | ⬜ Not yet started                                      |
-| **Phase 4** | The intelligent matching engine and the comparison configurations used for evaluation                       | ⬜ Not yet started                                      |
-| **Phase 5** | Engagements (the agreed working relationship between a client and a provider) and the rating feedback loop  | ⬜ Not yet started                                      |
-| **Phase 6** | Administrator tooling and the final effectiveness review of the matching algorithm                          | ⬜ Not yet started                                      |
+| Phase       | Scope                                                                                                      | Status                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Phase 1** | User accounts and secure authentication (registration, login, session handling)                            | ✅ Completed                                          |
+| **Phase 2** | Extended user profiles, dedicated service-provider profiles, and a managed catalogue of engineering skills | 🟡 In progress — final publication workflow under way |
+| **Phase 3** | Service requests posted by clients                                                                         | ⬜ Not yet started                                    |
+| **Phase 4** | The intelligent matching engine and the comparison configurations used for evaluation                      | ⬜ Not yet started                                    |
+| **Phase 5** | Engagements (the agreed working relationship between a client and a provider) and the rating feedback loop | ⬜ Not yet started                                    |
+| **Phase 6** | Administrator tooling and the final effectiveness review of the matching algorithm                         | ⬜ Not yet started                                    |
 
 In short, the **foundations of the platform are complete**, the **profile layer is nearly complete**, and the remaining phases — which contain the research-relevant matching algorithm — are scheduled to follow.
 
@@ -56,7 +56,7 @@ The following functional areas are working end-to-end:
 
 - **Authentication and account management** — users can register, log in, log out, refresh their session securely, and retrieve their own profile. The session-handling design follows current security best practice (signed access tokens with rotating refresh tokens).
 - **User identity** — every account is stored with an email address (treated case-insensitively) and a securely hashed password. The user's identity is deliberately kept separate from their role, so the platform can later support users who hold more than one role without redesigning the database.
-- **Service-provider profiles** — providers have a dedicated profile containing professional information (e.g. experience, hourly rate, location). The publication workflow that lets a provider move a profile from *draft* to *active* (visible to clients) and later to *suspended* is the work currently being finalised on the active branch.
+- **Service-provider profiles** — providers have a dedicated profile containing professional information (e.g. experience, hourly rate, location). The publication workflow that lets a provider move a profile from _draft_ to _active_ (visible to clients) and later to _suspended_ is the work currently being finalised on the active branch.
 - **Skill catalogue** — administrators can manage a structured catalogue of engineering skills, grouped into categories. Providers will be able to attach skills from this catalogue to their profile.
 - **System health and monitoring endpoints** — small but important utilities that allow operations staff (and the automated test pipeline) to confirm the service is alive and responding.
 
@@ -67,7 +67,7 @@ The following functional areas are working end-to-end:
 
 ### 3.3 Database
 
-The data structures backing the platform are defined and version-controlled as *migrations* — small, ordered scripts that bring the database from one well-known state to the next. Three migrations exist:
+The data structures backing the platform are defined and version-controlled as _migrations_ — small, ordered scripts that bring the database from one well-known state to the next. Three migrations exist:
 
 1. The initial schema covering users and authentication (Phase 1).
 2. The extension introducing provider profiles and the skill catalogue (Phase 2).
@@ -81,14 +81,14 @@ Beyond the application features themselves, a complete **automated review pipeli
 
 The pipeline is made up of six coordinated workflows:
 
-| Workflow                  | What it checks                                                                                                                                                | When it runs                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| **Orchestrator**          | Acts as the entry point; decides which of the workflows below need to run, based on which part of the project changed.                                        | On every proposed change                      |
-| **Style check**           | Three parallel checks: commit-message format (consistency of project history), code formatting, and code-quality rules.                                       | Always                                        |
-| **Build and unit tests**  | Confirms the code still compiles and passes its catalogue of fast, isolated tests. Publishes a coverage summary as a comment on the proposed change.          | Only when the relevant part of the code changes |
-| **Security audit**        | Scans third-party dependencies for known vulnerabilities. Fails the review if any *high* or *critical* issue is detected.                                     | Always                                        |
-| **Integration tests**     | Starts a real database, applies all migrations and seed data, and then runs the slower tests that exercise the full server stack.                             | Only when server code changes                 |
-| **Deployment readiness**  | Assembles the full application using container images, starts it, and verifies that both the server and the user interface respond correctly to live requests. | Always                                        |
+| Workflow                 | What it checks                                                                                                                                                 | When it runs                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Orchestrator**         | Acts as the entry point; decides which of the workflows below need to run, based on which part of the project changed.                                         | On every proposed change                        |
+| **Style check**          | Three parallel checks: commit-message format (consistency of project history), code formatting, and code-quality rules.                                        | Always                                          |
+| **Build and unit tests** | Confirms the code still compiles and passes its catalogue of fast, isolated tests. Publishes a coverage summary as a comment on the proposed change.           | Only when the relevant part of the code changes |
+| **Security audit**       | Scans third-party dependencies for known vulnerabilities. Fails the review if any _high_ or _critical_ issue is detected.                                      | Always                                          |
+| **Integration tests**    | Starts a real database, applies all migrations and seed data, and then runs the slower tests that exercise the full server stack.                              | Only when server code changes                   |
+| **Deployment readiness** | Assembles the full application using container images, starts it, and verifies that both the server and the user interface respond correctly to live requests. | Always                                          |
 
 The pipeline runs on a fixed software environment (Node.js version 22.12.0) and uses temporary, throwaway credentials for testing — no production secrets are involved.
 
@@ -100,8 +100,8 @@ The key benefit is that **no change reaches the main branch without first being 
 
 The active branch closes the last gap in Phase 2: the **profile publication lifecycle**. Concretely, the changes do the following:
 
-- Add a new field to the provider profile indicating whether the profile is a *draft*, *active*, or *suspended*.
-- Introduce a dedicated server action — `Publish my profile` — that performs the validation and transitions the profile to *active*.
+- Add a new field to the provider profile indicating whether the profile is a _draft_, _active_, or _suspended_.
+- Introduce a dedicated server action — `Publish my profile` — that performs the validation and transitions the profile to _active_.
 - Update the user interface so providers can see their current publication state and trigger publication.
 - Refresh the user's session after publication so that their newly granted permissions take effect immediately, without requiring a manual log-out.
 - Update the shared data definitions and the relevant documentation pages so that both halves of the application stay consistent.
@@ -120,11 +120,11 @@ Once this branch is merged, Phase 2 is complete and development can move on to P
 
 ## 6. Testing strategy
 
-Software testing on this project is organised around a deliberate principle, often illustrated as a *testing pyramid*: **a broad base of fast, isolated tests, supported by a smaller layer of realistic end-to-end checks for the most critical paths, and topped by a focused set of security and performance assessments.** This combination is widely accepted in modern software engineering as the best balance between speed of feedback (so that mistakes are caught within minutes of being made) and confidence in correctness (so that what passes the tests can be trusted in production). The pyramid shape is intentional: cheap, narrow tests outnumber expensive, broad ones, because broad tests are slower, more brittle, and more difficult to diagnose when they fail.
+Software testing on this project is organised around a deliberate principle, often illustrated as a _testing pyramid_: **a broad base of fast, isolated tests, supported by a smaller layer of realistic end-to-end checks for the most critical paths, and topped by a focused set of security and performance assessments.** This combination is widely accepted in modern software engineering as the best balance between speed of feedback (so that mistakes are caught within minutes of being made) and confidence in correctness (so that what passes the tests can be trusted in production). The pyramid shape is intentional: cheap, narrow tests outnumber expensive, broad ones, because broad tests are slower, more brittle, and more difficult to diagnose when they fail.
 
 ### 6.1 Two categories of automated tests
 
-- **Unit tests.** Each small component (a single class or a single function) is tested in isolation, with its surroundings replaced by simplified "stand-ins" (known in the literature as *test doubles*, *mocks*, or *stubs*). These tests run in seconds, make it easy to localise the cause of a failure, and protect against accidental regressions whenever the code is refactored. Because they touch no database and no network, they can be executed thousands of times per day without overhead.
+- **Unit tests.** Each small component (a single class or a single function) is tested in isolation, with its surroundings replaced by simplified "stand-ins" (known in the literature as _test doubles_, _mocks_, or _stubs_). These tests run in seconds, make it easy to localise the cause of a failure, and protect against accidental regressions whenever the code is refactored. Because they touch no database and no network, they can be executed thousands of times per day without overhead.
 - **Integration tests.** A smaller number of tests exercise several real components together — most importantly, the server in combination with a real database. These tests verify that the pieces interact correctly, that database queries return the expected rows, that the schema produced by the migrations is consistent with the application's assumptions, and that error paths (e.g. unique-constraint violations, missing records, transaction rollbacks) behave as designed. They are slower than unit tests, but they catch entire classes of bugs that no amount of mocking can reveal.
 
 ### 6.2 Server-side testing
@@ -135,7 +135,7 @@ Software testing on this project is organised around a deliberate principle, oft
 
 ### 6.3 Client-side testing
 
-- The user interface is tested using a framework that simulates a real browser environment and interacts with components the way a user would (clicking, typing, reading visible text), rather than inspecting internal implementation details. This is sometimes called *behaviour-driven* testing: it asks "does the component do what the user expects?" rather than "is this internal variable set correctly?" — which produces tests that survive future refactoring and closely mirror real user experience.
+- The user interface is tested using a framework that simulates a real browser environment and interacts with components the way a user would (clicking, typing, reading visible text), rather than inspecting internal implementation details. This is sometimes called _behaviour-driven_ testing: it asks "does the component do what the user expects?" rather than "is this internal variable set correctly?" — which produces tests that survive future refactoring and closely mirror real user experience.
 - Each feature area in the user interface owns its own collection of test data ("fixtures") and shared identifiers, so tests remain readable and maintainable as the interface evolves.
 - The same 80% minimum coverage threshold applies, enforced per file.
 
@@ -147,18 +147,18 @@ Both kinds of tests are executed automatically by the pipeline described in §3.
 
 Because the platform handles personal data, professional credentials, and (in later phases) commercial engagements, security is treated as a first-class concern rather than an afterthought. The plan is layered:
 
-- **Automated dependency auditing** *(already in place).* Every proposed change is scanned for third-party libraries with known vulnerabilities. The pipeline fails on any *high* or *critical* finding, ensuring that the project never knowingly ships with a publicly disclosed weakness in its supply chain.
-- **Built-in defensive measures** *(in place across the existing modules).* The application already enforces password hashing with `bcrypt`, signed JSON Web Tokens with rotating refresh tokens, server-side input validation on every request, role-based access control, and HTTPS-only communication. These are the foundations that any subsequent penetration test will probe.
+- **Automated dependency auditing** _(already in place)._ Every proposed change is scanned for third-party libraries with known vulnerabilities. The pipeline fails on any _high_ or _critical_ finding, ensuring that the project never knowingly ships with a publicly disclosed weakness in its supply chain.
+- **Built-in defensive measures** _(in place across the existing modules)._ The application already enforces password hashing with `bcrypt`, signed JSON Web Tokens with rotating refresh tokens, server-side input validation on every request, role-based access control, and HTTPS-only communication. These are the foundations that any subsequent penetration test will probe.
 - **Penetration testing (planned).** Before the final thesis evaluation, the platform will undergo a **structured penetration test** to verify that the implemented defences hold up against adversarial behaviour. The plan is to follow a well-established methodology — most likely the **OWASP Testing Guide** in combination with the **OWASP Top 10** as a reference list of common attack categories — and to combine automated scanning with manual exploration. Concretely, the penetration test will exercise at least the following categories:
   1. **Authentication and session management** — credential-stuffing resistance, password-policy enforcement, brute-force protection, refresh-token replay/reuse, session fixation, and correct invalidation on logout.
-  2. **Authorisation / access control** — vertical privilege escalation (a regular user attempting administrator actions) and horizontal privilege escalation (one user attempting to access or modify another user's records, sometimes called *IDOR* — Insecure Direct Object Reference). The role-based access control mechanism will be probed against every endpoint.
+  2. **Authorisation / access control** — vertical privilege escalation (a regular user attempting administrator actions) and horizontal privilege escalation (one user attempting to access or modify another user's records, sometimes called _IDOR_ — Insecure Direct Object Reference). The role-based access control mechanism will be probed against every endpoint.
   3. **Input handling** — injection attacks (SQL injection, command injection), cross-site scripting (XSS) in both stored and reflected variants, and mass-assignment attempts that try to overwrite protected fields.
   4. **Cross-site request forgery (CSRF)** — verifying that state-changing requests cannot be triggered from a malicious origin without the user's consent.
   5. **Transport security** — confirming HTTPS-only behaviour, secure cookie flags, and the absence of sensitive data in URL parameters or logs.
   6. **Information disclosure** — checking that error messages, stack traces, and HTTP headers do not leak internal implementation details to unauthenticated clients.
   7. **Rate limiting and denial-of-service resilience** — measuring the system's behaviour under a sudden burst of requests to identify endpoints that need throttling.
 
-  The penetration test will be conducted in a **controlled staging environment** that mirrors production, using a combination of automated tools (e.g. **OWASP ZAP**, **Nikto**, **sqlmap**) and manual exploratory testing. Each finding will be logged with a severity rating, a reproduction path, and a remediation. The remediations will then be implemented and re-tested, and the final outcome — vulnerabilities found, fixed, and any residual risk — will be documented as part of the thesis's network-engineering evaluation. This dual-perspective treatment (build a secure system *and* prove it is secure under attack) is what distinguishes a network-engineering thesis from a purely functional software project.
+  The penetration test will be conducted in a **controlled staging environment** that mirrors production, using a combination of automated tools (e.g. **OWASP ZAP**, **Nikto**, **sqlmap**) and manual exploratory testing. Each finding will be logged with a severity rating, a reproduction path, and a remediation. The remediations will then be implemented and re-tested, and the final outcome — vulnerabilities found, fixed, and any residual risk — will be documented as part of the thesis's network-engineering evaluation. This dual-perspective treatment (build a secure system _and_ prove it is secure under attack) is what distinguishes a network-engineering thesis from a purely functional software project.
 
 ### 6.6 Performance and load testing
 

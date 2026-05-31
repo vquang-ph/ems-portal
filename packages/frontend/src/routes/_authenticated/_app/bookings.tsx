@@ -5,10 +5,10 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { Calendar } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/_app/bookings")({
-  beforeLoad: async () => {
+  beforeLoad: () => {
     const user = jotaiStore.get(currentUserAtom);
     if (!user || !["client", "service_provider"].includes(user.role)) {
-      throw redirect({ to: "/" });
+      return redirect({ to: "/" });
     }
   },
   component: BookingsPage,

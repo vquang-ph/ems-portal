@@ -88,8 +88,8 @@ The objectives of this thesis include:
 
 ## Signatures
 
-| Role | Name | Date Signed |
-|------|------|-------------|
-| Supervisor 1 | Đinh Đức Anh Vũ | 8/02/2026 |
-| Student | Phạm Vũ Quang | 8/02/2026 |
-| Supervisor 2 *(optional)* | Võ Minh Thạnh | — |
+| Role                      | Name            | Date Signed |
+| ------------------------- | --------------- | ----------- |
+| Supervisor 1              | Đinh Đức Anh Vũ | 8/02/2026   |
+| Student                   | Phạm Vũ Quang   | 8/02/2026   |
+| Supervisor 2 _(optional)_ | Võ Minh Thạnh   | —           |
