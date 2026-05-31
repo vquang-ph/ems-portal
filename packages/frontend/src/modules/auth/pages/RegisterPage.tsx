@@ -1,27 +1,39 @@
+import { AuthLayout } from "@/layouts/AuthLayout";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import RegisterForm from "../components/RegisterForm";
+import { Link } from "@tanstack/react-router";
 
 const RegisterPage = () => {
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create your account</CardTitle>
-          <CardDescription>
-            Join EMS Portal as a Client or Service Provider.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RegisterForm />
-        </CardContent>
-      </Card>
-    </div>
+    <AuthLayout
+      footerLink={
+        <p className="text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-bold text-foreground hover:underline"
+          >
+            Sign in
+          </Link>
+        </p>
+      }
+    >
+      <CardHeader className="pb-4">
+        <CardTitle className="text-2xl">Create your account</CardTitle>
+        <CardDescription className="text-base">
+          Join EMS Portal as a Client or Service Provider.
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <RegisterForm />
+      </CardContent>
+    </AuthLayout>
   );
 };
 

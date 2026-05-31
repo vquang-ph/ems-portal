@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -172,13 +172,6 @@ const RegisterForm = () => {
       >
         {isPending ? "Creating account..." : "Create account"}
       </Button>
-
-      <p className="text-sm text-muted-foreground text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="underline">
-          Sign in
-        </Link>
-      </p>
     </form>
   );
 };

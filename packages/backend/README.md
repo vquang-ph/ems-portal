@@ -173,6 +173,38 @@ Rules of thumb:
 - Names use `SCREAMING_SNAKE_CASE`; values must be `const` (literal or `as const`).
 - Don't bury magic numbers or strings inside service methods — extract them.
 
+### RBAC and Permissions
+
+Role-based access control (RBAC) is managed through a centralized permission system defined in `@ems-portal/types/src/rbac.schema.ts`.
+
+**Permission Constants**: Use the `Permissions` object from `@ems-portal/types` in decorators and guards—never hardcode permission strings:
+
+```typescript
+import { Permissions } from "@ems-portal/types";
+
+@RequirePermissions(Permissions.ProviderProfileCreateOwn)
+public async create(
+  @CurrentUser() user: UserEntity,
+  @Body() dto: CreateProviderProfileDto,
+): Promise<ProviderProfileDto> {
+  // ...
+}
+```
+
+**How it works**:
+
+- `PERMISSION_VALUES` in `rbac.schema.ts` is the canonical list of all valid permissions in `resource:verb:scope` format.
+- The `Permissions` object is **auto-generated** from `PERMISSION_VALUES`, so adding a new permission updates both the Zod schema and the named constants automatically—no duplication.
+- `ROLE_PERMISSIONS` maps roles to their allowed permissions (admin is implicit and checked at runtime).
+- The `hasPermission(role, permission)` helper validates permission checks in code.
+
+When adding a new permission:
+
+1. Add it to `PERMISSION_VALUES` in `@ems-portal/types/src/rbac.schema.ts`.
+2. Run `yarn build:types` to regenerate the package.
+3. Assign it to roles in `ROLE_PERMISSIONS` if needed.
+4. Use it via `Permissions.<YourNewPermissionName>` in controllers and guards.
+
 ### Config Folder Structure
 
 Anything under `src/config/` that has more than one moving part (resolver + types, or resolver + constants) is organized as a folder with the same dotted-file convention as modules. Each config area uses these standard slots:

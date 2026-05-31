@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { LoginSchema, type Login } from "@ems-portal/types";
@@ -104,13 +104,6 @@ const LoginForm = () => {
       >
         {isPending ? "Signing in..." : "Sign in"}
       </Button>
-
-      <p className="text-sm text-muted-foreground text-center">
-        New here?{" "}
-        <Link to="/register" className="underline">
-          Create an account
-        </Link>
-      </p>
     </form>
   );
 };

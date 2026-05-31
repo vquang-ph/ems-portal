@@ -1,0 +1,18 @@
+export const PROVIDER_PROFILE_TEST_IDS = {
+  profileForm: "provider-profile-form",
+  profileFormBio: "provider-profile-form-bio",
+  profileFormRateMin: "provider-profile-form-rate-min",
+  profileFormRateMax: "provider-profile-form-rate-max",
+  profileFormAvailable: "provider-profile-form-available",
+  profileFormLatitude: "provider-profile-form-latitude",
+  profileFormLongitude: "provider-profile-form-longitude",
+  profileFormSubmit: "provider-profile-form-submit",
+  profileCard: "provider-profile-card",
+  skillsManager: "provider-profile-skills-manager",
+  skillsManagerSelect: "provider-profile-skills-select",
+  skillsManagerCategorySelect: "provider-profile-skills-category-select",
+  skillsManagerLevel: "provider-profile-skills-level",
+  skillsManagerYears: "provider-profile-skills-years",
+  skillsManagerAdd: "provider-profile-skills-add",
+  skillsManagerRemove: "provider-profile-skills-remove",
+} as const;

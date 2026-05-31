@@ -9,109 +9,457 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AppRouteImport } from './routes/_app'
-import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AnonymousRouteImport } from './routes/_anonymous'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as AnonymousRegisterRouteImport } from './routes/_anonymous/register'
+import { Route as AnonymousLoginRouteImport } from './routes/_anonymous/login'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/_app/index'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppProvidersRouteImport } from './routes/_authenticated/_app/providers'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/_app/profile'
+import { Route as AuthenticatedAppMessagesRouteImport } from './routes/_authenticated/_app/messages'
+import { Route as AuthenticatedAppBookingsRouteImport } from './routes/_authenticated/_app/bookings'
+import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated/_app/admin'
+import { Route as AuthenticatedAppProfileIndexRouteImport } from './routes/_authenticated/_app/profile/index'
+import { Route as AuthenticatedAppProfileSkillsRouteImport } from './routes/_authenticated/_app/profile/skills'
+import { Route as AuthenticatedAppProfileSetupRouteImport } from './routes/_authenticated/_app/profile/setup'
+import { Route as AuthenticatedAppAdminVerificationRouteImport } from './routes/_authenticated/_app/admin/verification'
+import { Route as AuthenticatedAppAdminUsersRouteImport } from './routes/_authenticated/_app/admin/users'
+import { Route as AuthenticatedAppAdminSkillsRouteImport } from './routes/_authenticated/_app/admin/skills'
 
-const RegisterRoute = RegisterRouteImport.update({
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnonymousRoute = AnonymousRouteImport.update({
+  id: '/_anonymous',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AnonymousRegisterRoute = AnonymousRegisterRouteImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AnonymousRoute,
 } as any)
-const LoginRoute = LoginRouteImport.update({
+const AnonymousLoginRoute = AnonymousLoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AnonymousRoute,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppIndexRoute = AppIndexRouteImport.update({
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProvidersRoute =
+  AuthenticatedAppProvidersRouteImport.update({
+    id: '/providers',
+    path: '/providers',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppMessagesRoute =
+  AuthenticatedAppMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBookingsRoute =
+  AuthenticatedAppBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAdminRoute = AuthenticatedAppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppProfileIndexRoute =
+  AuthenticatedAppProfileIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppProfileRoute,
+  } as any)
+const AuthenticatedAppProfileSkillsRoute =
+  AuthenticatedAppProfileSkillsRouteImport.update({
+    id: '/skills',
+    path: '/skills',
+    getParentRoute: () => AuthenticatedAppProfileRoute,
+  } as any)
+const AuthenticatedAppProfileSetupRoute =
+  AuthenticatedAppProfileSetupRouteImport.update({
+    id: '/setup',
+    path: '/setup',
+    getParentRoute: () => AuthenticatedAppProfileRoute,
+  } as any)
+const AuthenticatedAppAdminVerificationRoute =
+  AuthenticatedAppAdminVerificationRouteImport.update({
+    id: '/verification',
+    path: '/verification',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
+const AuthenticatedAppAdminUsersRoute =
+  AuthenticatedAppAdminUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
+const AuthenticatedAppAdminSkillsRoute =
+  AuthenticatedAppAdminSkillsRouteImport.update({
+    id: '/skills',
+    path: '/skills',
+    getParentRoute: () => AuthenticatedAppAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
+  '/': typeof AuthenticatedAppIndexRoute
+  '/login': typeof AnonymousLoginRoute
+  '/register': typeof AnonymousRegisterRoute
+  '/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/bookings': typeof AuthenticatedAppBookingsRoute
+  '/messages': typeof AuthenticatedAppMessagesRoute
+  '/profile': typeof AuthenticatedAppProfileRouteWithChildren
+  '/providers': typeof AuthenticatedAppProvidersRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
+  '/profile/setup': typeof AuthenticatedAppProfileSetupRoute
+  '/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
+  '/profile/': typeof AuthenticatedAppProfileIndexRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/': typeof AppIndexRoute
+  '/': typeof AuthenticatedAppIndexRoute
+  '/login': typeof AnonymousLoginRoute
+  '/register': typeof AnonymousRegisterRoute
+  '/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/bookings': typeof AuthenticatedAppBookingsRoute
+  '/messages': typeof AuthenticatedAppMessagesRoute
+  '/providers': typeof AuthenticatedAppProvidersRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
+  '/profile/setup': typeof AuthenticatedAppProfileSetupRoute
+  '/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
+  '/profile': typeof AuthenticatedAppProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_app': typeof AppRouteWithChildren
-  '/login': typeof LoginRoute
-  '/register': typeof RegisterRoute
-  '/_app/': typeof AppIndexRoute
+  '/_anonymous': typeof AnonymousRouteWithChildren
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_anonymous/login': typeof AnonymousLoginRoute
+  '/_anonymous/register': typeof AnonymousRegisterRoute
+  '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/_app/admin': typeof AuthenticatedAppAdminRouteWithChildren
+  '/_authenticated/_app/bookings': typeof AuthenticatedAppBookingsRoute
+  '/_authenticated/_app/messages': typeof AuthenticatedAppMessagesRoute
+  '/_authenticated/_app/profile': typeof AuthenticatedAppProfileRouteWithChildren
+  '/_authenticated/_app/providers': typeof AuthenticatedAppProvidersRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/_app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/_app/admin/skills': typeof AuthenticatedAppAdminSkillsRoute
+  '/_authenticated/_app/admin/users': typeof AuthenticatedAppAdminUsersRoute
+  '/_authenticated/_app/admin/verification': typeof AuthenticatedAppAdminVerificationRoute
+  '/_authenticated/_app/profile/setup': typeof AuthenticatedAppProfileSetupRoute
+  '/_authenticated/_app/profile/skills': typeof AuthenticatedAppProfileSkillsRoute
+  '/_authenticated/_app/profile/': typeof AuthenticatedAppProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/admin'
+    | '/bookings'
+    | '/messages'
+    | '/profile'
+    | '/providers'
+    | '/settings'
+    | '/admin/skills'
+    | '/admin/users'
+    | '/admin/verification'
+    | '/profile/setup'
+    | '/profile/skills'
+    | '/profile/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/'
-  id: '__root__' | '/_app' | '/login' | '/register' | '/_app/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/admin'
+    | '/bookings'
+    | '/messages'
+    | '/providers'
+    | '/settings'
+    | '/admin/skills'
+    | '/admin/users'
+    | '/admin/verification'
+    | '/profile/setup'
+    | '/profile/skills'
+    | '/profile'
+  id:
+    | '__root__'
+    | '/_anonymous'
+    | '/_authenticated'
+    | '/_anonymous/login'
+    | '/_anonymous/register'
+    | '/_authenticated/_app'
+    | '/_authenticated/_app/admin'
+    | '/_authenticated/_app/bookings'
+    | '/_authenticated/_app/messages'
+    | '/_authenticated/_app/profile'
+    | '/_authenticated/_app/providers'
+    | '/_authenticated/_app/settings'
+    | '/_authenticated/_app/'
+    | '/_authenticated/_app/admin/skills'
+    | '/_authenticated/_app/admin/users'
+    | '/_authenticated/_app/admin/verification'
+    | '/_authenticated/_app/profile/setup'
+    | '/_authenticated/_app/profile/skills'
+    | '/_authenticated/_app/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRoute: typeof AppRouteWithChildren
-  LoginRoute: typeof LoginRoute
-  RegisterRoute: typeof RegisterRoute
+  AnonymousRoute: typeof AnonymousRouteWithChildren
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_app': {
-      id: '/_app'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
+    '/_anonymous': {
+      id: '/_anonymous'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AnonymousRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/_app': {
+      id: '/_authenticated/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_anonymous/register': {
+      id: '/_anonymous/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof AnonymousRegisterRouteImport
+      parentRoute: typeof AnonymousRoute
+    }
+    '/_anonymous/login': {
+      id: '/_anonymous/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AnonymousLoginRouteImport
+      parentRoute: typeof AnonymousRoute
+    }
+    '/_authenticated/_app/': {
+      id: '/_authenticated/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/providers': {
+      id: '/_authenticated/_app/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof AuthenticatedAppProvidersRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/profile': {
+      id: '/_authenticated/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/messages': {
+      id: '/_authenticated/_app/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedAppMessagesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/bookings': {
+      id: '/_authenticated/_app/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof AuthenticatedAppBookingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/admin': {
+      id: '/_authenticated/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAppAdminRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/profile/': {
+      id: '/_authenticated/_app/profile/'
+      path: '/'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof AuthenticatedAppProfileIndexRouteImport
+      parentRoute: typeof AuthenticatedAppProfileRoute
+    }
+    '/_authenticated/_app/profile/skills': {
+      id: '/_authenticated/_app/profile/skills'
+      path: '/skills'
+      fullPath: '/profile/skills'
+      preLoaderRoute: typeof AuthenticatedAppProfileSkillsRouteImport
+      parentRoute: typeof AuthenticatedAppProfileRoute
+    }
+    '/_authenticated/_app/profile/setup': {
+      id: '/_authenticated/_app/profile/setup'
+      path: '/setup'
+      fullPath: '/profile/setup'
+      preLoaderRoute: typeof AuthenticatedAppProfileSetupRouteImport
+      parentRoute: typeof AuthenticatedAppProfileRoute
+    }
+    '/_authenticated/_app/admin/verification': {
+      id: '/_authenticated/_app/admin/verification'
+      path: '/verification'
+      fullPath: '/admin/verification'
+      preLoaderRoute: typeof AuthenticatedAppAdminVerificationRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
+    }
+    '/_authenticated/_app/admin/users': {
+      id: '/_authenticated/_app/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAppAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
+    }
+    '/_authenticated/_app/admin/skills': {
+      id: '/_authenticated/_app/admin/skills'
+      path: '/skills'
+      fullPath: '/admin/skills'
+      preLoaderRoute: typeof AuthenticatedAppAdminSkillsRouteImport
+      parentRoute: typeof AuthenticatedAppAdminRoute
     }
   }
 }
 
-interface AppRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
+interface AnonymousRouteChildren {
+  AnonymousLoginRoute: typeof AnonymousLoginRoute
+  AnonymousRegisterRoute: typeof AnonymousRegisterRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
+const AnonymousRouteChildren: AnonymousRouteChildren = {
+  AnonymousLoginRoute: AnonymousLoginRoute,
+  AnonymousRegisterRoute: AnonymousRegisterRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const AnonymousRouteWithChildren = AnonymousRoute._addFileChildren(
+  AnonymousRouteChildren,
+)
+
+interface AuthenticatedAppAdminRouteChildren {
+  AuthenticatedAppAdminSkillsRoute: typeof AuthenticatedAppAdminSkillsRoute
+  AuthenticatedAppAdminUsersRoute: typeof AuthenticatedAppAdminUsersRoute
+  AuthenticatedAppAdminVerificationRoute: typeof AuthenticatedAppAdminVerificationRoute
+}
+
+const AuthenticatedAppAdminRouteChildren: AuthenticatedAppAdminRouteChildren = {
+  AuthenticatedAppAdminSkillsRoute: AuthenticatedAppAdminSkillsRoute,
+  AuthenticatedAppAdminUsersRoute: AuthenticatedAppAdminUsersRoute,
+  AuthenticatedAppAdminVerificationRoute:
+    AuthenticatedAppAdminVerificationRoute,
+}
+
+const AuthenticatedAppAdminRouteWithChildren =
+  AuthenticatedAppAdminRoute._addFileChildren(
+    AuthenticatedAppAdminRouteChildren,
+  )
+
+interface AuthenticatedAppProfileRouteChildren {
+  AuthenticatedAppProfileSetupRoute: typeof AuthenticatedAppProfileSetupRoute
+  AuthenticatedAppProfileSkillsRoute: typeof AuthenticatedAppProfileSkillsRoute
+  AuthenticatedAppProfileIndexRoute: typeof AuthenticatedAppProfileIndexRoute
+}
+
+const AuthenticatedAppProfileRouteChildren: AuthenticatedAppProfileRouteChildren =
+  {
+    AuthenticatedAppProfileSetupRoute: AuthenticatedAppProfileSetupRoute,
+    AuthenticatedAppProfileSkillsRoute: AuthenticatedAppProfileSkillsRoute,
+    AuthenticatedAppProfileIndexRoute: AuthenticatedAppProfileIndexRoute,
+  }
+
+const AuthenticatedAppProfileRouteWithChildren =
+  AuthenticatedAppProfileRoute._addFileChildren(
+    AuthenticatedAppProfileRouteChildren,
+  )
+
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRouteWithChildren
+  AuthenticatedAppBookingsRoute: typeof AuthenticatedAppBookingsRoute
+  AuthenticatedAppMessagesRoute: typeof AuthenticatedAppMessagesRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRouteWithChildren
+  AuthenticatedAppProvidersRoute: typeof AuthenticatedAppProvidersRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAdminRoute: AuthenticatedAppAdminRouteWithChildren,
+  AuthenticatedAppBookingsRoute: AuthenticatedAppBookingsRoute,
+  AuthenticatedAppMessagesRoute: AuthenticatedAppMessagesRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRouteWithChildren,
+  AuthenticatedAppProvidersRoute: AuthenticatedAppProvidersRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  AppRoute: AppRouteWithChildren,
-  LoginRoute: LoginRoute,
-  RegisterRoute: RegisterRoute,
+  AnonymousRoute: AnonymousRouteWithChildren,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

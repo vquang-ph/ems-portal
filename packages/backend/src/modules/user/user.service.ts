@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
+import { EntityManager } from "typeorm";
 import { BCRYPT_ROUNDS } from "./constants";
 import { CreateUserInput } from "./dto/user.dto";
 import { UserEntity } from "./entites/user.entity";
@@ -32,19 +33,28 @@ export class UserService {
 
   /**
    * Creates a new user, hashing the plaintext password before persistence.
+   * When called inside a transaction, pass the active EntityManager so the
+   * insert joins that transaction instead of opening a new connection.
    *
    * @param input - The new user's email, name, role, and plaintext password.
+   * @param manager - Optional EntityManager for the enclosing transaction.
    * @returns The newly persisted user entity.
    */
-  public async createUser(input: CreateUserInput): Promise<UserEntity> {
+  public async createUser(
+    input: CreateUserInput,
+    manager?: EntityManager,
+  ): Promise<UserEntity> {
     const passwordHash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
 
-    return this.repository.save({
+    const payload = {
       email: input.email.toLowerCase(),
       name: input.name,
       role: input.role,
       passwordHash,
-    });
+    };
+
+    const repo = manager ? manager.getRepository(UserEntity) : this.repository;
+    return repo.save(payload);
   }
 
   /**

@@ -24,10 +24,17 @@ export const PUBLIC_USER_ROLE_VALUES = [
 
 export type PublicUserRole = (typeof PUBLIC_USER_ROLE_VALUES)[number];
 
+export const USER_STATUS_VALUES = ["active", "suspended", "deleted"] as const;
+
+export type UserStatus = (typeof USER_STATUS_VALUES)[number];
+
 export const UserSchema = BaseSchema.extend({
   email: z.string().email().max(254),
   name: z.string().min(1).max(120),
   role: z.enum(USER_ROLE_VALUES),
+  status: z.enum(USER_STATUS_VALUES).optional(),
+  emailVerifiedAt: z.coerce.date().nullable().optional(),
+  lastLoginAt: z.coerce.date().nullable().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

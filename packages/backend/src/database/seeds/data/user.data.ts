@@ -11,15 +11,15 @@ export const INITIAL_USERS: CreateUserInput[] = [
     password: "password123",
   },
   {
-    email: "client@ems.local",
-    name: "Sample Client",
-    role: UserRole.Client,
-    password: "password123",
-  },
-  {
     email: "provider@ems.local",
     name: "Sample Service Provider",
     role: UserRole.ServiceProvider,
+    password: "password123",
+  },
+  {
+    email: "client@ems.local",
+    name: "Sample Client",
+    role: UserRole.Client,
     password: "password123",
   },
 ];

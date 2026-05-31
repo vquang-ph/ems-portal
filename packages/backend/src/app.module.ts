@@ -12,6 +12,8 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { MetricModule } from "./modules/metric/metric.module";
 import { UserModule } from "./modules/user/user.module";
+import { SkillsModule } from "./modules/skills/skills.module";
+import { ProviderProfileModule } from "./modules/provider-profile/provider-profile.module";
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { UserModule } from "./modules/user/user.module";
     MetricModule,
     UserModule,
     AuthModule,
+    SkillsModule,
+    ProviderProfileModule,
   ],
   controllers: [],
   providers: [

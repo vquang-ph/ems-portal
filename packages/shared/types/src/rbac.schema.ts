@@ -2,13 +2,14 @@ import { z } from "zod";
 import { type UserRole } from "./auth/auth.schema";
 
 /**
- * Canonical permission strings in `verb:resource:scope` form.
+ * Canonical permission strings in `resource:verb:scope` form.
  *
  * Scopes:
  *   - `own` — actor is the owner of the resource
  *   - `any` — applies regardless of ownership (typically admin/read-broad)
  *
- * Adding a permission here is a contract change; update the role map below.
+ * Adding a permission here automatically updates the `Permissions` lookup and Zod schema.
+ * Update `ROLE_PERMISSIONS` to assign it to roles.
  */
 export const PERMISSION_VALUES = [
   // Provider profile
@@ -37,6 +38,20 @@ export const PERMISSION_VALUES = [
 
 export const PermissionSchema = z.enum(PERMISSION_VALUES);
 export type Permission = z.infer<typeof PermissionSchema>;
+
+/**
+ * Named lookup for permission strings, auto-generated from PERMISSION_VALUES.
+ * Converts `resource:verb:scope` to PascalCase keys (e.g., `provider_profile:read:any` → `ProviderProfileReadAny`).
+ */
+export const Permissions = Object.fromEntries(
+  PERMISSION_VALUES.map((permission) => {
+    const key = permission
+      .split(":")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join("");
+    return [key, permission];
+  }),
+) satisfies Record<string, Permission>;
 
 /**
  * Role → permission map. Admin is intentionally omitted; the guard grants
