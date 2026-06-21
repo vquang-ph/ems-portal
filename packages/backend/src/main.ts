@@ -5,6 +5,7 @@ import {
   FastifyAdapter,
   type NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import { DataSource } from "typeorm";
 import { AppModule } from "./app.module";
 import { swaggerSetup } from "./config/swagger";
 
@@ -15,6 +16,12 @@ async function bootstrap(): Promise<void> {
     AppModule,
     new FastifyAdapter(),
   );
+
+  if (process.env.APP_RUN_MIGRATIONS === "true") {
+    const dataSource = app.get(DataSource);
+    await dataSource.runMigrations();
+    logger.log("Migrations applied");
+  }
 
   app.setGlobalPrefix("api");
 
