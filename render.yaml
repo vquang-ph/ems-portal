@@ -13,6 +13,7 @@ services:
     dockerContext: .
     plan: free
     healthCheckPath: /api/health
+    preDeployCommand: node node_modules/.bin/typeorm migration:run -d packages/backend/dist/src/database/datasource.js
     envVars:
       - key: APP_ENVIRONMENT
         value: production
