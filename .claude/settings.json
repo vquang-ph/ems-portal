@@ -79,6 +79,16 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Active caveman mode for this entire session per the caveman skill at .claude/skills/caveman — terse smart-caveman wording, all technical substance kept.'"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
