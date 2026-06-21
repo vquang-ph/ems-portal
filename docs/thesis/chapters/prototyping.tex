@@ -1,21 +1,352 @@
-%% TODO: Add a small paragraph to tell what this chapter is about
-This chapter delves into ...
+%% Chapter 4 — Prototyping / System Design
+\label{ch:prototyping}
 
-%% TODO: Make sure to use \textbf or \textit for highlighting keywords, and \cite{} to cite the corresponding quotations
+This chapter presents the EMS Portal as it is currently built. It documents the
+architecture and technology stack, the feature modules completed in Phases~1 and~2,
+the authorization model, the database schema with its migrations, and the quality
+assurance practices. As of June~2026, the foundational architecture and base
+modules are in place, ready for the remaining feature phases.
 
 \section{System Architecture}
-Fusce eros ligula, fermentum at enim at, blandit lacinia lacus. Duis malesuada mollis felis molestie aliquet. Aliquam vehicula luctus magna ac ornare. Cras eleifend metus non consequat commodo. Vivamus ultrices quam nec lacus pellentesque, ut pretium dolor interdum. Nullam cursus mauris sit amet odio laoreet cursus eget a tortor. Integer quis vulputate sem. Cras placerat fringilla tortor sit amet sagittis. Aliquam erat volutpat. Donec eleifend neque ac erat semper fringilla. Nunc ac dolor ante.
+The EMS Portal is organized as a single repository containing three related
+packages: a frontend (user-facing web application), a backend (API server), and
+a shared types package that keeps both in sync. It follows a three-tier
+client-server design: the presentation tier (browser interface), the business
+logic tier (API server), and the data tier (database). Figure~\ref{fig:arch}
+shows the layout.
 
-Nam congue massa ante, et hendrerit ante euismod ac. Sed fermentum diam in tempus laoreet. Pellentesque iaculis dolor eget nulla pharetra, vitae blandit tortor ullamcorper. Vestibulum vulputate tempor tellus luctus lobortis. Curabitur luctus enim vel neque rhoncus, a bibendum metus egestas. Nullam vel elementum velit. Vestibulum a lacus vel ante consequat cursus.
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.9cm and 1.4cm,
+		box/.style={draw, rounded corners, align=center, font=\footnotesize,
+			minimum width=3.2cm, minimum height=1.0cm},
+		tier/.style={draw, dashed, rounded corners, inner sep=10pt},
+		arr/.style={-{Stealth[length=2mm]}, thick},
+		lbl/.style={font=\scriptsize\itshape}
+	]
+		\node[box, fill=blue!5]   (browser) {Browser\\(Single-Page App)};
+		\node[box, fill=blue!5]   (spa) [below=of browser] {React 19 + Vite\\TanStack Router/Query\\Jotai, Tailwind};
+		\node[box, fill=green!6]  (api) [below=of spa] {NestJS API (Fastify)\\Controllers $\to$ Services\\$\to$ Repositories};
+		\node[box, fill=orange!8] (db) [below=of api] {PostgreSQL\\(TypeORM, Data Mapper)};
 
-Duis faucibus fringilla ex ac molestie. Phasellus fringilla auctor nunc, iaculis dapibus massa dignissim sit amet. Vestibulum eget nibh faucibus, rhoncus nulla et, faucibus libero. Donec nec nisl vel quam tincidunt pretium nec id urna. Pellentesque posuere vulputate eros non rhoncus. Sed rutrum maximus orci eget pulvinar. Cras non leo eu metus suscipit gravida in at massa. Nulla faucibus, quam sed dictum elementum, mi lorem maximus quam, nec vulputate mi nisi vel ligula.
+		\node[box, fill=gray!8, minimum height=3.4cm, text width=2.6cm]
+			(shared) [right=2.2cm of spa.east, yshift=-0.9cm]
+			{\textbf{@ems-portal/}\\\textbf{types}\\[2pt]Zod schemas\\(shared DTOs)};
 
-Ut varius malesuada ullamcorper. Integer ac gravida sem, sed sagittis dui. Aliquam feugiat ipsum ac maximus rutrum. Cras mollis finibus pulvinar. Quisque consectetur nisi pharetra, tempor mi vitae, vulputate urna. Pellentesque ac nulla quis sapien vehicula lacinia in vel sem. Praesent ac lorem luctus, pulvinar tellus non, condimentum velit. Nullam pulvinar condimentum ligula, quis blandit nulla laoreet porttitor. Nunc pulvinar vehicula nisi ac mattis. Nullam vestibulum quis metus a varius. Aenean ullamcorper ante nisl, a consequat diam laoreet non. Fusce faucibus malesuada lectus, non venenatis lorem lobortis ut. Donec sollicitudin laoreet nulla quis porttitor. Aenean in purus vitae erat dignissim fringilla.
+		\draw[arr, transform canvas={xshift=-3mm}] (browser) -- (spa);
+		\draw[arr, transform canvas={xshift=3mm}] (spa) -- (browser);
+		\draw[arr] (spa) -- node[lbl, right] {REST / HTTPS} (api);
+		\draw[arr] (api) -- node[lbl, right] {SQL} (db);
 
-\section{Strategies Choice Purposes}
-Praesent id arcu odio. Mauris sed molestie lorem. Donec ipsum nisi, tincidunt non erat eu, accumsan egestas arcu. Quisque viverra rhoncus eros, vel aliquet ligula. Praesent feugiat turpis euismod risus posuere feugiat. Phasellus pharetra mi ac erat luctus semper. Suspendisse sodales purus quis risus rhoncus, at vehicula eros placerat. Nam quis mi neque.
+		\draw[arr, dashed, gray] (shared.north) |- (spa.east);
+		\draw[arr, dashed, gray] (shared.south) |- (api.east);
+	\end{tikzpicture}
+	\caption{Three-tier architecture of the EMS Portal. The shared types package
+		is used by both the frontend and backend, keeping the network contract in
+		sync at compile time.}
+	\label{fig:arch}
+\end{figure}
 
-\subsection{Strategy 1}
+\subsection{Technology Stack}
+The backend is a NestJS REST API running on Fastify (a fast HTTP server). It
+persists data to PostgreSQL through TypeORM using the \textbf{Data Mapper}
+pattern, a design where entities (database models) are kept separate from the
+queries that fetch them, making the code modular and testable. Requests are
+validated against Zod schemas (formal, machine-readable definitions of allowed
+data shapes), and the API exposes auto-generated interactive documentation via
+Swagger.
 
-\subsubsection{Strategy 1 framework}
-Vivamus nec venenatis ipsum, id mollis purus. Proin ultricies varius sapien, in feugiat nisl fringilla sed. Donec lobortis cursus ipsum, ut auctor velit facilisis vel. Vivamus mattis vestibulum justo nec mollis. Suspendisse potenti. Vivamus aliquet sit amet neque a vehicula. Mauris pharetra dui lorem, quis commodo sapien porta eu. In eleifend auctor justo sit amet euismod. Aliquam erat volutpat. Aliquam erat volutpat.
+The frontend is a React~19 single-page application built with Vite (a build
+tool). It uses TanStack Router for file-based routing (routes are defined as
+files in a directory, not programmatically), TanStack Query to manage server
+state as a cache layer (keeping the server's data in sync without manual
+synchronization), Jotai for client-only state (UI toggles, form
+drafts), and Tailwind CSS with RadixUI for styling and pre-built UI
+components.
+
+A key design principle is the shared types package (\texttt{@ems-portal/types}),
+which defines the data structure for every piece of information exchanged between
+the frontend and backend using Zod schemas. Both the frontend and backend
+reference these shared definitions, so the compiler catches any inconsistencies
+before the code runs, it acts as a critical safeguard for type safety across the network
+boundary. Backend entities \texttt{implement} the inferred types, meaning if the
+shared schema changes, any code that no longer matches gets a compiler error,
+preventing silent bugs.
+
+\subsection{Backend Module Pattern}
+The backend is organized into feature modules, each handling a distinct piece of
+functionality (authentication, user management, provider profiles, etc.). Each
+module follows the same internal structure: a \textbf{controller} layer (handles
+incoming HTTP requests and responses), a \textbf{service} layer (contains the
+business logic), an injectable \textbf{repository} layer (encapsulates custom
+database queries), and one or more \textbf{entities} extending a common
+\texttt{BaseEntity} that automatically tracks record creation and modification
+times. This consistent, layered structure makes the codebase predictable,
+testable, and maintainable.
+
+All requests are validated against the shared Zod schemas via a global
+validation pipe before reaching the service layer. Any errors from the database
+are automatically caught by a global exception filter and translated into
+standard, user-friendly HTTP error responses. This uniform handling prevents
+inconsistencies and keeps each module simple and focused.
+
+Table~\ref{tab:modules} lists the feature modules completed so far.
+
+\begin{table}[ht]
+	\centering
+	\caption{Implemented backend feature modules.}
+	\label{tab:modules}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{lll}
+			\hline
+			\textbf{Module} & \textbf{Status} & \textbf{Responsibilities / key endpoints} \\ \hline
+			\texttt{auth} & \cmark & Register, login, refresh, logout, \texttt{GET /auth/me}; JWT + refresh rotation \\
+			\texttt{user} & \cmark & Identity service (find/create user, verify password); used by \texttt{auth} \\
+			\texttt{provider-profile} & \cmark & Profile CRUD and skill attachment under \texttt{/provider-profiles} \\
+			\texttt{skills} & \cmark & Public catalogue: \texttt{GET /skills/categories}, \texttt{GET /skills} \\
+			\texttt{health} & \cmark & Liveness / readiness probe (\texttt{GET /health}) \\
+			\texttt{metric} & \cmark & Metrics endpoint \\
+			\texttt{service-request} & \xmark & Phase~3, not started \\
+			\texttt{matching} & \xmark & Phase~4, not started \\
+			\texttt{engagement / rating} & \xmark & Phase~5, not started \\
+			\hline
+		\end{tabular}%
+	}
+\end{table}
+
+\subsection{Frontend Module Pattern}
+The frontend mirrors the backend's modular organization. Each feature module owns
+its API calls, TanStack Query cache-key factories (functions that generate cache
+identifiers), custom hooks (split into query hooks for fetching and mutation
+hooks for creating/updating), feature-specific components, and page definitions.
+
+A deliberate separation distinguishes \textbf{server data} (information from the
+API via TanStack Query, treated as a read-through cache) from \textbf{client
+state} (managed by Jotai, temporary UI information like whether a menu is open or
+a form is being edited). Server data is never copied into client state; instead,
+client state only holds ephemeral information. This architectural separation
+prevents the common problem where the UI disagrees with what the API says the
+data is.
+
+The application uses file-based routing via TanStack Router. Pages are defined as
+files in the \texttt{src/routes/} directory, and the framework automatically
+generates the navigation structure. Pathless layouts (\texttt{\_authenticated},
+\texttt{\_anonymous}) act as route guards, enforcing authentication at the layout
+level, so unauthenticated users cannot access protected pages. Role-based gating
+sits on individual leaf routes where needed (e.g., only service providers can
+access the profile setup page).
+
+Currently, authentication and provider profiles
+are fully implemented with their complete user flows. Routes for future phases
+(provider discovery, engagements, admin panel) exist as placeholder.
+
+\section{Authorization Model}
+\label{sec:rbac-impl}
+Authorization follows the role-based model from Chapter~\ref{ch:work}, refined
+into \textbf{three layers}:
+
+\begin{enumerate}
+	\item \textbf{Role check.} A coarse, route-level guard keyed on the user's
+	      role (\texttt{client}, \texttt{service\_provider}, \texttt{admin}). An
+	      administrator is allowed implicitly.
+	\item \textbf{Permission check.} A fine-grained guard that requires a named
+	      permission in canonical \texttt{resource:verb:scope} form (e.g.,
+	      \texttt{provider\_profile:read:any} means "read any provider profile").
+	      Permissions are the single source of truth in the shared package: one
+	      canonical list generates both the Zod validation schema and the named
+	      constants used throughout the codebase, and a role-to-permissions map
+	      records each role's grants.
+	\item \textbf{Ownership check.} A service-layer check that the acting user
+	      owns the resource (or is an administrator). This blocks horizontal
+	      access to another user's data.
+\end{enumerate}
+
+These three layers work together to gate access. The permission catalogue, the
+middle layer, is the most granular control, specifying exactly which actions each
+role can perform. For example, a client can create and read their own service
+requests, but cannot read another client's requests. The system currently defines
+thirteen distinct permissions covering provider profiles, service requests,
+engagements, ratings, and user management. Table~\ref{tab:rbac} shows which
+permissions each role is granted. The administrator role, by default, has access
+to everything.
+
+Both the role and permission checks are fully implemented and tested. A
+remaining task is to apply the authentication requirement globally so that all
+endpoints are protected by default.
+
+\begin{table}[ht]
+	\centering
+	\caption{Role-to-permission mapping (administrator is implicit).}
+	\label{tab:rbac}
+	\begin{tabular}{ll}
+		\hline
+		\textbf{Role} & \textbf{Permissions} \\ \hline
+		\texttt{client} &
+			\begin{tabular}[t]{@{}l@{}}
+				\texttt{provider\_profile:read:any} \\
+				\texttt{service\_request:create|read|update|cancel:own} \\
+				\texttt{engagement:read:own}, \texttt{rating:create:own}
+			\end{tabular} \\ \hline
+		\texttt{service\_provider} &
+			\begin{tabular}[t]{@{}l@{}}
+				\texttt{provider\_profile:create|update:own} \\
+				\texttt{engagement:read|update:own}
+			\end{tabular} \\ \hline
+	\end{tabular}
+\end{table}
+
+\section{Data Model}
+The built schema centres on identity and provider data. The tables for requests,
+matching, engagements, and ratings are designed but not yet created.
+Figure~\ref{fig:er} shows the entities that exist today and how they relate.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[
+		ent/.style={draw, rounded corners, align=left, font=\scriptsize,
+			text width=3.1cm, inner sep=4pt, fill=blue!4},
+		rel/.style={-, thick},
+		card/.style={font=\tiny, fill=white, inner sep=1pt}
+	]
+		\node[ent] (users) {\textbf{users}\\\hrulefill\\ id (uuid)\\ email, name\\ role, status\\ password\_hash};
+		\node[ent] (rt) [right=2.0cm of users] {\textbf{refresh\_tokens}\\\hrulefill\\ id, user\_id\\ family\_id\\ token\_hash\\ expires/revoked};
+		\node[ent] (pp) [below=1.4cm of users] {\textbf{provider\_profiles}\\\hrulefill\\ id, user\_id\\ bio, lat, lng\\ rate\_min/max\\ is\_available\\ profile\_status\\ rating\_*};
+		\node[ent] (ps) [right=2.0cm of pp] {\textbf{provider\_skills}\\\hrulefill\\ profile\_id\\ skill\_id\\ level\\ years\_of\_exp};
+		\node[ent] (sk) [right=2.0cm of ps] {\textbf{skills}\\\hrulefill\\ id\\ name\\ category\_id};
+		\node[ent] (sc) [above=1.4cm of sk] {\textbf{skill\_categories}\\\hrulefill\\ id\\ name};
+
+		\draw[rel] (users.east) -- node[card, near start]{1} node[card, near end]{N} (rt.west);
+		\draw[rel] (users.south) -- node[card, near start]{1} node[card, near end]{1} (pp.north);
+		\draw[rel] (pp.east) -- node[card, near start]{1} node[card, near end]{N} (ps.west);
+		\draw[rel] (sk.west) -- node[card, near start]{1} node[card, near end]{N} (ps.east);
+		\draw[rel] (sc.south) -- node[card, near start]{1} node[card, near end]{N} (sk.north);
+	\end{tikzpicture}
+	\caption{Entity-relationship diagram of the currently implemented schema.}
+	\label{fig:er}
+\end{figure}
+
+Several design decisions ensure data integrity and performance. When users are
+deleted, their record is marked as deleted (rather than physically removed) so
+that historical references remain valid. A user's identity is kept separate from
+the role they hold, so the platform can later support a user with more than one
+role without reworking the schema. Provider profiles progress through
+explicit states (\textit{draft}, \textit{active}, or \textit{suspended}), which
+makes the business logic clear. To support fast matching queries, the database
+is indexed to quickly find active, available providers. Geographic location is
+stored as latitude and longitude coordinates, and distance calculations are
+performed directly in the database using the haversine formula
+(Equation~\ref{eq:haversine}) to avoid fetching unnecessary data into memory.
+
+\subsection{Migrations}
+The database schema evolves through three versioned migrations, listed in
+Table~\ref{tab:migrations}. Each migration is reviewed and applied in order,
+ensuring the database structure can be reliably reproduced across deployments.
+
+\begin{table}[ht]
+	\centering
+	\caption{Database migrations applied to date.}
+	\label{tab:migrations}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{lll}
+			\hline
+			\textbf{\#} & \textbf{Migration} & \textbf{Effect} \\ \hline
+			1 & \texttt{Init} & Create \texttt{users} and \texttt{refresh\_tokens} (rotation chain) \\
+			2 & \texttt{AddUserFieldsAndProviderProfileTables} & Add user status / audit fields; create skills, categories, profiles, provider\_skills \\
+			3 & \texttt{AddProviderProfileStatus} & Add \texttt{profile\_status}; partial index on active profiles \\
+			\hline
+		\end{tabular}%
+	}
+\end{table}
+
+\section{Quality Assurance}
+Quality is enforced by an automated testing strategy and a
+continuous-integration pipeline.
+
+\subsection{Testing Strategy}
+The project uses a \textbf{multi-layered testing approach}. \textbf{Unit tests}
+validate individual pieces of code in isolation, with dependencies mocked out to
+ensure tests run quickly. \textbf{Integration tests} run against a real database
+with realistic data, verifying that all the pieces work together correctly.
+\textbf{Coverage thresholds} are enforced to ensure that at least 80\% of each
+module's code is exercised by tests, a safeguard against untested edge cases.
+
+Both backend and frontend are tested. Frontend tests also render components on
+screen to verify the user interface behaves correctly.
+
+A k6-based load-testing harness also exists and is run manually during
+development. Wiring it into the pipeline and establishing baseline measurements
+for key flows (such as login, profile retrieval, and, once it is built,
+request-to-match) is planned for the evaluation phase.
+
+\subsection{Continuous Integration}
+Six automated checks scrutinize every code change before it can be merged to the
+main branch, listed in Table~\ref{tab:ci}. A smart orchestrator determines which
+checks to run based on what files changed, so developers don't wait for unrelated
+tests. For example, if only frontend files changed, the backend integration tests
+are skipped.
+
+\textbf{No code can be merged if any check fails.} This ensures that the main
+branch remains in a releasable state: code that breaks the build, violates style
+guidelines, has security vulnerabilities, or fails tests is caught before it
+reaches production.
+
+\begin{table}[ht]
+	\centering
+	\caption{Continuous-integration workflows.}
+	\label{tab:ci}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{ll}
+			\hline
+			\textbf{Workflow} & \textbf{What it checks} \\ \hline
+			Style & Code formatting and commit message format \\
+			Type checking & TypeScript compilation errors \\
+			Unit tests & Fast, isolated tests of individual functions \\
+			Security audit & Dependencies for known vulnerabilities \\
+			Integration tests & Full system behavior with a real database \\
+			Deployment readiness & Full system smoke test and startup health \\
+			\hline
+		\end{tabular}%
+	}
+\end{table}
+
+The same containerization underpins the live deployment described in
+Section~\ref{sec:deploy}. The images that the deployment-readiness check builds
+and smoke-tests are the images deployed to the hosting provider, so the gap
+between a passing pipeline and a running deployment stays small, and deploying
+with Docker proved straightforward.
+
+\subsection{Security Measures}
+The security architecture rests on several foundations. \textbf{Token
+management:} access tokens are signed with a cryptographic key (so they cannot
+be forged) and short-lived (expiring after a few minutes). Refresh tokens are
+hashed at rest (not stored in plain text), sent as \texttt{httpOnly} cookies
+(inaccessible to JavaScript, preventing XSS theft), and rotated as a family
+chain, so if a refresh token is compromised, revoking it revokes the entire chain of
+tokens created from it, limiting the window of exposure. \textbf{Passwords:} are
+hashed with bcrypt (a one-way function with built-in rate limiting) so that even
+if the database is compromised, passwords cannot be recovered. \textbf{Access
+control:} the three-layer authorization model described above is enforced
+globally.
+
+During the evaluation phase, a comprehensive penetration-testing plan will
+validate the security posture across three attack surfaces: authentication
+(token forgery, signature stripping, refresh replay attacks, secret strength,
+expiry enforcement), authorization (vertical and horizontal privilege
+escalation, claim tampering, weight injection), and network concerns (rate
+limiting, information disclosure, CORS configuration, and cookie flags). The
+plan follows the OWASP Testing Guide and uses the OWASP Top 10 as its reference
+list of attack categories. It combines automated scanning (for example OWASP
+ZAP, Nikto, and sqlmap) with manual exploration in a controlled staging
+environment, and each finding is logged with a severity rating, a reproduction
+path, and a remediation that is then re-tested.
+
+These mechanisms, JWT signing and verification, refresh-token rotation, and the
+role, permission, and ownership checks, are implemented directly rather than
+delegated to an identity framework such as Keycloak, Auth0, or Better Auth. This
+is a deliberate decision aligned with the network-engineering focus of the
+thesis. Authentication, session lifecycle, and access control are treated as
+objects of study, built and reasoned about at the protocol level so they can be
+measured and adversarially tested, as the penetration-testing plan above sets
+out. A production deployment could adopt a managed identity provider; building
+these mechanisms here is part of the contribution.

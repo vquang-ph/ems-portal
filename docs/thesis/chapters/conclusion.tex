@@ -1,1 +1,105 @@
-Pellentesque eleifend iaculis massa, ut blandit ipsum viverra nec. Pellentesque dictum ut magna sit amet aliquam. Aliquam erat volutpat. Nullam vel eleifend ex, hendrerit porttitor magna. Quisque fringilla neque tincidunt fermentum consequat. Maecenas tincidunt ex magna, ut hendrerit ipsum convallis nec. Mauris tellus arcu, semper ac massa ac, sagittis feugiat tellus. Nulla maximus urna in commodo vestibulum. Nam imperdiet ligula egestas, dapibus dolor eleifend, pellentesque nisl. Integer mattis rhoncus posuere.
+%% Chapter 5 — Conclusion and Work Plan
+\label{ch:conclusion}
+
+\section{Current Progress}
+The EMS Portal is a digital marketplace that connects clients with engineering
+service providers through an intelligent multi-criteria matching mechanism. The
+project is built in six phases. The first two are now complete, and the
+remaining phases are designed and ordered.
+
+\textbf{Authentication and authorization are solid.} The platform has a complete
+authentication system (registration, login, logout, session refresh) backed by
+short-lived JWT access tokens and hashed, family-rotated refresh tokens. The
+authorization layer enforces role-based access control across three levels
+(role, permission, ownership), with a shared, single-source-of-truth permission
+catalogue.
+
+\textbf{Core provider-side features are built.} Service providers can create and
+manage profiles with an explicit draft, active, and suspended lifecycle. They
+attach skills from a seeded, public skill catalogue. The frontend provides
+complete UI for authentication and profile management.
+
+\textbf{Infrastructure and quality practices are in place.} The system runs on a
+modular, layered architecture with a migrations-first database schema (three
+reviewed migrations), an enforced testing pyramid with coverage thresholds, and a
+six-workflow continuous-integration pipeline. The multi-criteria matching
+algorithm—the project's central research contribution—is formally specified
+(Chapter~\ref{ch:methodology}) and its schema is designed, ready to
+implement.
+
+\section{Work Plan}
+The remaining work takes the system from its current foundation, through the
+matching engine, to a complete and evaluated platform. Table~\ref{tab:workplan}
+lists the remaining phases, their main deliverables, and their dependencies.
+
+\begin{table}[ht]
+	\centering
+	\caption{Work plan for the remaining thesis phases.}
+	\label{tab:workplan}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{cll}
+			\hline
+			\textbf{Phase} & \textbf{Scope} & \textbf{Principal deliverables} \\ \hline
+			3 & Service requests &
+				\begin{tabular}[t]{@{}l@{}}
+					Client-posted requests; status state machine \\
+					(open $\to$ matched $\to$ in\_progress $\to$ completed $|$ cancelled $|$ expired)
+				\end{tabular} \\ \hline
+			4 & Matching engine &
+				\begin{tabular}[t]{@{}l@{}}
+					Implement Eq.~\ref{eq:score}; seed \texttt{basic-v1} and \texttt{intelligent-v1}; \\
+					per-criterion scoring; persist ranked \texttt{match\_results} audit log
+				\end{tabular} \\ \hline
+			5 & Engagements \& ratings &
+				\begin{tabular}[t]{@{}l@{}}
+					Engagement state machine; bidirectional ratings; \\
+					denormalized provider rating aggregates
+				\end{tabular} \\ \hline
+			6 & Administration \& review &
+				\begin{tabular}[t]{@{}l@{}}
+					User management; weight configuration UI; \\
+					basic-vs-intelligent effectiveness comparison
+				\end{tabular} \\ \hline
+			Final & Evaluation &
+				\begin{tabular}[t]{@{}l@{}}
+					Execute the penetration-testing plan; k6 load tests \\
+					for latency/response time; matching-effectiveness study
+				\end{tabular} \\ \hline
+		\end{tabular}%
+	}
+\end{table}
+
+The order is driven by dependencies. Service requests (Phase~3) supply the
+demand side that the matching engine (Phase~4) uses. The matching results feed
+the engagements and ratings of Phase~5. Those ratings feed back into the matching
+score's rating factor, closing the feedback loop. The admin tools of Phase~6
+enable the side-by-side comparison of the \texttt{basic-v1} and
+\texttt{intelligent-v1} configurations that the evaluation needs. The final
+evaluation then tests the complete system along the three axes from the
+objectives: functional correctness, security, and network performance.
+
+\section{Current Limitations}
+Several limitations follow from the current state of the project. The matching
+engine, the central research contribution, is not yet built, so the full
+request-to-match-to-engagement-to-rating flow cannot be demonstrated end to end.
+There is no administrator interface: the permission model recognizes
+administrators, but the dedicated screens are planned for Phase~6. Geographic
+proximity is approximated using the haversine formula on plain latitude and
+longitude coordinates; a dedicated geographic extension such as PostGIS is
+deliberately deferred to Phase~4 to keep the early phases simple. The user
+interface is currently a rough, functional MVP, with visual design left for later
+work.
+
+\section{Conclusion}
+The foundation is solid and the path forward is clear. The hardest
+cross-cutting concerns are already solved and covered by tests: secure
+authentication, layered authorization, a reproducible schema, and an automated
+quality pipeline. The matching algorithm that motivates the project is formally
+specified and ready to build on the data structures already in place. The
+remaining phases are well-scoped and ordered so each one builds on the last.
+
+The full thesis will demonstrate that a configurable, multi-criteria matching
+mechanism can be implemented securely and evaluated rigorously on real data. Once
+the matching engine is complete and the evaluation is run, the EMS Portal will
+show whether intelligent provider selection—optimized across skill, availability,
+cost, location, and reputation—produces better outcomes than keyword search alone.

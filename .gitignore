@@ -6,3 +6,11 @@ node_modules/
 
 # Environment variable files
 .env
+.DS_Store
+
+# Thesis Latex files
+docs/thesis/main.aux
+docs/thesis/main.fdb_latexmk
+docs/thesis/main.fls
+docs/thesis/main.log
+docs/thesis.zip

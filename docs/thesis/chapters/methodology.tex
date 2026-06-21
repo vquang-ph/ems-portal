@@ -1,41 +1,255 @@
-%% TODO: Add a small paragraph to tell what this chapter is about
-This chapter delves into ...
+%% Chapter 3 — Methodology
+\label{ch:methodology}
 
-%% TODO: Make sure to use \textbf or \textit for highlighting keywords, and \cite{} to cite the corresponding quotations
+This chapter presents the methodology behind the EMS Portal. The first section
+analyzes the system requirements and introduces the three actors. The second
+formalizes the multi-criteria matching algorithm, the project's core contribution.
+The final section describes the engineering practices and principles used to build
+the platform.
+
 \section{Requirement Analysis}
-Integer non cursus odio. Cras in condimentum risus. Sed egestas ipsum quis quam scelerisque condimentum. Duis sollicitudin malesuada leo, id luctus nibh maximus at. Cras blandit, justo ut fermentum laoreet, diam tortor vehicula nisl, eget sollicitudin metus elit vitae eros. Fusce vel convallis felis, vitae commodo lorem. Mauris semper ipsum nec neque tincidunt condimentum. Sed sit amet faucibus elit.
+The requirements are built around three actors: the \textbf{Client}, the
+\textbf{Service Provider}, and the \textbf{Administrator}. They are split into
+functional and non-functional needs.
+
+\subsection{Functional Requirements}
+The functional scope is delivered step by step across six phases. The
+requirements are:
+
+\begin{enumerate}
+	\item \textbf{Authentication and identity.} Registration, login, logout, and
+	      session refresh. Each user has an email, a name, a hashed password, a
+	      role, and an account status.
+	\item \textbf{Authorization.} Role-based access control for client, service
+	      provider, and administrator, enforced at the route, permission, and
+	      ownership levels.
+	\item \textbf{Provider profiles and skills.} A service provider keeps a
+	      discoverable profile (bio, location, hourly-rate range, and
+	      availability) and attaches skills from a shared catalogue. The profile
+	      has a clear publication lifecycle.
+	\item \textbf{Service requests.} A client posts a request with the work,
+	      budget, target location, and deadline. The request follows a status
+	      state machine.
+	\item \textbf{Multi-criteria matching.} The system ranks active, available
+	      providers for a request using a configurable weighted scoring model, and
+	      records the result for audit.
+	\item \textbf{Engagements and ratings.} An accepted match becomes an
+	      engagement. When it completes, both sides can rate each other, and
+	      ratings feed back into a provider's reputation.
+	\item \textbf{Administration.} An administrator manages users, tunes matching
+	      weights, and reviews how well the matching policy works.
+\end{enumerate}
+
+\subsection{Non-Functional Requirements}
+The platform must be \textbf{secure} (signed tokens, hashed secrets, enforced
+authorization, and protection against common web vulnerabilities). It must be
+\textbf{maintainable} (a modular, layered architecture with automated tests and
+continuous integration). It must be \textbf{performant} (low request latency,
+measured under load). And it must be \textbf{scalable} (a stateless API and an
+indexed schema that supports the matching hot path).
 
 \subsection{Use Case Description}
-Nam tristique cursus purus. Suspendisse scelerisque faucibus nisi vel efficitur. Nunc ac suscipit sem. Duis id vehicula urna. Pellentesque condimentum felis eu ipsum ultrices, sed lacinia mauris pharetra. Nam eget tortor nibh. Quisque sagittis consectetur lacus et auctor. Pellentesque eget tortor et dui luctus viverra at sed ex. Sed aliquam ligula nec arcu commodo cursus. Integer ut malesuada dui.
+The three actors interact with the system in distinct ways.
+
+\textbf{Client Workflow:} A Client registers and signs in, then browses
+published provider profiles and their skills. When ready, the client posts a
+service request describing the work, budget, location, and deadline. The system
+returns a ranked list of matched providers. The client reviews the rankings and
+their reasoning, starts an engagement with a chosen provider, and after the work
+completes, rates the provider.
+
+\textbf{Service Provider Workflow:} A Service Provider signs in and creates a
+profile, specifying their bio, hourly-rate range, and availability. They then
+manage their skills, selecting from the shared catalogue to showcase their
+expertise. Once the profile is complete and publishable, they approve it for
+discovery. Thereafter, they view incoming service requests, accept or decline
+engagements, and receive ratings from clients they have worked with.
+
+\textbf{Administrator Workflow:} An Administrator manages the user base (viewing,
+suspending, or removing accounts), curates and updates the shared skill
+catalogue, and tunes the matching algorithm. Specifically, the administrator can
+set the weights for the five matching criteria, compare the results of different
+weighting policies on historical requests, and audit how well the matching system
+works.
+
+Figure~\ref{fig:usecase} sums up these interactions.
 
 \subsection{Use Case Diagram}
-Nulla hendrerit suscipit nisl, ac luctus lectus auctor sit amet. Fusce vulputate a ipsum sed consequat. Nulla eget imperdiet tellus. Duis varius magna libero, in sollicitudin ligula tristique id. Vivamus pulvinar congue metus vel egestas. Sed vestibulum nisi leo, sed gravida ante placerat sed. Nunc ac ipsum sodales risus iaculis laoreet. Nullam blandit sem at risus iaculis finibus vitae id nulla. Aenean felis dui, egestas dapibus nunc eu, venenatis pharetra tortor. Vestibulum ligula mauris, venenatis in elementum a, pharetra consectetur odio. Nulla ut sollicitudin metus, non dignissim ante. Fusce mattis felis et malesuada molestie.
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}[
+		actor/.style={font=\footnotesize, align=center},
+		usecase/.style={draw, ellipse, align=center, font=\scriptsize,
+			minimum width=2.7cm, minimum height=0.85cm, fill=blue!5},
+		boundary/.style={draw, rounded corners, inner sep=12pt},
+		line/.style={-}
+	]
+		% Use cases (system boundary)
+		\node[usecase] (login)   {Register /\\ Authenticate};
+		\node[usecase] (profile) [below=0.35cm of login]   {Manage profile\\ \& skills};
+		\node[usecase] (request) [below=0.35cm of profile] {Post service\\ request};
+		\node[usecase] (match)   [below=0.35cm of request] {View ranked\\ matches};
+		\node[usecase] (engage)  [below=0.35cm of match]   {Manage\\ engagement};
+		\node[usecase] (rate)    [below=0.35cm of engage]  {Rate\\ counterpart};
+		\node[usecase] (admin)   [below=0.35cm of rate]    {Administer \&\\ tune weights};
+
+		% System boundary box around the use cases
+		\begin{scope}[on background layer]
+			\node[boundary, fit=(login)(profile)(request)(match)(engage)(rate)(admin),
+				label=above:{\footnotesize\textbf{EMS Portal}}] (sys) {};
+		\end{scope}
+
+		% Actors
+		\node[actor] (client) [left=2.2cm of match] {\textbf{Client}};
+		\node[actor] (provider) [right=2.2cm of profile] {\textbf{Service}\\\textbf{Provider}};
+		\node[actor] (adminA) [right=2.2cm of admin] {\textbf{Admin}};
+
+		% Client associations
+		\draw[line] (client) -- (login.west);
+		\draw[line] (client) -- (request.west);
+		\draw[line] (client) -- (match.west);
+		\draw[line] (client) -- (engage.west);
+		\draw[line] (client) -- (rate.west);
+
+		% Provider associations
+		\draw[line] (provider) -- (login.east);
+		\draw[line] (provider) -- (profile.east);
+		\draw[line] (provider) -- (engage.east);
+		\draw[line] (provider) -- (rate.east);
+
+		% Admin associations
+		\draw[line] (adminA) -- (admin.east);
+		\draw[line] (adminA) -- (login.east);
+	\end{tikzpicture}
+	\caption{High-level use case diagram for the three EMS Portal actors.}
+	\label{fig:usecase}
+\end{figure}
 
 \subsection{System Overview}
-Fusce cursus urna a luctus ultrices. Sed ac diam ex. Morbi ultrices eros efficitur maximus accumsan. Pellentesque aliquet dignissim nisl non rhoncus. Curabitur efficitur ex quam, id eleifend sem efficitur id. Pellentesque rhoncus lacinia ullamcorper. Maecenas eu tincidunt libero. Donec a erat eget lacus venenatis consectetur. Vivamus sed tempus odio. Nullam pretium, est eget sodales elementum, arcu dui laoreet mauris, non viverra diam nisi pretium justo.
+The EMS Portal is a client-server web application with three main tiers. The
+browser runs a single-page application (SPA) that handles user interaction and
+renders the interface. The SPA communicates with a stateless REST API that
+contains all business logic; the authorization layer sits within the API and
+grants different capabilities to clients, providers, and administrators based on
+their role. The API reads from and writes to a relational database, which serves
+as the system of record for all user, profile, request, and engagement data.
+
+The matching engine is a core component within the API. When a client posts a
+service request, the engine reads the request details and the set of active,
+available providers from the database. It scores each provider against the request
+using the five criteria (skill, availability, cost, location, rating), weights
+them according to a configurable matching policy, and produces a ranked list with
+full scoring transparency. Both the input request and the per-provider scores are
+logged to an audit table for transparency and analysis.
+
+The actual architecture diagrams and implementation details are presented in
+Chapter~\ref{ch:prototyping}.
 
 \section{Algorithms}
+The defining feature of the EMS Portal is its \textbf{multi-criteria matching
+algorithm}. It ranks providers for a given service request. This section
+formalizes the scoring model. The implementation is planned for Phase~4 (see the
+work plan in Chapter~\ref{ch:conclusion}).
 
 \subsection{Formalizing}
-Quisque a vehicula odio, vitae interdum purus. Ut vestibulum venenatis semper. Duis tempus a sem et viverra. In sed gravida erat, ac luctus tortor. Cras blandit nunc quis tortor consequat semper. Curabitur eu feugiat elit. Cras in magna et arcu rutrum dapibus luctus id purus. Nullam volutpat mauris tortor, non accumsan velit ullamcorper et. Nunc pharetra, magna vitae dignissim molestie, mauris orci pharetra ligula, laoreet ornare ante risus et est. Aenean vehicula pellentesque nibh non ultrices. Ut blandit ac dolor ut pulvinar. Nullam lorem mauris, varius sit amet bibendum ac, placerat in mauris. Sed aliquam, velit et viverra euismod, nibh eros pellentesque nisi, eget faucibus quam odio in libero. Sed efficitur consequat lorem id volutpat. Phasellus faucibus pharetra nisi ac finibus in Algorithm~\ref{alg:1}.
+Let $R$ be a service request and $P$ the set of candidate providers that are
+active and available. Each provider $p \in P$ is scored against $R$ on five
+criteria, indexed by $i \in \{\text{skill}, \text{avail}, \text{cost},
+\text{loc}, \text{rating}\}$. Each criterion gives a normalized score
+$c_i(p, R) \in [0, 1]$, and a matching configuration supplies non-negative
+weights $w_i$ with $\sum_i w_i = 1$. The total score of a provider is the
+weighted sum
+
+\begin{equation}
+	\text{Score}(p, R) = \sum_{i} w_i \cdot c_i(p, R),
+	\label{eq:score}
+\end{equation}
+
+and providers are ranked by descending $\text{Score}$. The five criterion scores
+are defined as follows.
+
+\begin{itemize}
+	\item \textbf{Skill compatibility} ($c_\text{skill}$): the overlap between the
+	      skills required by $R$ and the skills held by $p$, measured as the
+	      fraction of required skills the provider has.
+	\item \textbf{Availability} ($c_\text{avail}$): a normalized measure based on
+	      the provider's availability flag and current engagement load.
+	\item \textbf{Cost} ($c_\text{cost}$): how much the request's budget range
+	      overlaps the provider's hourly-rate range.
+	\item \textbf{Location proximity} ($c_\text{loc}$): a value that falls off
+	      with the great-circle distance between the request's target location and
+	      the provider, computed with the haversine formula in
+	      Equation~\ref{eq:haversine}.
+	\item \textbf{Rating} ($c_\text{rating}$): the provider's mean past rating,
+	      normalized to $[0, 1]$.
+\end{itemize}
+
+The great-circle distance $d$ between two points given by latitude/longitude
+$(\varphi_1, \lambda_1)$ and $(\varphi_2, \lambda_2)$ on a sphere of radius $r$
+is
+
+\begin{equation}
+	d = 2r \cdot \arcsin\!\sqrt{\sin^2\!\Big(\tfrac{\varphi_2 - \varphi_1}{2}\Big)
+	+ \cos\varphi_1 \cos\varphi_2 \sin^2\!\Big(\tfrac{\lambda_2 - \lambda_1}{2}\Big)}.
+	\label{eq:haversine}
+\end{equation}
+
+The weights $w_i$ are not hard-coded. They are stored as named \textbf{matching
+configurations}. Two configurations are seeded for comparison: \texttt{basic-v1},
+which gives every criterion equal weight, and \texttt{intelligent-v1}, which uses
+tuned weights. Running both on the same requests lets the intelligent policy be
+measured directly against the simple baseline. Algorithm~\ref{alg:match} gives
+the ranking procedure.
 
 \begin{algorithm}[H]
 	\small
-	\caption{$(\text{Result}) \gets \texttt{Sample}(\text{Input1})$}
-	\label{alg:1}
+	\caption{$(\text{Ranked}) \gets \texttt{MatchProviders}(R, W)$}
+	\label{alg:match}
 	\begin{algorithmic}[1]
-		\Require $\text{Input1}$ is a predefined parameter.
-		\State $\text{Set} \gets \emptyset$
-		\For{$\text{element} \in \text{Input1}$}
-		\If{$\text{Condition}(\text{element})$ is true}
-		\State $\text{Set} \gets \text{Set} \cup \{\text{Process}(\text{element})\}$
-		\Else
-		\State \textbf{continue}
-		\EndIf
+		\Require Request $R$; matching configuration $W = \{w_i\}$ with $\sum_i w_i = 1$.
+		\State $\text{Results} \gets \emptyset$
+		\State $P \gets \texttt{ActiveAvailableProviders}()$
+		\For{$p \in P$}
+			\State $c_\text{skill} \gets \texttt{SkillOverlap}(R, p)$
+			\State $c_\text{avail} \gets \texttt{Availability}(p)$
+			\State $c_\text{cost} \gets \texttt{CostOverlap}(R, p)$
+			\State $c_\text{loc} \gets \texttt{ProximityScore}(R, p)$ \Comment{via Eq.~\ref{eq:haversine}}
+			\State $c_\text{rating} \gets \texttt{NormalizedRating}(p)$
+			\State $s \gets \sum_{i} w_i \cdot c_i$ \Comment{Eq.~\ref{eq:score}}
+			\State $\text{Results} \gets \text{Results} \cup \{(p, s, \{c_i\})\}$
 		\EndFor
-		\State $\text{Intermediate} \gets \texttt{Transform}(\text{Set})$
-		\State \Return $\text{Result}$
+		\State \Return $\texttt{SortDescendingByScore}(\text{Results})$
 	\end{algorithmic}
 \end{algorithm}
 
-Aenean arcu nulla, ornare sed arcu nec, mollis pharetra dolor. Maecenas rutrum efficitur dui nec rutrum. Sed suscipit, felis non malesuada ultrices, urna lorem porttitor mi, quis dignissim lectus mi a justo. Mauris erat ante, placerat eu sapien id, finibus maximus nisl. Nam cursus velit eu convallis molestie. Fusce eleifend fermentum elementum. Mauris congue non mauris a blandit. In vel ante mi. Etiam et consectetur quam, accumsan aliquam dolor. Aenean sed tristique massa.
+Each row of the result, the per-criterion scores and the total, is saved to an
+audit table. This lets a ranking be explained, and lets different configurations
+be compared afterward.
+
+\section{Development Methodology}
+\label{sec:dev-method}
+The platform is built with a clear, repeatable methodology that enforces
+consistency across boundaries, enables reliable refactoring, and ensures both
+the codebase and database schema can be confidently versioned and reproduced.
+
+\begin{itemize}
+	\item \textbf{Single source of truth for types.} Cross-boundary data shapes
+	      are defined once as Zod schemas in a shared package and used by both
+	      ends. Backend entities \texttt{implement} these types, so a schema change
+	      forces a compile error wherever the shape is used.
+	\item \textbf{Layered modules with the Data Mapper pattern.} Each backend
+	      feature is a module layered as controller $\rightarrow$ service
+	      $\rightarrow$ repository $\rightarrow$ entity. Queries live in injectable
+	      repositories, not in the entities.
+	\item \textbf{Migrations-first database.} Schema synchronization is off. Every
+	      schema change is a reviewed, versioned migration, applied on purpose.
+	\item \textbf{Testing pyramid.} A large set of fast, isolated unit tests is
+	      backed by a smaller set of integration tests that run the API against a
+	      real database, with enforced coverage thresholds.
+	\item \textbf{Continuous integration.} Every change passes style, build, unit,
+	      security, integration, and deployment-readiness checks before it can
+	      reach the main branch.
+\end{itemize}
+
+These practices are described in concrete, implemented terms in
+Chapter~\ref{ch:prototyping}.

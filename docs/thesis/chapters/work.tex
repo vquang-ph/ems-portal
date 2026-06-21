@@ -1,56 +1,106 @@
-%% TODO: Add a small paragraph to tell what this chapter is about
-This chapter delves into ...
+%% Chapter 2 — Related Work
+\label{ch:work}
 
-%% TODO: Make sure to use \textbf or \textit for highlighting keywords, and \cite{} to cite the corresponding quotations
+This chapter reviews the work most relevant to the EMS Portal. It begins with
+online service marketplaces and how they currently match supply with demand.
+It then examines multi-criteria decision making, the formal basis for the
+matching engine, and role-based access control, which underpins the platform's
+authorization. The chapter concludes by identifying the gap this project
+addresses.
+
 \section{Current Advancements}
-Integer at leo in libero facilisis pulvinar. Donec augue lorem, mattis eu sapien ut, maximus faucibus ex. Donec elementum vehicula lectus, ac laoreet quam condimentum in. Pellentesque id convallis arcu, facilisis posuere ligula. Sed in ante id nunc euismod lobortis. Nam dolor ex, faucibus vitae scelerisque vel, malesuada tempor ipsum. Integer lacinia pulvinar ex, ut accumsan nunc. Maecenas convallis felis velit, sed placerat quam faucibus a. Fusce odio urna, rhoncus et lorem nec, sollicitudin bibendum lorem. Donec eu bibendum quam. Nulla vel semper nisl, nec aliquet nulla. Vivamus fermentum leo justo, vel facilisis nisi bibendum sed. Sed at turpis risus. Praesent vestibulum tellus arcu, non aliquam elit aliquet eget. Praesent et lacinia massa.
 
-\section{Research Gap}
-Donec bibendum eget turpis tristique venenatis. Donec luctus justo non nunc sodales, ac vehicula elit fringilla. Cras vehicula, sem ut molestie hendrerit, ligula lectus ultricies nunc, eget vehicula turpis tortor pulvinar felis. Aliquam tempor mauris turpis, eget gravida ipsum dignissim non. Mauris et pretium ligula, eu auctor dolor. Curabitur risus justo, scelerisque vel sem quis, facilisis dictum ante. Cras pulvinar magna in erat ultricies scelerisque. In at laoreet mi, non sagittis elit. Duis id metus viverra, tristique purus in, laoreet leo.
+\subsection{Online Service Marketplaces}
+Platforms for hiring technical providers fall into three groups. The first is
+\textbf{horizontal generalist marketplaces} such as Upwork, Fiverr, and, in
+Vietnam, vLance. They serve a broad range of work and rely on keyword search,
+open bidding, and star ratings~\cite{kassi2019online}. A client describes a need
+in plain language, the platform returns a list ranked mostly on text relevance
+and popularity, and the client then weighs price, availability, location, and
+reputation by hand. The second is \textbf{premium vetted networks} such as
+Toptal and Arc.dev. They screen providers and then match them behind the scenes,
+so the matching logic is not exposed to the client, and they focus on software
+roles rather than broader engineering work. The third is \textbf{specialized
+engineering platforms} such as Engre, Tasker, and Cad Crowd. Engre is a
+directory of companies matched by static filtering and manual negotiation,
+Tasker shortlists hardware specialists automatically but through a fixed,
+black-box algorithm, and Cad Crowd runs design contests.
 
-%% TODO: Make sure to use \subsection{} and \subsubsection{} for smaller sections inside a larger sections
-\section{Theoretical Background}
-%% TODO: Use ~\ref{} to mention a labeled figure, table, section, or anything else
-\subsection{Concept 1}
-Sed eget lobortis leo. Maecenas ut tempor nibh. Nullam arcu nulla, aliquet vel enim maximus, gravida porta tortor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec aliquet luctus porttitor. Vivamus porta nulla ut tortor condimentum, at ullamcorper orci facilisis. Vivamus venenatis tellus vel dolor vestibulum, ac placerat orci laoreet. Praesent at elit arcu. Maecenas et lacus sit amet odio finibus semper. Mauris commodo vestibulum aliquam. Mauris non faucibus augue. Vivamus eleifend mauris eget mi venenatis, a maximus dolor mollis in Fig.~\ref{fig:1}.
-
-%% TODO: Adjust the size of the figure by using [widht=.x\linewidth] (x is a fraction) to fit within the page width. Then rename to your picture file name, add the caption and a label
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=\linewidth]{sample.png}
-	\caption{The caption of the figure.}
-	\label{fig:1}
-\end{figure}
-
-\subsubsection{More details of Concept 1}
-Quisque sit amet ipsum sed ligula congue mattis viverra sit amet sem. Phasellus ante tortor, dictum id ex eget, lacinia pulvinar ligula. Aenean sodales in augue in tempus. Ut ut venenatis magna, feugiat tristique justo. Etiam ac mauris cursus, tincidunt elit commodo, molestie dolor. Nam maximus feugiat nunc, et facilisis eros malesuada vel. Suspendisse potenti. Cras ipsum eros, cursus vitae luctus ac, blandit pulvinar velit. Donec cursus viverra aliquet. Maecenas pharetra nec sem a gravida provided in Table~\ref{tab:1}.
+Table~\ref{tab:platforms} compares these platforms on the two capabilities
+central to this work: an automatic multi-criteria ranking, and client- or
+operator-\textit{configurable} weights. The comparison is based on each
+platform's publicly available descriptions.
 
 \begin{table}[ht]
 	\centering
-	\caption{Comparison of different methods (\protect\cmark: YES, \protect\xmark: NO).}
-	\label{tab:1}
-	%% Comment the next line if the table width is relatively small
+	\caption{How existing platforms match supply with demand.}
+	\label{tab:platforms}
 	\resizebox{\textwidth}{!}{%
-		\begin{tabular}{lcccccc}
+		\begin{tabular}{llcc}
 			\hline
-			          & \textbf{Your Method} & Method B & Method C & Method D & Method E & Method F \\ \hline
-			Feature 1 & \cmark               & \cmark   & \xmark   & \cmark   & \xmark   & \cmark   \\ 
-			Feature 2 & \cmark               & \xmark   & \cmark   & \cmark   & \cmark   & \xmark   \\ 
-			Feature 3 & \xmark               & \cmark   & \cmark   & \xmark   & \xmark   & \cmark   \\ 
+			\textbf{Platform} & \textbf{Discovery / matching model} & \textbf{Auto multi-criteria} & \textbf{Configurable weights} \\ \hline
+			Upwork / Fiverr & Keyword search, bidding, star ratings & \xmark & \xmark \\
+			vLance (Vietnam) & Open bidding, manual short-listing & \xmark & \xmark \\
+			Toptal & Vetting, then opaque behind-the-scenes match & \xmark & \xmark \\
+			Arc.dev & AI-assisted match, software roles only & Partial & \xmark \\
+			Engre & Company directory, static filter + manual & \xmark & \xmark \\
+			Tasker & Automatic shortlist, fixed black-box algorithm & \cmark & \xmark \\
+			\textbf{EMS Portal} & Weighted multi-criteria ranking, audited & \cmark & \cmark \\
+			\hline
 		\end{tabular}%
-		%%TODO: Also comment this } to match the above command
 	}
 \end{table}
-	
-	
-%% TODO: For math mode, wrap the equation inside $ $ for inline mode, wrap inside $$ $$ for non-numbering block mode, or align environment as a numbered block equation
-Ut consectetur quam in elit ullamcorper, non dictum velit congue. Nulla facilisi. Suspendisse potenti. Donec ut felis nec odio tempor rhoncus non a ex $\mathbb{G}_1$ where 
 
-$$a \in \mathbb{G}_1$$
+While this model works well for a broad range of tasks, it falls short for
+specialized engineering work. None of the surveyed platforms exposes
+configurable matching weights, and only Tasker offers automatic multi-criteria
+matching at all, but as a fixed black box the client can neither inspect nor
+adjust the several competing factors that matter when selecting an
+\textit{engineering} provider.
 
-Aliquam efficitur fermentum metus, eu posuere orci commodo sit amet. Nullam vulputate consectetur sagittis. Donec imperdiet mi a facilisis facilisis. Cras at diam ornare, suscipit ipsum at, porta arcu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris eu augue quis leo venenatis ultricies. Sed dapibus magna quam, ornare feugiat augue ullamcorper et.
+\subsection{Multi-Criteria Decision Making}
+Picking a provider by several weighted factors is a case of
+\textit{multi-criteria decision making} (MCDM). MCDM is a well-established field
+with structured methods for ranking options that trade off competing
+goals~\cite{triantaphyllou2000multi}. The simplest method is the
+\textbf{weighted sum model}. Each option gets a score equal to the weighted sum
+of its normalized factor values. More complex methods include the Analytic
+Hierarchy Process, which sets factor weights from pairwise
+comparisons~\cite{saaty1980analytic}. The weighted sum model fits an interactive
+marketplace well. It is easy to understand. It is cheap to compute over many
+candidates. And its weights can be tuned or compared without changing the
+scoring logic. The matching engine relies on these properties.
 
-\begin{align}
-	e : \mathbb{G}_1 \times \mathbb{G}_2 & \rightarrow \mathbb{G}_T \\
-	(a, b)                               & \mapsto e(a, b)          
-\end{align}
+\subsection{Role-Based Access Control}
+Role-based access control (RBAC) gives permissions to roles, not to single
+users. An authorization decision then follows from a user's role and the
+permissions that role holds~\cite{sandhu1996role}. RBAC fits a marketplace with
+a small, fixed set of actor types: client, service provider, and administrator.
+It also fits a permission set defined per resource and action. The EMS Portal
+uses this model directly. It encodes permissions in a canonical
+\texttt{resource:verb:scope} form and maps roles to permission sets
+(Section~\ref{sec:rbac-impl}).
+
+\section{Research Gap}
+Two gaps motivate this work.
+
+\textbf{Gap 1: No Multi-Criteria Optimization in Provider Selection.}
+As Table~\ref{tab:platforms} shows, none of the surveyed platforms, from
+generalists like Upwork and vLance to specialized engineering platforms like
+Engre and Tasker, treats provider selection as a multi-criteria optimization
+problem the client can control. They offer no \textit{configurable} weighted
+model to rank engineering providers by skill fit, availability, cost, proximity,
+and rating simultaneously. Operators cannot compare a \textit{basic}
+(equal-weight) policy against a \textit{tuned} alternative, and where automatic
+matching exists at all, as in Tasker, it is a fixed black box.
+
+\textbf{Gap 2: Marketplace Systems Lack Engineering Rigor.} Work in this space
+is rarely designed or evaluated as a modular, testable, secure client-server
+system with measured communication efficiency. Network performance is often
+assumed rather than analyzed; security is treated as an afterthought.
+
+The EMS Portal addresses both gaps. It implements a multi-criteria matching
+engine with configurable weights stored as named policy objects, enabling
+comparison of basic and tuned strategies. It also adopts a strict modular
+architecture designed for security and testability, with explicit measurement of
+network performance and functional correctness alongside matching effectiveness.

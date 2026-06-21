@@ -1,22 +1,148 @@
-%% TODO: Make sure to use \textbf or \textit for highlighting keywords, and \cite{} to cite the corresponding quotations
+%% Chapter 1 — Introduction
+\label{ch:intro}
+
 \section{Motivation}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras convallis nunc at cursus facilisis. Ut at arcu in ligula condimentum varius. Aliquam erat volutpat. Vivamus dolor augue, ullamcorper id elit ac, ullamcorper venenatis tortor. Aenean sit amet elit a metus elementum convallis. Pellentesque efficitur nibh elementum mauris commodo cursus. Quisque ac tortor ut quam varius scelerisque. Morbi lectus nibh, ullamcorper vitae auctor a, eleifend eget libero. Quisque erat purus, efficitur sit amet sem eget, ullamcorper egestas ante~\cite{knuth:1984}.
+Many projects need specialized engineering skills. These skills cover software,
+civil, electrical, mechanical, and network work. Projects keep getting more
+complex, and more of them are now done remotely. So the demand for engineering
+experts keeps growing.
+
+Online service marketplaces have emerged as the primary response to this growing
+demand, becoming the main way to find and hire independent professionals. The
+online gig economy has grown steadily over the years~\cite{kassi2019online}.
+
+Even so, finding the \textit{right} engineering expert is still slow and mostly
+manual. General freelance platforms are built for high-volume, short,
+transactional tasks, not for specialized engineering work such as CAD and MEP
+drafting, embedded-firmware development, structural analysis, or network design.
+Within these platforms, the fundamental challenge is discovery: the process by
+which a client identifies the provider best suited to their specific project.
+
+Discovery remains the bottleneck. Selection is manual and unstructured. A client
+searches by keyword, then weighs skills, availability, cost, location, and
+reputation by hand. There is no transparent, automatic way to rank providers
+over these competing factors at once, and no way to say that, for a given job,
+one factor matters more than another. This work gets harder as the number of
+providers grows, and it often leads to a poor match.
+
+Compounding this discovery challenge is the problem of trust. Existing platforms
+do little technical vetting, allowing providers to overstate skills, and rely on
+star ratings that are easy to inflate. This work does not attempt to fully
+verify provider credentials, a task beyond its scope, but instead reduces the
+opportunity for misrepresentation by design. Skills are drawn from a shared
+catalogue with explicit proficiency levels rather than free text, ratings are
+tied to completed engagements and awarded by both parties, and provider profiles
+must pass a publication review before becoming discoverable.
+
+Picking a provider by several factors at once is a well-known kind of problem.
+The field of \textit{multi-criteria decision making} offers structured ways to
+rank options that trade off competing factors~\cite{triantaphyllou2000multi}.
+Using such a model for provider selection, instead of leaving it to manual
+judgment, is the main idea of this work. The goal is an \textbf{intelligent
+multi-criteria matching mechanism} that ranks engineering providers
+automatically and clearly.
 
 \section{Problem Statement}
-Vivamus semper, elit vel ornare dapibus, ligula sem euismod risus, nec pellentesque diam est in elit. In vel libero nec nisl euismod hendrerit et vel enim. Morbi consectetur nisi id nisl aliquet accumsan. Fusce ut ante fringilla, ultrices leo eu, ultrices metus. Proin a urna eu eros auctor eleifend. Donec tristique, orci et aliquet mattis, orci ex faucibus nulla, sit amet elementum sapien elit a sapien. Proin sed mi egestas, varius leo vitae, dictum erat. Aenean a felis eu eros scelerisque dictum quis ut lacus. Aliquam nibh magna, mattis sit amet elit ac, aliquet vehicula nisi. Integer viverra scelerisque imperdiet. Vivamus eleifend rhoncus leo, nec porttitor sem egestas nec. Sed pharetra porttitor leo vitae volutpat. Phasellus ultricies diam quis tincidunt vehicula.
+The core problem is that current marketplaces have no clear, automatic way to
+match clients with engineering providers. Existing solutions have three main
+limits:
+
+\begin{itemize}
+	\item \textbf{Unstructured, manual discovery.} Provider selection relies on
+	      keyword search and by-hand comparison. There is no transparent,
+	      automatic way to rank providers over several competing factors at once.
+	\item \textbf{No configurability.} Clients and operators cannot say that, for
+	      a given job, one factor (such as cost) matters more than another (such
+	      as location).
+	\item \textbf{Limited engineering rigor.} Many platforms are not built or
+	      evaluated for the secure communication, access control, and measured
+	      network performance expected of a maintainable web service.
+\end{itemize}
 
 \section{Scope}
-Morbi gravida ut risus vel tempus. Fusce sit amet elit gravida, congue neque eget, rutrum purus. Praesent facilisis fringilla tortor cursus semper. Donec ultricies turpis ut purus venenatis euismod. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin quis ultrices eros, eleifend iaculis diam. Morbi ipsum risus, tempor sed dui sagittis, ullamcorper suscipit tellus. Praesent eget ex sollicitudin, malesuada odio ut, consequat leo:
+This work covers the design, build, and evaluation of a marketplace for
+engineering services. It is organized around three core areas: foundation,
+implementation, and validation.
 
-%% TODO: Use enumerate environment to start an ordered list, while using itemize environment to start an unordered list
-\begin{enumerate}
-	\item This is the first \textbf{bold keyword} of the ordered list to emphasize an important concept.
-	\item The second point in the ordered list addresses \textbf{another key idea} in the discussion.
-	      \begin{itemize} 	
-	      	\item This is the first \textbf{bold keyword} of the unordered list to emphasize an important concept.
-	      	\item The second point addresses \textit{italic keyword} in the unordered list discussion.
-	      \end{itemize}
-\end{enumerate}
+\textbf{System Design and Architecture.} The work specifies functional
+requirements and designs a layered client-server architecture (presentation,
+business, and data tiers) with formal UML models. It defines the API contract
+and documents all endpoints.
+
+\textbf{Core Implementation.} The implementation encompasses a relational
+database with strong data integrity, a maintainable backend service, and the
+essential feature modules: user registration and authentication, role-based
+access control for \textit{Client}, \textit{Service Provider}, and
+\textit{Administrator} roles (built directly rather than through a third-party
+identity framework, in keeping with the thesis's network-engineering focus),
+service request management, provider profile and skill management, and a
+bidirectional rating system. At the heart of the system
+is an intelligent multi-criteria matching algorithm that ranks providers across
+five weighted factors: skill compatibility, availability, cost range, location
+proximity, and user rating, with adjustable weight assignment. The work includes
+a comparison of basic keyword-matching and intelligent multi-criteria approaches.
+
+\textbf{Security and Evaluation.} The system enforces secure HTTPS
+communication, implements session management, and applies defenses against
+common web vulnerabilities. System evaluation covers functional correctness,
+performance under varying user loads, the effectiveness of the matching
+algorithm, and a discussion of scalability boundaries.
+
+This pre-thesis report addresses the foundation and core implementation areas,
+covering problem definition, related work, methodology, and system design. The
+full matching engine implementation and the security and performance evaluation
+are deferred to the later thesis phases outlined in the work plan.
 
 \section{Objectives}
-Sed ornare erat vitae turpis posuere, in eleifend lorem congue. Morbi at condimentum lorem. Quisque laoreet ante sit amet lorem vehicula eleifend. Sed suscipit volutpat aliquam. Vivamus facilisis malesuada libero, ac consectetur metus fringilla non. Donec justo ipsum, lobortis sit amet fermentum a, maximus vitae nunc. Phasellus iaculis massa ex, ut commodo nisi tristique non.
+The objectives of this thesis are:
+
+\begin{enumerate}
+	\item To analyze the system requirements and design a scalable client-server
+	      architecture for a service marketplace.
+	\item To build a modular and maintainable web system that follows good
+	      software engineering practice.
+	\item To design and build an intelligent multi-criteria matching algorithm
+	      that ranks and recommends providers.
+	\item To build secure authentication and role-based authorization.
+	\item To design and evaluate network communication efficiency and system
+	      performance.
+	\item To run functional testing, performance testing, and basic security
+	      analysis.
+\end{enumerate}
+
+This pre-thesis report addresses objectives 1 to 4: requirement analysis and
+architecture (1), modular system design and implementation (2), the design and
+initial foundation of the matching algorithm (3), and secure authentication and
+authorization (4).
+
+The full matching engine and performance/security evaluation
+(objectives 5 to 6) are carried out in the later thesis phases outlined in the work
+plan.
+
+\section{Live Deployment}
+\label{sec:deploy}
+A live instance of the prototype is deployed and open for testing at
+\url{https://ems-portal-frontend.onrender.com/}. Because the whole stack is
+containerized with Docker, the same images that run locally also run on the
+host, which made deployment straightforward. The deployment uses a free tier
+that sleeps when idle, so the first request after a quiet period can take up to
+a minute to wake; later requests are fast.
+
+Table~\ref{tab:demo} lists seeded demo accounts for testing. The demo database
+holds sample data only and may be reset at any time. The user interface is still
+a rough, functional MVP: the work so far has focused on the architecture, the
+data model, and the security and authorization layers rather than on visual
+design, which is left for later work.
+
+\begin{table}[ht]
+	\centering
+	\caption{Seeded demo accounts on the live deployment.}
+	\label{tab:demo}
+	\begin{tabular}{lll}
+		\hline
+		\textbf{Role} & \textbf{Email} & \textbf{Password} \\ \hline
+		Client & \texttt{client@ems.local} & \texttt{password123} \\
+		Service Provider & \texttt{provider@ems.local} & \texttt{password123} \\
+		\hline
+	\end{tabular}
+\end{table}
