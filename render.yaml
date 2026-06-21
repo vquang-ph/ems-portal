@@ -13,10 +13,11 @@ services:
     dockerContext: .
     plan: free
     healthCheckPath: /api/health
-    preDeployCommand: node node_modules/.bin/typeorm migration:run -d packages/backend/dist/src/database/datasource.js
     envVars:
       - key: APP_ENVIRONMENT
         value: production
+      - key: APP_RUN_MIGRATIONS
+        value: true
       # Render routes traffic to PORT=10000 by default; this must match.
       - key: APP_BACKEND_PORT
         value: 10000
