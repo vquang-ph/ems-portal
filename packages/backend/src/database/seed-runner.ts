@@ -14,7 +14,13 @@ interface SeedModule {
   run: (dataSource: DataSource, logger: Logger) => Promise<void>;
 }
 
-async function runSeeds(): Promise<void> {
+/**
+ * Runs all seed files against the given DataSource.
+ * Exported so it can be called from the NestJS bootstrap when APP_RUN_SEEDS=true.
+ *
+ * @param ds - An initialized TypeORM DataSource to run seeds against.
+ */
+export async function runSeeds(ds: DataSource = dataSource): Promise<void> {
   const seedsDir = path.join(__dirname, "seeds");
 
   if (!fs.existsSync(seedsDir)) {
@@ -22,10 +28,10 @@ async function runSeeds(): Promise<void> {
     return;
   }
 
-  // Find all *.seed.ts
+  // Match both .seed.ts (dev) and .seed.js (compiled production)
   const seedFiles = fs
     .readdirSync(seedsDir)
-    .filter((file) => file.endsWith(".seed.ts"))
+    .filter((file) => file.endsWith(".seed.ts") || file.endsWith(".seed.js"))
     .sort(); // sort the script, 01 should be run before 02, etc.
 
   if (seedFiles.length === 0) {
@@ -52,7 +58,7 @@ async function runSeeds(): Promise<void> {
         continue;
       }
 
-      await runFn(dataSource, logger);
+      await runFn(ds, logger);
       logger.log(`Successfully completed seed: ${file}`);
     } catch (error) {
       logger.error(`Failed to execute seed: ${file}`, error);

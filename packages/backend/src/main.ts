@@ -8,6 +8,7 @@ import {
 import { DataSource } from "typeorm";
 import { AppModule } from "./app.module";
 import { swaggerSetup } from "./config/swagger";
+import { runSeeds } from "./database/seed-runner";
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger("Bootstrap");
@@ -21,6 +22,12 @@ async function bootstrap(): Promise<void> {
     const dataSource = app.get(DataSource);
     await dataSource.runMigrations();
     logger.log("Migrations applied");
+  }
+
+  if (process.env.APP_RUN_SEEDS === "true") {
+    const dataSource = app.get(DataSource);
+    await runSeeds(dataSource);
+    logger.log("Seeds applied");
   }
 
   app.setGlobalPrefix("api");

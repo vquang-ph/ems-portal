@@ -18,6 +18,8 @@ services:
         value: production
       - key: APP_RUN_MIGRATIONS
         value: true
+      - key: APP_RUN_SEEDS
+        value: true
       # Render routes traffic to PORT=10000 by default; this must match.
       - key: APP_BACKEND_PORT
         value: 10000
