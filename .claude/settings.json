@@ -66,6 +66,17 @@
             "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'packages/shared/' && echo '⚠ shared/types modified — run tsc in backend and frontend to check compatibility' || exit 0"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-tex.sh",
+            "timeout": 15,
+            "statusMessage": "Checking LaTeX syntax"
+          }
+        ]
       }
     ],
     "Stop": [
