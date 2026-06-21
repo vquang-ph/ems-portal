@@ -12,13 +12,13 @@ services:
     dockerfilePath: ./packages/backend/Dockerfile
     dockerContext: .
     plan: free
-    port: 3000
     healthCheckPath: /api/health
     envVars:
       - key: APP_ENVIRONMENT
         value: production
+      # Render routes traffic to PORT=10000 by default; this must match.
       - key: APP_BACKEND_PORT
-        value: 3000
+        value: 10000
       - key: APP_SWAGGER_ENABLED
         value: false
 
@@ -48,13 +48,13 @@ services:
     dockerfilePath: ./packages/frontend/Dockerfile
     dockerContext: .
     plan: free
-    port: 3001
-    # APP_BACKEND_URL is baked into the Vite bundle at build time (Docker ARG).
-    # Step 1: Deploy the backend first and copy its public URL from the Render dashboard.
-    # Step 2: Set APP_BACKEND_URL here (or in the dashboard) then trigger a redeploy.
-    dockerBuildArgs:
-      - key: APP_BACKEND_URL
-        sync: false   # ← paste https://ems-portal-backend.onrender.com here before deploying
+    # The Dockerfile hardcodes `serve -l 3001` but Render expects PORT=10000.
+    # This override makes serve bind to Render's port.
+    dockerCommand: serve -s dist -l 10000
     envVars:
       - key: APP_ENVIRONMENT
         value: production
+      # APP_BACKEND_URL cannot be set here — it is a Docker build ARG baked into
+      # the Vite bundle at image build time. Set it in the Render dashboard:
+      #   Frontend service -> Settings -> Build & Deploy -> Docker Build Args
+      #   Key: APP_BACKEND_URL  Value: https://ems-portal-backend.onrender.com
