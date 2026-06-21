@@ -73,10 +73,8 @@ and documents all endpoints.
 database with strong data integrity, a maintainable backend service, and the
 essential feature modules: user registration and authentication, role-based
 access control for \textit{Client}, \textit{Service Provider}, and
-\textit{Administrator} roles (built directly rather than through a third-party
-identity framework, in keeping with the thesis's network-engineering focus),
-service request management, provider profile and skill management, and a
-bidirectional rating system. At the heart of the system
+\textit{Administrator} roles, service request management, provider profile and
+skill management, and a bidirectional rating system. At the heart of the system
 is an intelligent multi-criteria matching algorithm that ranks providers across
 five weighted factors: skill compatibility, availability, cost range, location
 proximity, and user rating, with adjustable weight assignment. The work includes
@@ -92,6 +90,31 @@ This pre-thesis report addresses the foundation and core implementation areas,
 covering problem definition, related work, methodology, and system design. The
 full matching engine implementation and the security and performance evaluation
 are deferred to the later thesis phases outlined in the work plan.
+
+\section{Live Deployment}
+To aid review and testing, a live instance of the prototype is deployed and open
+for exploration at \url{https://ems-portal-frontend.onrender.com/}. The
+deployment uses a free tier that sleeps when idle, so the first request after a
+quiet period can take up to a minute to wake; later requests are fast. Because
+the entire stack is containerized with Docker, the same images that run locally
+also run in production, making deployment straightforward.
+
+Table~\ref{tab:demo} lists seeded demo accounts for testing the system with
+different user roles. The demo database holds sample data only and may be reset
+at any time without notice.
+
+\begin{table}[ht]
+	\centering
+	\caption{Seeded demo accounts on the live deployment.}
+	\label{tab:demo}
+	\begin{tabular}{lll}
+		\hline
+		\textbf{Role} & \textbf{Email} & \textbf{Password} \\ \hline
+		Client & \texttt{client@ems.local} & \texttt{password123} \\
+		Service Provider & \texttt{provider@ems.local} & \texttt{password123} \\
+		\hline
+	\end{tabular}
+\end{table}
 
 \section{Objectives}
 The objectives of this thesis are:
@@ -118,31 +141,3 @@ authorization (4).
 The full matching engine and performance/security evaluation
 (objectives 5 to 6) are carried out in the later thesis phases outlined in the work
 plan.
-
-\section{Live Deployment}
-\label{sec:deploy}
-A live instance of the prototype is deployed and open for testing at
-\url{https://ems-portal-frontend.onrender.com/}. Because the whole stack is
-containerized with Docker, the same images that run locally also run on the
-host, which made deployment straightforward. The deployment uses a free tier
-that sleeps when idle, so the first request after a quiet period can take up to
-a minute to wake; later requests are fast.
-
-Table~\ref{tab:demo} lists seeded demo accounts for testing. The demo database
-holds sample data only and may be reset at any time. The user interface is still
-a rough, functional MVP: the work so far has focused on the architecture, the
-data model, and the security and authorization layers rather than on visual
-design, which is left for later work.
-
-\begin{table}[ht]
-	\centering
-	\caption{Seeded demo accounts on the live deployment.}
-	\label{tab:demo}
-	\begin{tabular}{lll}
-		\hline
-		\textbf{Role} & \textbf{Email} & \textbf{Password} \\ \hline
-		Client & \texttt{client@ems.local} & \texttt{password123} \\
-		Service Provider & \texttt{provider@ems.local} & \texttt{password123} \\
-		\hline
-	\end{tabular}
-\end{table}
