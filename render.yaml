@@ -1,0 +1,60 @@
+databases:
+  - name: ems-portal-db
+    databaseName: ems_portal
+    user: ems_portal_user
+    plan: free
+
+services:
+  # ── Backend ──────────────────────────────────────────────────────────────
+  - type: web
+    name: ems-portal-backend
+    runtime: docker
+    dockerfilePath: ./packages/backend/Dockerfile
+    dockerContext: .
+    plan: free
+    port: 3000
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENVIRONMENT
+        value: production
+      - key: APP_BACKEND_PORT
+        value: 3000
+      - key: APP_SWAGGER_ENABLED
+        value: false
+
+      # Database — Render injects the connection string from the managed DB above
+      - key: APP_DATABASE_URL
+        fromDatabase:
+          name: ems-portal-db
+          property: connectionString
+
+      # Auth — auto-generated secret; set TTLs to taste
+      - key: APP_JWT_SECRET
+        generateValue: true
+      - key: APP_JWT_ACCESS_EXPIRES_IN
+        value: 1h
+      - key: APP_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: APP_REFRESH_COOKIE_NAME
+        value: ems.refresh
+      - key: APP_REFRESH_COOKIE_SECURE
+        value: true
+      # APP_REFRESH_COOKIE_DOMAIN: leave unset unless frontend & backend are on different subdomains
+
+  # ── Frontend ─────────────────────────────────────────────────────────────
+  - type: web
+    name: ems-portal-frontend
+    runtime: docker
+    dockerfilePath: ./packages/frontend/Dockerfile
+    dockerContext: .
+    plan: free
+    port: 3001
+    # APP_BACKEND_URL is baked into the Vite bundle at build time (Docker ARG).
+    # Step 1: Deploy the backend first and copy its public URL from the Render dashboard.
+    # Step 2: Set APP_BACKEND_URL here (or in the dashboard) then trigger a redeploy.
+    dockerBuildArgs:
+      - key: APP_BACKEND_URL
+        sync: false   # ← paste https://ems-portal-backend.onrender.com here before deploying
+    envVars:
+      - key: APP_ENVIRONMENT
+        value: production
