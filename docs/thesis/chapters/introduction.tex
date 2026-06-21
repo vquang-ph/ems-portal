@@ -73,12 +73,16 @@ and documents all endpoints.
 database with strong data integrity, a maintainable backend service, and the
 essential feature modules: user registration and authentication, role-based
 access control for \textit{Client}, \textit{Service Provider}, and
-\textit{Administrator} roles, service request management, provider profile and
-skill management, and a bidirectional rating system. At the heart of the system
-is an intelligent multi-criteria matching algorithm that ranks providers across
-five weighted factors: skill compatibility, availability, cost range, location
-proximity, and user rating, with adjustable weight assignment. The work includes
-a comparison of basic keyword-matching and intelligent multi-criteria approaches.
+\textit{Administrator} roles. Authentication and authorization are implemented
+directly in the system (rather than delegated to external frameworks), ensuring
+transparent control and enabling the security evaluation detailed in the
+objectives. Additional features include service request management, provider
+profile and skill management, and a bidirectional rating system. At the heart of
+the system is an intelligent multi-criteria matching algorithm that ranks
+providers across five weighted factors: skill compatibility, availability, cost
+range, location proximity, and user rating, with adjustable weight assignment.
+The work includes a comparison of basic keyword-matching and intelligent
+multi-criteria approaches.
 
 \textbf{Security and Evaluation.} The system enforces secure HTTPS
 communication, implements session management, and applies defenses against
